@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  pdf-tools:
+    build: .
+    container_name: unificando-pdf
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      MAX_FILE_SIZE: "52428800"
+      MAX_CONCURRENT_JOBS: "2"
+      MAX_QUEUE_SIZE: "5"
+      RETRY_AFTER_SECONDS: "30"
+      NEXT_PUBLIC_GA_ID: "${NEXT_PUBLIC_GA_ID}"
+      GA_API_SECRET: "${GA_API_SECRET}"
+      NEXT_PUBLIC_ADSENSE_ID: "${NEXT_PUBLIC_ADSENSE_ID}"
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    networks:
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external: true
