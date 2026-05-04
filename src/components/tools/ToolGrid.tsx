@@ -20,7 +20,7 @@ export function ToolGrid() {
       variants={staggerContainer}
       initial="initial"
       animate="animate"
-      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"
     >
       {tools.map(tool => (
         <motion.div key={tool.slug} variants={fadeInUp}>
