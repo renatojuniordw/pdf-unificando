@@ -29,8 +29,9 @@ COPY --from=builder --chown=appuser:appgroup /app/.next/standalone ./
 COPY --from=builder --chown=appuser:appgroup /app/.next/static ./.next/static
 COPY --from=builder --chown=appuser:appgroup /app/public ./public
 
-EXPOSE 3000
+EXPOSE 11005
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
+ENV PORT=11005
 
 CMD ["node", "server.js"]

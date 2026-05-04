@@ -14,6 +14,9 @@ services:
       NEXT_PUBLIC_GA_ID: "${NEXT_PUBLIC_GA_ID}"
       GA_API_SECRET: "${GA_API_SECRET}"
       NEXT_PUBLIC_ADSENSE_ID: "${NEXT_PUBLIC_ADSENSE_ID}"
+      PORT: "11005"
+    ports:
+      - "11005:11005"
     tmpfs:
       - /tmp:size=512m,mode=1777
     networks:
