@@ -72,7 +72,7 @@ export default function OrganizarPdfPage() {
   const handleProcess = useCallback(() => {
     if (!originalFile) return
     const order = items.filter(i => !i.removed).map(i => i.index).join(',')
-    process(originalFile, { pages: order })
+    process(originalFile, { order })
   }, [process, items, originalFile])
 
   const handleReset = useCallback(() => { reset(); setItems([]); setOriginalFile(null) }, [reset])
