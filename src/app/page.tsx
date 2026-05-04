@@ -1,5 +1,6 @@
 import { ToolGrid } from '@/components/tools/ToolGrid'
 import { PrivacyBanner } from '@/components/tools/PrivacyBanner'
+import { EcosystemSection } from '@/components/layout/EcosystemSection'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -36,7 +37,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+      <EcosystemSection />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
         <PrivacyBanner />
       </div>
     </>

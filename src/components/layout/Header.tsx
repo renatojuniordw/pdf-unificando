@@ -10,12 +10,25 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 h-16 bg-slate-950 border-b-4 border-[#ccff00] flex items-center">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between w-full">
-        <Link href="/" className="group flex items-center gap-3">
-          <div className="bg-[#ccff00] p-2 border-2 border-slate-950 shadow-[4px_4px_0px_#fff] group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0px_#fff] transition-all">
-            <span className="font-black text-slate-950 text-sm uppercase tracking-tighter leading-none">PDF</span>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="group flex items-center gap-3">
+            <div className="bg-[#ccff00] p-2 border-2 border-slate-950 shadow-[4px_4px_0px_#fff] group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0px_#fff] transition-all">
+              <span className="font-black text-slate-950 text-sm uppercase tracking-tighter leading-none">PDF</span>
+            </div>
+            <span className="font-black text-white text-sm uppercase tracking-widest hidden sm:block">Unificando</span>
+          </Link>
+          <div className="hidden lg:flex items-center ml-2">
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mr-2">Um projeto</span>
+            <a 
+              href="https://unificando.com.br/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-white text-slate-950 px-2 py-0.5 border border-slate-950 text-[9px] font-black uppercase tracking-widest hover:bg-[#ccff00] transition-colors"
+            >
+              Unificando.com.br
+            </a>
           </div>
-          <span className="font-black text-white text-sm uppercase tracking-widest hidden sm:block">Unificando</span>
-        </Link>
+        </div>
 
         <nav className="hidden md:flex items-center gap-1">
           {[

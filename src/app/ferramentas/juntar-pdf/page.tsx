@@ -1,44 +1,58 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { DropZone } from '@/components/upload/DropZone'
-import { FileQueue } from '@/components/upload/FileQueue'
-import { ProcessingStatus } from '@/components/processing/ProcessingStatus'
-import { RetryCountdown } from '@/components/processing/RetryCountdown'
-import { DownloadButton } from '@/components/processing/DownloadButton'
-import { PrivacyBanner } from '@/components/tools/PrivacyBanner'
-import { useFileProcessor } from '@/hooks/useFileProcessor'
-import { getTool } from '@/config/tools'
+import { useState, useCallback } from "react";
+import { DropZone } from "@/components/upload/DropZone";
+import { FileQueue } from "@/components/upload/FileQueue";
+import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
+import { RetryCountdown } from "@/components/processing/RetryCountdown";
+import { DownloadButton } from "@/components/processing/DownloadButton";
+import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
+import { EcosystemSection } from "@/components/layout/EcosystemSection";
+import { useFileProcessor } from "@/hooks/useFileProcessor";
+import { getTool } from "@/config/tools";
 
-const tool = getTool('juntar-pdf')
+const tool = getTool("juntar-pdf");
 
 interface FileItem {
-  id: string
-  file: File
+  id: string;
+  file: File;
 }
 
 export default function JuntarPdfPage() {
-  const [files, setFiles] = useState<FileItem[]>([])
-  const { status, error, downloadUrl, outputName, processedSize, process, reset, secondsLeft, progress } = useFileProcessor({
-    endpoint: '/api/pdf/merge',
-    outputFilename: 'unificado.pdf',
-  })
+  const [files, setFiles] = useState<FileItem[]>([]);
+  const {
+    status,
+    error,
+    downloadUrl,
+    outputName,
+    processedSize,
+    process,
+    reset,
+    secondsLeft,
+    progress,
+  } = useFileProcessor({
+    endpoint: "/api/pdf/merge",
+    outputFilename: "unificado.pdf",
+  });
 
   const handleDrop = useCallback((dropped: File[]) => {
-    setFiles(prev => [
+    setFiles((prev) => [
       ...prev,
-      ...dropped.map(f => ({ id: `${f.name}-${Date.now()}-${Math.random()}`, file: f })),
-    ])
-  }, [])
+      ...dropped.map((f) => ({
+        id: `${f.name}-${Date.now()}-${Math.random()}`,
+        file: f,
+      })),
+    ]);
+  }, []);
 
   const handleProcess = useCallback(() => {
-    process(files.map(f => f.file))
-  }, [process, files])
+    process(files.map((f) => f.file));
+  }, [process, files]);
 
   const handleReset = useCallback(() => {
-    reset()
-    setFiles([])
-  }, [reset])
+    reset();
+    setFiles([]);
+  }, [reset]);
 
   return (
     <>
@@ -57,16 +71,26 @@ export default function JuntarPdfPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
-        <div className="max-w-2xl">
-          {status === 'idle' && (
+        <div className="max-w-2xl mx-auto px-6 pb-12">
+          <PrivacyBanner />
+        </div>
+
+        <div className="max-w-2xl mx-auto">
+          {status === "idle" && (
             <div className="flex flex-col gap-6">
-              <DropZone accept={{ 'application/pdf': ['.pdf'] }} multiple onDrop={handleDrop} />
+              <DropZone
+                accept={{ "application/pdf": [".pdf"] }}
+                multiple
+                onDrop={handleDrop}
+              />
               {files.length > 0 && (
                 <>
                   <FileQueue
                     files={files}
                     onReorder={setFiles}
-                    onRemove={(id) => setFiles(prev => prev.filter(f => f.id !== id))}
+                    onRemove={(id) =>
+                      setFiles((prev) => prev.filter((f) => f.id !== id))
+                    }
                   />
                   <button
                     onClick={handleProcess}
@@ -80,46 +104,82 @@ export default function JuntarPdfPage() {
             </div>
           )}
 
-          {(status === 'uploading' || status === 'processing') && (
+          {(status === "uploading" || status === "processing") && (
             <ProcessingStatus status={status} />
           )}
 
-          {status === 'rate_limited' && (
-            <RetryCountdown secondsLeft={secondsLeft} progress={progress} onRetry={handleReset} />
+          {status === "rate_limited" && (
+            <RetryCountdown
+              secondsLeft={secondsLeft}
+              progress={progress}
+              onRetry={handleReset}
+            />
           )}
 
-          {status === 'error' && (
+          {status === "error" && (
             <div className="bg-[#ff4d4d] text-white border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-6 flex items-center gap-4">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="square"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
               <div>
-                <p className="font-black uppercase tracking-widest text-sm">ERRO</p>
+                <p className="font-black uppercase tracking-widest text-sm">
+                  ERRO
+                </p>
                 <p className="font-mono text-xs uppercase mt-1">{error}</p>
               </div>
-              <button onClick={handleReset} className="ml-auto border-2 border-white px-4 py-2 font-black uppercase text-xs tracking-widest hover:bg-white hover:text-[#ff4d4d] transition-colors">
+              <button
+                onClick={handleReset}
+                className="ml-auto border-2 border-white px-4 py-2 font-black uppercase text-xs tracking-widest hover:bg-white hover:text-[#ff4d4d] transition-colors"
+              >
                 TENTAR NOVAMENTE
               </button>
             </div>
           )}
 
-          {status === 'done' && downloadUrl && (
+          {status === "done" && downloadUrl && (
             <div className="flex flex-col gap-6">
               <div className="bg-[#00ff66] text-slate-950 border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-4 flex items-center gap-3">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="square"
+                  strokeLinejoin="miter"
+                >
                   <path d="M4 10l4 4 8-8" />
                 </svg>
-                <p className="font-black uppercase tracking-widest text-sm">PDFs UNIDOS COM SUCESSO</p>
+                <p className="font-black uppercase tracking-widest text-sm">
+                  PDFs UNIDOS COM SUCESSO
+                </p>
               </div>
-              <DownloadButton url={downloadUrl} filename={outputName!} fileSize={processedSize} onReset={handleReset} />
+              <DownloadButton
+                url={downloadUrl}
+                filename={outputName!}
+                fileSize={processedSize}
+                onReset={handleReset}
+              />
             </div>
           )}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 pb-12">
+      <EcosystemSection />
+
+      <div className="max-w-2xl mx-auto px-6 pb-12">
         <PrivacyBanner />
       </div>
     </>
-  )
+  );
 }
