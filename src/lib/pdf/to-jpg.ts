@@ -1,4 +1,5 @@
 import path from 'path'
+import { Writable } from 'stream'
 import archiver from 'archiver'
 
 export type JpgDpi = '72' | '150' | '300'
@@ -87,10 +88,16 @@ async function zipBuffers(buffers: Buffer[]): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []
     const archive = archiver('zip', { zlib: { level: 6 } })
+    const sink = new Writable({
+      write(chunk: Buffer, _enc: string, cb: () => void) {
+        chunks.push(chunk)
+        cb()
+      },
+    })
 
-    archive.on('data', (chunk: Buffer) => chunks.push(chunk))
-    archive.on('end', () => resolve(Buffer.concat(chunks)))
+    sink.on('finish', () => resolve(Buffer.concat(chunks)))
     archive.on('error', reject)
+    archive.pipe(sink)
 
     buffers.forEach((buf, i) => {
       archive.append(buf, { name: `page-${String(i + 1).padStart(3, '0')}.jpg` })

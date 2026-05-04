@@ -80,9 +80,11 @@ export function useFileProcessor({ endpoint, outputFilename }: UseFileProcessorO
       const url = URL.createObjectURL(blob)
       objectUrlRef.current = url
 
-      const name = typeof outputFilename === 'function'
+      const contentDisposition = res.headers.get('Content-Disposition')
+      const serverFilename = contentDisposition?.match(/filename="([^"]+)"/)?.[1]
+      const name = serverFilename ?? (typeof outputFilename === 'function'
         ? outputFilename(firstFile.name)
-        : outputFilename ?? firstFile.name
+        : outputFilename ?? firstFile.name)
 
       setDownloadUrl(url)
       setOutputName(name)
