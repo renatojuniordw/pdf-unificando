@@ -11,7 +11,7 @@ interface UsePdfPagesReturn {
   pages: PageThumbnail[]
   loading: boolean
   error: string | null
-  loadFile: (file: File) => Promise<void>
+  loadFile: (file: File) => Promise<PageThumbnail[]>
 }
 
 export function usePdfPages(): UsePdfPagesReturn {
@@ -44,8 +44,10 @@ export function usePdfPages(): UsePdfPagesReturn {
       }
 
       setPages(thumbs)
+      return thumbs
     } catch {
       setError('Erro ao carregar o PDF.')
+      return []
     } finally {
       setLoading(false)
     }

@@ -9,6 +9,10 @@ export async function rotatePdf(
   scope: RotationScope,
   pageIndex?: number
 ): Promise<Buffer> {
+  if (scope !== 'all' && scope !== 'page') {
+    throw new Error('Escopo de rotação inválido.')
+  }
+
   const doc = await PDFDocument.load(buffer)
   const pages = doc.getPages()
 
@@ -17,7 +21,9 @@ export async function rotatePdf(
       const current = p.getRotation().angle
       p.setRotation(degrees((current + deg) % 360))
     })
-  } else if (scope === 'page' && pageIndex !== undefined) {
+  } else {
+    if (pageIndex === undefined) throw new Error('Página não informada.')
+
     const page = pages[pageIndex]
     if (!page) throw new Error('Página não encontrada.')
     const current = page.getRotation().angle

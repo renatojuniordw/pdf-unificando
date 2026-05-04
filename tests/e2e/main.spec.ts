@@ -131,16 +131,10 @@ test.describe('PDF Processing - Feature Tests', () => {
     }
   })
 
-  test('deve exibir erro quando arquivo não é suportado', async ({ page }) => {
+  test('deve restringir upload para arquivos PDF', async ({ page }) => {
     await page.goto('/ferramentas/comprimir-pdf')
 
-    // Tentar fazer upload de arquivo inválido
     const fileInput = page.locator('input[type="file"]')
-
-    // Criar arquivo de teste (não é PDF)
-    const invalidFile = new File(['test content'], 'test.txt', { type: 'text/plain' })
-
-    // Nota: setInputFiles valida no nível do navegador, então isso pode não funcionar
-    // Idealmente, testaríamos a validação server-side
+    await expect(fileInput).toHaveAttribute('accept', '.pdf')
   })
 })

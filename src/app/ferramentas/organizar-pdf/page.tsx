@@ -1,5 +1,6 @@
 'use client'
-import { useState, useCallback, useEffect } from 'react'
+import Image from 'next/image'
+import { useState, useCallback } from 'react'
 import { DndContext, DragOverlay, closestCenter, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -17,11 +18,14 @@ const tool = getTool('organizar-pdf')
 
 interface PageItem { id: string; index: number; dataUrl: string; removed: boolean }
 
+const toPageItems = (pages: { index: number; dataUrl: string }[]): PageItem[] =>
+  pages.map(p => ({ id: `page-${p.index}`, index: p.index, dataUrl: p.dataUrl, removed: false }))
+
 function SortablePage({ item, onRemove }: { item: PageItem; onRemove: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
   return (
     <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }} className={`relative border-4 border-slate-950 ${isDragging ? 'opacity-0' : ''} ${item.removed ? 'opacity-30' : ''}`}>
-      <img src={item.dataUrl} alt={`Página ${item.index + 1}`} className="w-full" />
+      <Image src={item.dataUrl} alt={`Página ${item.index + 1}`} width={240} height={320} className="w-full h-auto" unoptimized />
       <div className="absolute top-1 left-1 bg-slate-950 text-[#ccff00] text-[9px] font-black px-1.5 py-0.5 uppercase">{item.index + 1}</div>
       <button {...attributes} {...listeners} className="absolute top-1 right-8 bg-white border-2 border-slate-950 p-0.5 cursor-grab">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="2" y="2" width="2" height="2"/><rect x="5" y="2" width="2" height="2"/><rect x="8" y="2" width="2" height="2"/><rect x="2" y="5" width="2" height="2"/><rect x="5" y="5" width="2" height="2"/><rect x="8" y="5" width="2" height="2"/><rect x="2" y="8" width="2" height="2"/><rect x="5" y="8" width="2" height="2"/><rect x="8" y="8" width="2" height="2"/></svg>
@@ -32,7 +36,7 @@ function SortablePage({ item, onRemove }: { item: PageItem; onRemove: () => void
 }
 
 export default function OrganizarPdfPage() {
-  const { pages, loading, loadFile } = usePdfPages()
+  const { loading, loadFile } = usePdfPages()
   const [items, setItems] = useState<PageItem[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [originalFile, setOriginalFile] = useState<File | null>(null)
@@ -40,12 +44,6 @@ export default function OrganizarPdfPage() {
     endpoint: '/api/pdf/organize',
     outputFilename: (name) => name.replace('.pdf', '-organizado.pdf'),
   })
-
-  useEffect(() => {
-    if (pages.length) {
-      setItems(pages.map(p => ({ id: `page-${p.index}`, index: p.index, dataUrl: p.dataUrl, removed: false })))
-    }
-  }, [pages])
 
   const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 5 } }), useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }))
 
@@ -61,9 +59,12 @@ export default function OrganizarPdfPage() {
     })
   }, [])
 
-  const handleDrop = useCallback((files: File[]) => {
-    setOriginalFile(files[0])
-    loadFile(files[0])
+  const handleDrop = useCallback(async (files: File[]) => {
+    const file = files[0]
+    if (!file) return
+    setOriginalFile(file)
+    const loadedPages = await loadFile(file)
+    setItems(toPageItems(loadedPages))
   }, [loadFile])
 
   const activeItem = items.find(i => i.id === activeId)
@@ -102,7 +103,13 @@ export default function OrganizarPdfPage() {
                   ))}
                 </div>
               </SortableContext>
-              <DragOverlay>{activeItem && <div className="border-4 border-[#ccff00] shadow-[4px_4px_0px_#ccff00]"><img src={activeItem.dataUrl} alt="" className="w-24"/></div>}</DragOverlay>
+              <DragOverlay>
+                {activeItem && (
+                  <div className="border-4 border-[#ccff00] shadow-[4px_4px_0px_#ccff00]">
+                    <Image src={activeItem.dataUrl} alt="" width={96} height={128} className="w-24 h-auto" unoptimized />
+                  </div>
+                )}
+              </DragOverlay>
             </DndContext>
           </div>
         )}

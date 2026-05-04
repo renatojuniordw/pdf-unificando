@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { readFileSync } from 'fs'
 import path from 'path'
-import { rotatePdf } from '@/lib/pdf/rotate'
+import { rotatePdf, type RotationScope } from '@/lib/pdf/rotate'
 import { PDFDocument } from 'pdf-lib'
 
 describe('lib/pdf/rotate', () => {
@@ -47,6 +47,8 @@ describe('lib/pdf/rotate', () => {
   })
 
   it('deve lançar erro se escopo é inválido', async () => {
-    await expect(rotatePdf(multiPagePdf, 90, 'page' as any)).rejects.toThrow()
+    const invalidScope = 'invalid' as unknown as RotationScope
+
+    await expect(rotatePdf(multiPagePdf, 90, invalidScope)).rejects.toThrow()
   })
 })
