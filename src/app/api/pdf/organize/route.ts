@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server'
 import { organizePdf } from '@/lib/pdf/organize'
-import { errorResponse, streamResponse } from '@/lib/utils/http'
+import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     if (!order) return Response.json({ error: 'Informe a ordem das páginas.' }, { status: 400 })
 
     const result = await organizePdf(buffer, order)
-    return streamResponse(result, 'organizado.pdf', 'application/pdf')
+    return streamResponse(result, buildOutputFilename(file.name, 'pdf'), 'application/pdf')
   } catch (err) {
     return errorResponse(err)
   }

@@ -54,7 +54,7 @@ export default function DividirPdfPage() {
                   className="w-full border-4 border-slate-950 bg-white p-3 font-mono text-sm uppercase font-bold outline-none focus:border-[#ccff00] focus:shadow-[4px_4px_0px_#ccff00] transition-all"
                 />
                 <p className="text-[9px] font-mono uppercase tracking-widest text-slate-500 mt-2">
-                  Deixe em branco para extrair todas as páginas individualmente
+                  Use vírgula para separar intervalos. Ex: 1-3, 5, 7-9
                 </p>
               </div>
               <DropZone accept={{ 'application/pdf': ['.pdf'] }} onDrop={handleDrop} />

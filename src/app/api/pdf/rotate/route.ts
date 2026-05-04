@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server'
 import { rotatePdf, type RotationDegrees, type RotationScope } from '@/lib/pdf/rotate'
-import { errorResponse, streamResponse } from '@/lib/utils/http'
+import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const page = formData.get('page') ? Number(formData.get('page')) - 1 : undefined
 
     const result = await rotatePdf(buffer, deg, scope, page)
-    return streamResponse(result, 'rotacionado.pdf', 'application/pdf')
+    return streamResponse(result, buildOutputFilename(file.name, 'pdf'), 'application/pdf')
   } catch (err) {
     return errorResponse(err)
   }

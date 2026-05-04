@@ -47,6 +47,11 @@ export function errorResponse(err: unknown): NextResponse {
   return NextResponse.json({ error: message }, { status })
 }
 
+export function buildOutputFilename(originalName: string, outputExt: string): string {
+  const base = originalName.replace(/\.[^.]+$/, '')
+  return `${base}_unificando.${outputExt}`
+}
+
 export function streamResponse(buffer: Buffer, filename: string, mimeType: string): NextResponse {
   return new NextResponse(new Uint8Array(buffer), {
     status: 200,

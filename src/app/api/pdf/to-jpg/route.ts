@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server'
 import { pdfToJpg, type JpgDpi } from '@/lib/pdf/to-jpg'
 import { binaryLimit, isOverloaded, rateLimitResponse } from '@/lib/queue'
-import { errorResponse, streamResponse } from '@/lib/utils/http'
+import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   if (isOverloaded()) return rateLimitResponse()
@@ -17,11 +17,11 @@ export async function POST(req: NextRequest) {
     const result = await binaryLimit(() => pdfToJpg(buffer, dpi))
 
     const isZip = result[0] === 0x50 && result[1] === 0x4b
-    const [filename, mime] = isZip
-      ? ['paginas.zip', 'application/zip']
-      : ['pagina.jpg', 'image/jpeg']
+    const [ext, mime] = isZip
+      ? ['zip', 'application/zip']
+      : ['jpg', 'image/jpeg']
 
-    return streamResponse(result, filename, mime)
+    return streamResponse(result, buildOutputFilename(file.name, ext), mime)
   } catch (err) {
     return errorResponse(err)
   }

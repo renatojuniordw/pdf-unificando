@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 
 const config: NextConfig = {
   output: 'standalone',
-  serverExternalPackages: ['sharp', 'pdf-lib'],
+  serverExternalPackages: ['sharp', 'pdf-lib', '@napi-rs/canvas', 'pdfjs-dist'],
   async headers() {
     return [
       {

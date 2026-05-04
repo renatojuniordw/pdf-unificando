@@ -26,7 +26,7 @@ export async function compressPdf(
 
   const compressed = await withTmpFile(buffer, 'pdf', 'pdf', async (inputPath, outputPath) => {
     await execAsync(
-      `ghostscript -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 \
+      `gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 \
        -dPDFSETTINGS=${GS_QUALITY[quality]} \
        -dNOPAUSE -dQUIET -dBATCH \
        -sOutputFile="${outputPath}" "${inputPath}"`,

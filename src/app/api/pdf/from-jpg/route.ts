@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server'
 import { jpgToPdf, type PageOrientation } from '@/lib/pdf/from-jpg'
-import { errorResponse, streamResponse } from '@/lib/utils/http'
+import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const orientation = (formData.get('orientation') as PageOrientation) ?? 'portrait'
 
     const result = await jpgToPdf(buffers, orientation)
-    return streamResponse(result, 'imagens.pdf', 'application/pdf')
+    return streamResponse(result, buildOutputFilename(files[0].name, 'pdf'), 'application/pdf')
   } catch (err) {
     return errorResponse(err)
   }

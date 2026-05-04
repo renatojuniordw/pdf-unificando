@@ -15,7 +15,7 @@ interface FileItem { id: string; file: File }
 export default function JpgParaPdfPage() {
   const [files, setFiles] = useState<FileItem[]>([])
   const { status, error, downloadUrl, outputName, processedSize, process, reset, secondsLeft, progress } = useFileProcessor({
-    endpoint: '/api/pdf/images-to-pdf',
+    endpoint: '/api/pdf/from-jpg',
     outputFilename: 'imagens.pdf',
   })
   const handleDrop = useCallback((dropped: File[]) => {
