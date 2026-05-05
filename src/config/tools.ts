@@ -92,6 +92,28 @@ export const tools: ToolDefinition[] = [
     multiple: false,
     usesBinary: false,
   },
+  {
+    slug: "proteger-pdf",
+    name: "Proteger PDF",
+    description: "Adicione senha ao PDF para proteger o acesso.",
+    seoDescription: "Proteja PDFs com senha online grátis. Seus arquivos não são armazenados.",
+    icon: "protect",
+    tier: 1,
+    accept: [".pdf"],
+    multiple: false,
+    usesBinary: true,
+  },
+  {
+    slug: "marca-dagua",
+    name: "Marca d'Água",
+    description: "Adicione texto de marca d'água em todas as páginas.",
+    seoDescription: "Adicione marca d'água em PDF online grátis. Personalize texto, cor e opacidade.",
+    icon: "watermark",
+    tier: 1,
+    accept: [".pdf"],
+    multiple: false,
+    usesBinary: false,
+  },
 ];
 
 export function getTool(slug: string): ToolDefinition {

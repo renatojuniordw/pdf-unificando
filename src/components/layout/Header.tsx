@@ -56,13 +56,16 @@ export function Header() {
           >
             <button
               onClick={() => setToolsOpen(!toolsOpen)}
+              aria-expanded={toolsOpen}
+              aria-controls="tools-dropdown"
+              aria-haspopup="true"
               className={`text-xs font-black uppercase tracking-widest px-3 py-2 transition-colors flex items-center gap-2 h-full ${
                 toolsOpen ? 'bg-[#ccff00] text-slate-950' : 'text-white hover:bg-slate-900'
               }`}
             >
               Ferramentas
               <motion.span animate={{ rotate: toolsOpen ? 180 : 0 }}>
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M2 4l3 3 3-3" />
                 </svg>
               </motion.span>
@@ -71,6 +74,7 @@ export function Header() {
             <AnimatePresence>
               {toolsOpen && (
                 <motion.div
+                  id="tools-dropdown"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
@@ -122,6 +126,8 @@ export function Header() {
           className="md:hidden text-white border-2 border-white p-1.5 hover:bg-[#ccff00] hover:text-slate-950 hover:border-slate-950 transition-colors"
           onClick={() => setMobileOpen(o => !o)}
           aria-label="Menu"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
             {mobileOpen ? (
@@ -143,6 +149,7 @@ export function Header() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

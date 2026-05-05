@@ -67,6 +67,14 @@ export function CommandPalette() {
       if (filteredTools.length > 0) {
         handleSelect(filteredTools[selectedIndex].slug)
       }
+    } else if (e.key === 'Tab') {
+      // Simple focus trap: prevent tabbing out of the modal
+      // In a real modal, we'd cycle through focusable elements, 
+      // but since we focus the input on open, we just keep it there for this CMD palette.
+      if (!e.shiftKey && document.activeElement !== inputRef.current) {
+        e.preventDefault()
+        inputRef.current?.focus()
+      }
     }
   }
 
@@ -112,54 +120,73 @@ export function CommandPalette() {
               initial={{ scale: 0.95, opacity: 0, y: -20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: -20 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="command-palette-title"
               className="relative w-full max-w-2xl bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden"
             >
-              {/* Search Input */}
-              <div className="flex items-center border-b-4 border-black p-4 bg-white">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className="mr-4 text-black"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  placeholder="Pesquisar ferramentas... (Ex: Juntar, Comprimir)"
-                  className="flex-1 bg-transparent border-none outline-none text-xl font-bold uppercase placeholder:text-gray-400"
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value)
-                    setSelectedIndex(0)
-                  }}
-                  onKeyDown={onKeyDown}
-                />
-                <div className="hidden sm:flex items-center gap-1 ml-4">
-                  <kbd className="px-2 py-1 bg-gray-100 border-2 border-black text-xs font-bold">ESC</kbd>
+              <h2 id="command-palette-title" className="sr-only">Busca de Ferramentas PDF</h2>
+                <div className="flex items-center border-b-4 border-black p-4 bg-white" role="combobox" aria-haspopup="listbox" aria-expanded={isOpen} aria-owns="command-palette-results">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    className="mr-4 text-black"
+                    aria-hidden="true"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder="Pesquisar ferramentas... (Ex: Juntar, Comprimir)"
+                    className="flex-1 bg-transparent border-none outline-none text-xl font-bold uppercase placeholder:text-gray-400"
+                    value={query}
+                    onChange={(e) => {
+                      setQuery(e.target.value)
+                      setSelectedIndex(0)
+                    }}
+                    onKeyDown={onKeyDown}
+                    aria-autocomplete="list"
+                    aria-controls="command-palette-results"
+                    aria-activedescendant={filteredTools.length > 0 ? `tool-${filteredTools[selectedIndex].slug}` : undefined}
+                  />
+                  <div className="hidden sm:flex items-center gap-1 ml-4">
+                    <kbd className="px-2 py-1 bg-gray-100 border-2 border-black text-xs font-bold">ESC</kbd>
+                  </div>
                 </div>
-              </div>
 
-              {/* Results */}
-              <div className="max-h-[60vh] overflow-y-auto bg-white">
-                {filteredTools.length > 0 ? (
-                  <div className="p-2">
-                    {filteredTools.map((tool, index) => (
-                      <button
-                        key={tool.slug}
-                        onClick={() => handleSelect(tool.slug)}
-                        onMouseEnter={() => setSelectedIndex(index)}
-                        className={`w-full flex items-center p-4 transition-colors border-2 ${
-                          index === selectedIndex
-                            ? 'bg-neon-yellow border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
-                            : 'bg-transparent border-transparent'
-                        }`}
-                      >
+                {/* Status for Screen Readers */}
+                <div className="sr-only" aria-live="polite" role="status">
+                  {query !== '' && `${filteredTools.length} ferramentas encontradas.`}
+                </div>
+
+                {/* Results */}
+                <div 
+                  id="command-palette-results"
+                  role="listbox"
+                  className="max-h-[60vh] overflow-y-auto bg-white"
+                >
+                  {filteredTools.length > 0 ? (
+                    <div className="p-2">
+                      {filteredTools.map((tool, index) => (
+                        <button
+                          key={tool.slug}
+                          id={`tool-${tool.slug}`}
+                          role="option"
+                          aria-selected={index === selectedIndex}
+                          onClick={() => handleSelect(tool.slug)}
+                          onMouseEnter={() => setSelectedIndex(index)}
+                          className={`w-full flex items-center p-4 transition-colors border-2 ${
+                            index === selectedIndex
+                              ? 'bg-neon-yellow border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
+                              : 'bg-transparent border-transparent'
+                          }`}
+                        >
                         <div className={`p-2 border-2 border-black mr-4 ${index === selectedIndex ? 'bg-white' : 'bg-gray-50'}`}>
                           {getToolIcon(tool.icon, 24)}
                         </div>
@@ -186,7 +213,7 @@ export function CommandPalette() {
               </div>
 
               {/* Footer */}
-              <div className="p-4 bg-gray-50 border-t-4 border-black flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
+              <div className="p-4 bg-gray-50 border-t-4 border-black flex justify-between items-center text-xs font-black uppercase tracking-wider">
                 <div className="flex gap-4">
                   <span className="flex items-center gap-1">
                     <kbd className="px-1.5 py-0.5 bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">↑↓</kbd> Navegar
@@ -195,7 +222,7 @@ export function CommandPalette() {
                     <kbd className="px-1.5 py-0.5 bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">ENTER</kbd> Abrir
                   </span>
                 </div>
-                <div>
+                <div className="hidden xs:block">
                   Atalho: <kbd className="px-1.5 py-0.5 bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">⌘ K</kbd>
                 </div>
               </div>

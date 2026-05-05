@@ -55,6 +55,20 @@ export const TOOL_ICONS: Record<string, (size: number) => React.ReactNode> = {
       <line x1="4" y1="26" x2="20" y2="26" />
     </svg>
   ),
+  protect: (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+      <rect x="8" y="14" width="16" height="14" />
+      <path d="M11 14v-4a5 5 0 0 1 10 0v4" />
+      <line x1="16" y1="20" x2="16" y2="22" />
+    </svg>
+  ),
+  watermark: (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+      <rect x="4" y="4" width="16" height="20" />
+      <line x1="10" y1="24" x2="28" y2="8" strokeDasharray="3,2" />
+      <line x1="14" y1="28" x2="28" y2="14" strokeDasharray="3,2" />
+    </svg>
+  ),
 }
 
 export function getToolIcon(iconName: string, size = 24) {

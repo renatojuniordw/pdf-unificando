@@ -60,9 +60,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={inter.className}>
       <body>
+        <a 
+          href="#main-content" 
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-6 focus:py-3 focus:bg-neon-yellow focus:text-black focus:border-4 focus:border-black focus:font-black focus:uppercase focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+        >
+          Pular para o conteúdo
+        </a>
         <ConsoleBranding />
         <Header />
-        <main>{children}</main>
+        <main id="main-content">{children}</main>
         <Footer />
         <CommandPalette />
       </body>
