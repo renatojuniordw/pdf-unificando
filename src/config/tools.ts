@@ -114,6 +114,28 @@ export const tools: ToolDefinition[] = [
     multiple: false,
     usesBinary: false,
   },
+  {
+    slug: "pdf-para-png",
+    name: "PDF para PNG",
+    description: "Converta páginas do PDF em imagens PNG com fundo transparente.",
+    seoDescription: "Converta PDF para PNG online grátis. Fundo transparente, ideal para design.",
+    icon: "pdf-to-png",
+    tier: 1,
+    accept: [".pdf"],
+    multiple: false,
+    usesBinary: true,
+  },
+  {
+    slug: "redigir-pdf",
+    name: "Redigir PDF",
+    description: "Censure permanentemente trechos do PDF com retângulos pretos.",
+    seoDescription: "Redija e censure texto em PDF online grátis. Retângulos pretos permanentes, sem possibilidade de recuperação.",
+    icon: "redact",
+    tier: 1,
+    accept: [".pdf"],
+    multiple: false,
+    usesBinary: false,
+  },
 ];
 
 export function getTool(slug: string): ToolDefinition {
