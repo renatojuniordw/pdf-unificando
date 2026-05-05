@@ -13,16 +13,18 @@ export async function POST(req: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer())
     if (!isPdf(buffer)) return Response.json({ error: 'O arquivo não é um PDF válido.' }, { status: 400 })
-    const rawQuality = formData.get('quality')
-    const quality: CompressionQuality =
-      rawQuality === 'low' || rawQuality === 'medium' || rawQuality === 'high'
-        ? rawQuality
-        : 'medium'
+    const rawQuality = formData.get('quality')?.toString()
+    const quality = (rawQuality || 'medium') as CompressionQuality
+
+    console.log(`[API] Iniciando compressão: ${file.name} (${buffer.byteLength} bytes), Qualidade: ${quality}`)
 
     const { buffer: compressed, originalSize, compressedSize } =
       await binaryLimit(() => compressPdf(buffer, quality))
 
+    console.log(`[API] Compressão concluída: ${file.name} -> ${compressedSize} bytes`)
+
     const res = streamResponse(compressed, buildOutputFilename(file.name, 'pdf'), 'application/pdf')
+
     res.headers.set('X-Original-Size', String(originalSize))
     res.headers.set('X-Compressed-Size', String(compressedSize))
     return res
