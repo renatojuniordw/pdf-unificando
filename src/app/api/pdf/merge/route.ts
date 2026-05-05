@@ -6,6 +6,7 @@ const MAX_SIZE = Number(process.env.MAX_FILE_SIZE ?? 52_428_800)
 
 export async function POST(req: NextRequest) {
   try {
+    validateRateLimit(req)
     const formData = await req.formData()
     const files = formData.getAll('file') as File[]
 

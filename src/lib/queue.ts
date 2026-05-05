@@ -1,4 +1,6 @@
 import pLimit from 'p-limit'
+import { type NextRequest } from 'next/server'
+import { rateLimit } from './utils/rate-limit'
 
 const MAX_CONCURRENT = Number(process.env.MAX_CONCURRENT_JOBS ?? 2)
 const MAX_QUEUE = Number(process.env.MAX_QUEUE_SIZE ?? 5)
@@ -12,16 +14,20 @@ export function isOverloaded(): boolean {
   return binaryLimit.activeCount + binaryLimit.pendingCount >= MAX_CONCURRENT + MAX_QUEUE
 }
 
-export function rateLimitResponse(): Response {
-  return Response.json(
-    { error: 'Servidor ocupado. Tente novamente em instantes.' },
-    {
+export function validateRateLimit(req: NextRequest, limit = 5, windowMs = 60_000) {
+  // 1. IP Rate Limit
+  const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown'
+  const isAllowed = rateLimit(ip, { limit, windowMs })
+  
+  if (!isAllowed) {
+    throw Object.assign(new Error('Muitas requisições. Tente novamente em 1 minuto.'), { status: 429 })
+  }
+
+  // 2. Server Load Limit (Global)
+  if (isOverloaded()) {
+    throw Object.assign(new Error('Servidor ocupado. Tente novamente em instantes.'), { 
       status: 429,
-      headers: {
-        'Retry-After': String(RETRY_AFTER),
-        'X-Queue-Active': String(binaryLimit.activeCount),
-        'X-Queue-Pending': String(binaryLimit.pendingCount),
-      },
-    }
-  )
+      headers: { 'Retry-After': String(RETRY_AFTER) }
+    })
+  }
 }

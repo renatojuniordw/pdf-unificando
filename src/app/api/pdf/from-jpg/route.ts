@@ -4,6 +4,7 @@ import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/
 
 export async function POST(req: NextRequest) {
   try {
+    validateRateLimit(req)
     const formData = await req.formData()
     const files = formData.getAll('file') as File[]
     if (!files.length) return Response.json({ error: 'Nenhuma imagem enviada.' }, { status: 400 })

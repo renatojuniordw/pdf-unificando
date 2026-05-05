@@ -17,6 +17,11 @@ export async function readFormFile(req: Request): Promise<Buffer> {
     throw Object.assign(new Error('Arquivo muito grande. Limite: 50MB.'), { status: 413 })
   }
 
+  // Validação básica de PDF se a extensão for pdf
+  if (file.name.toLowerCase().endsWith('.pdf') && !isPdf(buffer)) {
+    throw Object.assign(new Error('O arquivo não parece ser um PDF válido.'), { status: 400 })
+  }
+
   return buffer
 }
 
@@ -35,6 +40,15 @@ export async function readFormFiles(req: Request): Promise<Buffer[]> {
       if (buffer.byteLength > MAX_SIZE) {
         throw Object.assign(new Error('Arquivo muito grande. Limite: 50MB.'), { status: 413 })
       }
+      
+      const name = f.name.toLowerCase()
+      if (name.endsWith('.pdf') && !isPdf(buffer)) {
+        throw Object.assign(new Error(`O arquivo "${f.name}" não é um PDF válido.`), { status: 400 })
+      }
+      if ((name.endsWith('.jpg') || name.endsWith('.jpeg')) && !isJpg(buffer)) {
+        throw Object.assign(new Error(`O arquivo "${f.name}" não é uma imagem JPG válida.`), { status: 400 })
+      }
+
       return buffer
     })
   )
@@ -58,7 +72,14 @@ export function errorResponse(err: unknown): NextResponse {
 }
 
 export function buildOutputFilename(originalName: string, outputExt: string): string {
-  const base = originalName.replace(/\.[^.]+$/, '')
+  const base = originalName
+    .replace(/\.[^.]+$/, '') // Remove extensão
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/[^a-zA-Z0-9]/g, '_') // Troca tudo que não é alfanumérico por sublinhado
+    .replace(/_{2,}/g, '_') // Remove sublinhados duplicados
+    .substring(0, 100) // Limita tamanho
+
   return `${base}_unificando.${outputExt}`
 }
 
@@ -71,4 +92,22 @@ export function streamResponse(buffer: Buffer, filename: string, mimeType: strin
       'Cache-Control': 'no-store',
     },
   })
+}
+
+export function isPdf(buffer: Buffer): boolean {
+  // PDF magic bytes: %PDF- (25 50 44 46 2d)
+  return buffer.length > 4 && 
+    buffer[0] === 0x25 && 
+    buffer[1] === 0x50 && 
+    buffer[2] === 0x44 && 
+    buffer[3] === 0x46 && 
+    buffer[4] === 0x2d
+}
+
+export function isJpg(buffer: Buffer): boolean {
+  // JPG magic bytes: FF D8 FF
+  return buffer.length > 3 && 
+    buffer[0] === 0xff && 
+    buffer[1] === 0xd8 && 
+    buffer[2] === 0xff
 }

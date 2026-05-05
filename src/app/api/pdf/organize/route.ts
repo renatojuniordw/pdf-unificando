@@ -4,6 +4,7 @@ import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/
 
 export async function POST(req: NextRequest) {
   try {
+    validateRateLimit(req)
     const formData = await req.formData()
     const file = formData.get('file') as File
     if (!file) return Response.json({ error: 'Arquivo não enviado.' }, { status: 400 })
