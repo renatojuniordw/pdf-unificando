@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { ConsoleBranding } from '@/components/layout/ConsoleBranding'
 import { CommandPalette } from '@/components/layout/CommandPalette'
 import { PWARegistration } from '@/components/pwa/PWARegistration'
+import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner'
 import Script from 'next/script'
 import type { Viewport } from 'next'
 
@@ -94,6 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
         <CommandPalette />
         <PWARegistration />
+        <PWAInstallBanner />
         <Script id="gtm-script" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
