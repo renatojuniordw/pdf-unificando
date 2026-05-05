@@ -1,57 +1,32 @@
-"use client";
-import { useState, useCallback } from "react";
-import { DropZone } from "@/components/upload/DropZone";
-import { FileQueue } from "@/components/upload/FileQueue";
-import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
-import { RetryCountdown } from "@/components/processing/RetryCountdown";
-import { DownloadButton } from "@/components/processing/DownloadButton";
+import { Metadata } from "next";
+import { getTool } from "@/config/tools";
+import { JpgParaPdfClient } from "./JpgParaPdfClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
 import { EcosystemSection } from "@/components/layout/EcosystemSection";
-import { useFileProcessor } from "@/hooks/useFileProcessor";
-import { getTool } from "@/config/tools";
+import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
 
 const tool = getTool("jpg-para-pdf");
-interface FileItem {
-  id: string;
-  file: File;
-}
+
+export const metadata: Metadata = {
+  title: tool.name,
+  description: tool.seoDescription,
+  alternates: {
+    canonical: `/ferramentas/${tool.slug}`,
+  },
+  openGraph: {
+    title: `${tool.name} Online e Grátis`,
+    description: tool.seoDescription,
+    type: "website",
+  },
+};
 
 export default function JpgParaPdfPage() {
-  const [files, setFiles] = useState<FileItem[]>([]);
-  const {
-    status,
-    error,
-    downloadUrl,
-    outputName,
-    processedSize,
-    process,
-    reset,
-    secondsLeft,
-    progress,
-  } = useFileProcessor({
-    endpoint: "/api/pdf/from-jpg",
-    outputFilename: "imagens.pdf",
-  });
-  const handleDrop = useCallback((dropped: File[]) => {
-    setFiles((prev) => [
-      ...prev,
-      ...dropped.map((f) => ({
-        id: `${f.name}-${Date.now()}-${Math.random()}`,
-        file: f,
-      })),
-    ]);
-  }, []);
-  const handleProcess = useCallback(
-    () => process(files.map((f) => f.file)),
-    [process, files],
-  );
-  const handleReset = useCallback(() => {
-    reset();
-    setFiles([]);
-  }, [reset]);
+  const jsonLd = generateWebApplicationSchema(tool);
 
   return (
     <>
+      <JsonLd data={jsonLd} />
+      
       <section className="bg-[#ccff00] border-b-4 border-slate-950 py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <span className="inline-block bg-slate-950 text-[#ccff00] font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000] mb-4">
@@ -65,76 +40,61 @@ export default function JpgParaPdfPage() {
           </p>
         </div>
       </section>
+
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
         <div className="max-w-2xl mx-auto px-6 pb-12">
           <PrivacyBanner />
         </div>
 
-        <div className="max-w-2xl mx-auto flex flex-col gap-6">
-          {status === "idle" && (
-            <>
-              <DropZone
-                accept={{
-                  "image/jpeg": [".jpg", ".jpeg"],
-                  "image/png": [".png"],
-                }}
-                multiple
-                onDrop={handleDrop}
-              />
-              {files.length > 0 && (
-                <>
-                  <FileQueue
-                    files={files}
-                    onReorder={setFiles}
-                    onRemove={(id) =>
-                      setFiles((prev) => prev.filter((f) => f.id !== id))
-                    }
-                  />
-                  <button
-                    onClick={handleProcess}
-                    className="w-full bg-slate-950 text-[#ccff00] border-4 border-slate-950 shadow-[8px_8px_0px_#ccff00] px-8 py-5 font-black uppercase tracking-[0.2em] hover:bg-slate-800 hover:-translate-y-1 transition-all"
-                  >
-                    CONVERTER {files.length} IMAGEM{files.length > 1 ? "S" : ""}{" "}
-                    PARA PDF
-                  </button>
-                </>
-              )}
-            </>
-          )}
-          {(status === "uploading" || status === "processing") && (
-            <ProcessingStatus status={status} />
-          )}
-          {status === "rate_limited" && (
-            <RetryCountdown
-              secondsLeft={secondsLeft}
-              progress={progress}
-              onRetry={handleReset}
-            />
-          )}
-          {status === "error" && (
-            <div className="bg-[#ff4d4d] text-white border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-6 flex items-center gap-4">
-              <p className="font-black uppercase tracking-widest text-sm">
-                ERRO: {error}
-              </p>
-              <button
-                onClick={handleReset}
-                className="ml-auto border-2 border-white px-4 py-2 font-black uppercase text-xs"
-              >
-                TENTAR NOVAMENTE
-              </button>
-            </div>
-          )}
-          {status === "done" && downloadUrl && (
-            <DownloadButton
-              url={downloadUrl}
-              filename={outputName!}
-              fileSize={processedSize}
-              onReset={handleReset}
-            />
-          )}
-        </div>
+        <JpgParaPdfClient />
       </div>
+
       <EcosystemSection />
+
+      <section className="max-w-4xl mx-auto px-6 py-24">
+        <div className="prose prose-slate max-w-none">
+          <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
+            Como converter imagens JPG para PDF online
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
+              <span className="text-4xl font-black text-slate-200 block mb-2">01</span>
+              <h3 className="font-bold uppercase mb-2">Adicionar</h3>
+              <p className="text-sm text-slate-600 font-mono">Selecione uma ou mais imagens JPG, JPEG ou PNG do seu dispositivo.</p>
+            </div>
+            <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
+              <span className="text-4xl font-black text-slate-200 block mb-2">02</span>
+              <h3 className="font-bold uppercase mb-2">Reordenar</h3>
+              <p className="text-sm text-slate-600 font-mono">Arraste as imagens para definir a ordem em que aparecerão no PDF final.</p>
+            </div>
+            <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
+              <span className="text-4xl font-black text-slate-200 block mb-2">03</span>
+              <h3 className="font-bold uppercase mb-2">Gerar</h3>
+              <p className="text-sm text-slate-600 font-mono">Clique para converter e baixe seu arquivo PDF contendo todas as imagens.</p>
+            </div>
+          </div>
+
+          <div className="mt-16">
+            <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
+              Perguntas Frequentes
+            </h2>
+            <div className="space-y-6">
+              <div className="border-4 border-slate-950 p-6">
+                <h3 className="font-black uppercase text-lg mb-2">Posso colocar várias imagens em um único PDF?</h3>
+                <p className="text-sm text-slate-600 font-mono">Sim! Você pode selecionar dezenas de imagens e nossa ferramenta irá criar um PDF onde cada imagem ocupa uma página, mantendo a qualidade original.</p>
+              </div>
+              <div className="border-4 border-slate-950 p-6">
+                <h3 className="font-black uppercase text-lg mb-2">Quais formatos de imagem são aceitos?</h3>
+                <p className="text-sm text-slate-600 font-mono">Suportamos os formatos mais comuns: JPG, JPEG e PNG. Todas as imagens enviadas serão otimizadas para o formato PDF.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-2xl mx-auto px-6 pb-12">
+        <PrivacyBanner />
+      </div>
     </>
   );
 }

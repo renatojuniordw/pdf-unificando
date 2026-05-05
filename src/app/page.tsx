@@ -4,8 +4,8 @@ import { EcosystemSection } from '@/components/layout/EcosystemSection'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Unificando PDF Tools — Ferramentas PDF gratuitas online',
-  description: 'Comprima, junte, divida e converta PDFs online grátis. Sem cadastro. Zero armazenamento.',
+  title: 'Unificando PDF — Juntar, Comprimir e Converter PDF Online',
+  description: 'Ferramentas de PDF 100% gratuitas e seguras. Junte, divida, comprima e converta arquivos PDF direto no seu navegador com o Unificando PDF.',
 }
 
 export default function HomePage() {
@@ -39,9 +39,65 @@ export default function HomePage() {
 
       <EcosystemSection />
 
+      <section className="bg-slate-50 border-t-8 border-slate-950 py-24">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="grid lg:grid-cols-2 gap-16">
+            <div>
+              <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-950 mb-8">
+                POR QUE USAR O<br />UNIFICANDO PDF?
+              </h2>
+              <div className="space-y-6">
+                <div className="border-4 border-slate-950 bg-white p-6 shadow-[8px_8px_0px_#000]">
+                  <h3 className="font-black uppercase text-xl mb-2">Privacidade em Primeiro Lugar</h3>
+                  <p className="text-sm text-slate-600 font-mono">Não armazenamos seus arquivos. O processamento é efêmero e os dados são excluídos permanentemente após a operação.</p>
+                </div>
+                <div className="border-4 border-slate-950 bg-white p-6 shadow-[8px_8px_0px_#000]">
+                  <h3 className="font-black uppercase text-xl mb-2">Totalmente Gratuito</h3>
+                  <p className="text-sm text-slate-600 font-mono">Sem taxas escondidas, sem limites de arquivos e sem necessidade de criar conta ou deixar seu e-mail.</p>
+                </div>
+                <div className="border-4 border-slate-950 bg-white p-6 shadow-[8px_8px_0px_#000]">
+                  <h3 className="font-black uppercase text-xl mb-2">Interface Neo-Brutalista</h3>
+                  <p className="text-sm text-slate-600 font-mono">Focamos na funcionalidade e clareza. Ferramentas rápidas que resolvem seu problema em segundos, sem distrações.</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-950 mb-8">
+                PERGUNTAS FREQUENTES
+              </h2>
+              <div className="space-y-4">
+                <details className="group border-4 border-slate-950 bg-white p-6 open:bg-[#ccff00] transition-colors cursor-pointer">
+                  <summary className="font-black uppercase list-none flex justify-between items-center">
+                    <span>COMO O UNIFICANDO PDF É GRATUITO?</span>
+                    <span className="group-open:rotate-180 transition-transform">↓</span>
+                  </summary>
+                  <p className="mt-4 text-sm font-mono text-slate-700">Fazemos parte do ecossistema Unificando, que oferece soluções avançadas de IA e desenvolvimento. Esta ferramenta é uma contribuição para a comunidade.</p>
+                </details>
+                <details className="group border-4 border-slate-950 bg-white p-6 open:bg-[#ccff00] transition-colors cursor-pointer">
+                  <summary className="font-black uppercase list-none flex justify-between items-center">
+                    <span>MEUS ARQUIVOS ESTÃO SEGUROS?</span>
+                    <span className="group-open:rotate-180 transition-transform">↓</span>
+                  </summary>
+                  <p className="mt-4 text-sm font-mono text-slate-700">Sim. Utilizamos conexões criptografadas (HTTPS) e nossos servidores deletam automaticamente qualquer dado temporário após o processamento.</p>
+                </details>
+                <details className="group border-4 border-slate-950 bg-white p-6 open:bg-[#ccff00] transition-colors cursor-pointer">
+                  <summary className="font-black uppercase list-none flex justify-between items-center">
+                    <span>EXISTE LIMITE DE TAMANHO DE ARQUIVO?</span>
+                    <span className="group-open:rotate-180 transition-transform">↓</span>
+                  </summary>
+                  <p className="mt-4 text-sm font-mono text-slate-700">Aceitamos arquivos de até 50MB para garantir a melhor performance e velocidade de processamento para todos os usuários.</p>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
         <PrivacyBanner />
       </div>
     </>
   )
 }
+
