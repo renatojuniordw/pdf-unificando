@@ -3,7 +3,7 @@ import { getTool } from "@/config/tools";
 import { ComprimirPdfClient } from "./ComprimirPdfClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
 import { EcosystemSection } from "@/components/layout/EcosystemSection";
-import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
+import { JsonLd, generateWebApplicationSchema, generateFAQSchema } from "@/components/seo/JsonLd";
 
 const tool = getTool("comprimir-pdf");
 
@@ -22,10 +22,21 @@ export const metadata: Metadata = {
 
 export default function ComprimirPdfPage() {
   const jsonLd = generateWebApplicationSchema(tool);
+  const faqSchema = generateFAQSchema([
+    {
+      question: "A compressão afeta a leitura do PDF?",
+      answer: "Nossa ferramenta utiliza algoritmos inteligentes para reduzir o tamanho removendo dados redundantes. Na qualidade 'Média' ou 'Alta', a diferença visual é imperceptível."
+    },
+    {
+      question: "É seguro enviar meus documentos?",
+      answer: "Absolutamente. O processamento ocorre em memória e os arquivos são deletados logo após o uso. Sua privacidade é nossa prioridade número um."
+    }
+  ]);
 
   return (
     <>
       <JsonLd data={jsonLd} />
+      <JsonLd data={faqSchema} />
       
       <section className="bg-[#ccff00] border-b-4 border-slate-950 py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">

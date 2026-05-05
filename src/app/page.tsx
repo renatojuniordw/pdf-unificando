@@ -2,6 +2,7 @@ import { ToolGrid } from '@/components/tools/ToolGrid'
 import { PrivacyBanner } from '@/components/tools/PrivacyBanner'
 import { EcosystemSection } from '@/components/layout/EcosystemSection'
 import type { Metadata } from 'next'
+import { JsonLd, generateOrganizationSchema, generateWebSiteSchema, generateFAQSchema } from '@/components/seo/JsonLd'
 
 export const metadata: Metadata = {
   title: 'Unificando PDF — Juntar, Comprimir e Converter PDF Online',
@@ -9,8 +10,28 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
+  const organizationSchema = generateOrganizationSchema()
+  const websiteSchema = generateWebSiteSchema()
+  const faqSchema = generateFAQSchema([
+    {
+      question: 'COMO O UNIFICANDO PDF É GRATUITO?',
+      answer: 'O Unificando PDF é uma iniciativa da Unificando, uma empresa especializada em software de elite e IA. Oferecemos esta ferramenta gratuitamente para demonstrar nossa excelência técnica.'
+    },
+    {
+      question: 'MEUS ARQUIVOS ESTÃO SEGUROS?',
+      answer: 'Sim. Utilizamos conexões criptografadas (HTTPS) e nossos servidores deletam automaticamente qualquer dado temporário após o processamento.'
+    },
+    {
+      question: 'EXISTE LIMITE DE TAMANHO DE ARQUIVO?',
+      answer: 'Aceitamos arquivos de até 50MB para garantir a melhor performance e velocidade de processamento para todos os usuários.'
+    }
+  ])
+
   return (
     <>
+      <JsonLd data={organizationSchema} />
+      <JsonLd data={websiteSchema} />
+      <JsonLd data={faqSchema} />
       <section className="bg-slate-950 border-b-8 border-[#ccff00] py-24 md:py-32">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <span className="inline-block bg-[#ccff00] text-slate-950 font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#fff] mb-6">

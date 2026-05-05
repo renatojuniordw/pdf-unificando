@@ -39,3 +39,46 @@ export function generateWebApplicationSchema(tool: {
     ],
   }
 }
+
+export function generateOrganizationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Unificando',
+    url: 'https://pdf.unificando.com.br',
+    logo: 'https://pdf.unificando.com.br/icon.png',
+    sameAs: [
+      'https://github.com/renatojuniordw',
+      // Adicione outras redes sociais aqui
+    ],
+  }
+}
+
+export function generateWebSiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Unificando PDF',
+    url: 'https://pdf.unificando.com.br',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://pdf.unificando.com.br/?q={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  }
+}
+
+export function generateFAQSchema(faqs: { question: string; answer: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }
+}
