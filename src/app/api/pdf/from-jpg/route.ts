@@ -1,6 +1,7 @@
 import { type NextRequest } from 'next/server'
 import { jpgToPdf, type PageOrientation } from '@/lib/pdf/from-jpg'
-import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/http'
+import { validateRateLimit } from '@/lib/queue'
+import { buildOutputFilename, errorResponse, isJpg, streamResponse } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +10,13 @@ export async function POST(req: NextRequest) {
     const files = formData.getAll('file') as File[]
     if (!files.length) return Response.json({ error: 'Nenhuma imagem enviada.' }, { status: 400 })
 
-    const buffers = await Promise.all(files.map(f => f.arrayBuffer().then(Buffer.from)))
+    const buffers = await Promise.all(
+      files.map(async f => {
+        const buf = Buffer.from(await f.arrayBuffer())
+        if (!isJpg(buf)) throw Object.assign(new Error(`"${f.name}" não é uma imagem JPG válida.`), { status: 400 })
+        return buf
+      })
+    )
     const orientation = (formData.get('orientation') as PageOrientation) ?? 'portrait'
 
     const result = await jpgToPdf(buffers, orientation)

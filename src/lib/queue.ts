@@ -16,16 +16,23 @@ export function isOverloaded(): boolean {
 
 export function validateRateLimit(req: NextRequest, limit = 5, windowMs = 60_000) {
   // 1. IP Rate Limit
-  const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown'
+  // x-real-ip é setado pelo nginx com $remote_addr (não forjável pelo cliente)
+  // x-forwarded-for pode conter IPs forjados no início da cadeia — evitado aqui
+  const ip = req.headers.get('x-real-ip') ?? 'unknown'
   const isAllowed = rateLimit(ip, { limit, windowMs })
   
   if (!isAllowed) {
-    throw Object.assign(new Error('Muitas requisições. Tente novamente em 1 minuto.'), { status: 429 })
+    console.warn(`[RateLimit] IP bloqueado: ${ip}`)
+    throw Object.assign(new Error('Muitas requisições. Tente novamente em 1 minuto.'), {
+      status: 429,
+      headers: { 'Retry-After': String(Math.ceil(windowMs / 1000)) },
+    })
   }
 
   // 2. Server Load Limit (Global)
   if (isOverloaded()) {
-    throw Object.assign(new Error('Servidor ocupado. Tente novamente em instantes.'), { 
+    console.warn(`[RateLimit] Servidor sobrecarregado — active: ${binaryLimit.activeCount}, pending: ${binaryLimit.pendingCount}`)
+    throw Object.assign(new Error('Servidor ocupado. Tente novamente em instantes.'), {
       status: 429,
       headers: { 'Retry-After': String(RETRY_AFTER) }
     })

@@ -1,6 +1,7 @@
 import { type NextRequest } from 'next/server'
 import { rotatePdf, type RotationDegrees, type RotationScope } from '@/lib/pdf/rotate'
-import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/http'
+import { validateRateLimit } from '@/lib/queue'
+import { buildOutputFilename, errorResponse, isPdf, streamResponse } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +11,7 @@ export async function POST(req: NextRequest) {
     if (!file) return Response.json({ error: 'Arquivo não enviado.' }, { status: 400 })
 
     const buffer = Buffer.from(await file.arrayBuffer())
+    if (!isPdf(buffer)) return Response.json({ error: 'O arquivo não é um PDF válido.' }, { status: 400 })
     const deg = Number(formData.get('degrees') ?? 90) as RotationDegrees
     const scope = (formData.get('scope') as RotationScope) ?? 'all'
     const page = formData.get('page') ? Number(formData.get('page')) - 1 : undefined

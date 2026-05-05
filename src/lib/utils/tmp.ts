@@ -10,8 +10,9 @@ export async function withTmpFile(
   outputExt: string,
   fn: (inputPath: string, outputPath: string) => Promise<void>
 ): Promise<Buffer> {
-  const inputPath = path.join(TMP_DIR, `${randomUUID()}.${inputExt}`)
-  const outputPath = path.join(TMP_DIR, `${randomUUID()}.${outputExt}`)
+  const id = randomUUID()
+  const inputPath = path.join(TMP_DIR, `${id}.${inputExt}`)
+  const outputPath = path.join(TMP_DIR, `${id}.${outputExt}`)
 
   try {
     await writeFile(inputPath, buffer)

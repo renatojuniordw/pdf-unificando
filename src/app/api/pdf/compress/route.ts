@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server'
 import { compressPdf, type CompressionQuality } from '@/lib/pdf/compress'
 import { binaryLimit, validateRateLimit } from '@/lib/queue'
-import { buildOutputFilename, errorResponse, streamResponse } from '@/lib/utils/http'
+import { buildOutputFilename, errorResponse, isPdf, streamResponse } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     if (!file) return Response.json({ error: 'Arquivo não enviado.' }, { status: 400 })
 
     const buffer = Buffer.from(await file.arrayBuffer())
+    if (!isPdf(buffer)) return Response.json({ error: 'O arquivo não é um PDF válido.' }, { status: 400 })
     const rawQuality = formData.get('quality')
     const quality: CompressionQuality =
       rawQuality === 'low' || rawQuality === 'medium' || rawQuality === 'high'
