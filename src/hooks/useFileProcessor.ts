@@ -59,8 +59,18 @@ export function useFileProcessor({
       setProcessedSize(null);
 
       try {
+        const honeypotValue =
+          document.querySelector<HTMLInputElement>('[data-honeypot]')?.value ?? '';
+
+        if (honeypotValue) {
+          setStatus('error');
+          setError('Erro de validação.');
+          return;
+        }
+
         const formData = new FormData();
         fileArray.forEach((f) => formData.append("file", f));
+        formData.append('_hp', honeypotValue);
         if (extraData) {
           Object.entries(extraData).forEach(([k, v]) => formData.append(k, v));
         }

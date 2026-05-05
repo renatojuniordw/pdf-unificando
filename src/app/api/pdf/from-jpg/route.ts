@@ -1,12 +1,13 @@
 import { type NextRequest } from 'next/server'
 import { jpgToPdf, type PageOrientation } from '@/lib/pdf/from-jpg'
 import { validateRateLimit } from '@/lib/queue'
-import { buildOutputFilename, errorResponse, isJpg, streamResponse } from '@/lib/utils/http'
+import { buildOutputFilename, errorResponse, isJpg, streamResponse, validateHoneypot } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
     validateRateLimit(req)
     const formData = await req.formData()
+    if (!validateHoneypot(formData)) return Response.json({ error: 'Acesso negado.' }, { status: 400 })
     const files = formData.getAll('file') as File[]
     if (!files.length) return Response.json({ error: 'Nenhuma imagem enviada.' }, { status: 400 })
 

@@ -106,8 +106,13 @@ export function isPdf(buffer: Buffer): boolean {
 
 export function isJpg(buffer: Buffer): boolean {
   // JPG magic bytes: FF D8 FF
-  return buffer.length > 3 && 
-    buffer[0] === 0xff && 
-    buffer[1] === 0xd8 && 
+  return buffer.length > 3 &&
+    buffer[0] === 0xff &&
+    buffer[1] === 0xd8 &&
     buffer[2] === 0xff
+}
+
+export function validateHoneypot(formData: FormData): boolean {
+  const hp = formData.get('_hp')
+  return hp === null || hp === ''
 }

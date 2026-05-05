@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server'
 import { mergePdfs } from '@/lib/pdf/merge'
 import { validateRateLimit } from '@/lib/queue'
-import { buildOutputFilename, errorResponse, isPdf, streamResponse } from '@/lib/utils/http'
+import { buildOutputFilename, errorResponse, isPdf, streamResponse, validateHoneypot } from '@/lib/utils/http'
 
 const MAX_SIZE = Number(process.env.MAX_FILE_SIZE ?? 52_428_800)
 
@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     validateRateLimit(req)
     const formData = await req.formData()
+    if (!validateHoneypot(formData)) return Response.json({ error: 'Acesso negado.' }, { status: 400 })
     const files = formData.getAll('file') as File[]
 
     if (files.length < 2) {

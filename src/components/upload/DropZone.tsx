@@ -62,6 +62,16 @@ export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false,
         disabled={disabled}
         onChange={handleChange}
       />
+      {/* Honeypot: invisível para humanos, bots preenchem automaticamente */}
+      <input
+        type="text"
+        name="_hp"
+        data-honeypot=""
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
+      />
 
       {isDragOver ? (
         <p className="text-slate-950 font-black uppercase tracking-tighter text-xl">SOLTE AQUI</p>
