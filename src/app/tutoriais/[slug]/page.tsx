@@ -1,0 +1,246 @@
+import Link from 'next/link'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { getTutorial, tutorials } from '@/config/tutorials'
+import { getTool } from '@/config/tools'
+import {
+  JsonLd,
+  generateArticleSchema,
+  generateBreadcrumbSchema,
+  generateFAQSchema,
+} from '@/components/seo/JsonLd'
+
+type TutorialPageProps = {
+  params: Promise<{ slug: string }>
+}
+
+export async function generateStaticParams() {
+  return tutorials.map((tutorial) => ({ slug: tutorial.slug }))
+}
+
+export async function generateMetadata({ params }: TutorialPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const tutorial = tutorials.find((item) => item.slug === slug)
+
+  if (!tutorial) {
+    return {
+      title: 'Tutorial',
+    }
+  }
+
+  return {
+    title: tutorial.title,
+    description: tutorial.description,
+    alternates: {
+      canonical: `/tutoriais/${tutorial.slug}`,
+    },
+    openGraph: {
+      title: tutorial.title,
+      description: tutorial.description,
+      type: 'article',
+    },
+  }
+}
+
+export default async function TutorialPage({ params }: TutorialPageProps) {
+  const { slug } = await params
+  const tutorial = tutorials.find((item) => item.slug === slug)
+
+  if (!tutorial) {
+    notFound()
+  }
+
+  const fullTutorial = getTutorial(tutorial.slug)
+  const tool = getTool(fullTutorial.targetToolSlug)
+  const articleSchema = generateArticleSchema({
+    title: fullTutorial.title,
+    description: fullTutorial.description,
+    slug: fullTutorial.slug,
+  })
+  const faqSchema = generateFAQSchema(fullTutorial.faqs)
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Início', url: 'https://pdf.unificando.com.br/' },
+    { name: 'Tutoriais', url: 'https://pdf.unificando.com.br/tutoriais' },
+    {
+      name: fullTutorial.title,
+      url: `https://pdf.unificando.com.br/tutoriais/${fullTutorial.slug}`,
+    },
+  ])
+
+  return (
+    <>
+      <JsonLd data={articleSchema} />
+      <JsonLd data={faqSchema} />
+      <JsonLd data={breadcrumbSchema} />
+
+      <section className="bg-[#ccff00] border-b-4 border-slate-950 py-16">
+        <div className="max-w-5xl mx-auto px-6 lg:px-12">
+          <span className="inline-block bg-slate-950 text-[#ccff00] font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000] mb-5">
+            TUTORIAL
+          </span>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase leading-[0.95] text-slate-950">
+            {fullTutorial.title}
+          </h1>
+          <p className="text-sm font-mono font-bold uppercase text-slate-700 mt-5 max-w-3xl">
+            {fullTutorial.description}
+          </p>
+          <div className="flex flex-wrap gap-3 mt-8">
+            <Link
+              href={`/ferramentas/${tool.slug}`}
+              className="bg-slate-950 text-[#ccff00] border-4 border-slate-950 px-5 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#fff] hover:translate-y-[-2px] transition-transform"
+            >
+              Usar {tool.name}
+            </Link>
+            <Link
+              href="/tutoriais"
+              className="bg-white text-slate-950 border-4 border-slate-950 px-5 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#000] hover:bg-slate-100 transition-colors"
+            >
+              Ver mais tutoriais
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16">
+        <div className="max-w-5xl mx-auto px-6 lg:px-12 grid gap-12">
+          <article className="border-4 border-slate-950 bg-white shadow-[8px_8px_0px_#000] p-8">
+            <p className="text-base text-slate-700 leading-8">{fullTutorial.intro}</p>
+
+            <div className="mt-10">
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-950 mb-6">
+                Quando este tutorial ajuda
+              </h2>
+              <ul className="space-y-3">
+                {fullTutorial.whenToUse.map((item) => (
+                  <li
+                    key={item}
+                    className="border-2 border-slate-950 bg-slate-50 px-4 py-3 text-sm font-mono uppercase tracking-wider text-slate-700"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </article>
+
+          <section>
+            <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
+              Passo a passo
+            </h2>
+            <div className="grid gap-6 md:grid-cols-2">
+              {fullTutorial.steps.map((step, index) => (
+                <div
+                  key={step.title}
+                  className="border-4 border-slate-950 bg-white p-6 shadow-[6px_6px_0px_#000]"
+                >
+                  <span className="text-4xl font-black text-slate-200 block mb-2">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="font-black uppercase text-xl tracking-tight text-slate-950">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm font-mono uppercase tracking-wide text-slate-600 mt-3 leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
+              Erros comuns
+            </h2>
+            <div className="grid gap-4">
+              {fullTutorial.commonMistakes.map((item) => (
+                <div
+                  key={item}
+                  className="border-4 border-slate-950 bg-[#fff7d6] p-5 shadow-[4px_4px_0px_#000]"
+                >
+                  <p className="text-sm font-mono uppercase tracking-wide text-slate-800 leading-relaxed">
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="border-4 border-slate-950 bg-slate-950 text-white p-8 shadow-[8px_8px_0px_#ccff00]">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+              Ferramenta indicada
+            </p>
+            <h2 className="text-3xl font-black uppercase tracking-tighter text-[#ccff00] mt-3">
+              {tool.name}
+            </h2>
+            <p className="text-sm font-mono uppercase tracking-wide text-slate-300 mt-4 max-w-2xl">
+              {tool.seoDescription}
+            </p>
+            <Link
+              href={`/ferramentas/${tool.slug}`}
+              className="inline-flex mt-6 bg-[#ccff00] text-slate-950 border-4 border-[#ccff00] px-5 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#fff] hover:translate-y-[-2px] transition-transform"
+            >
+              Abrir ferramenta agora
+            </Link>
+          </section>
+
+          <section>
+            <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
+              Perguntas frequentes
+            </h2>
+            <div className="space-y-4">
+              {fullTutorial.faqs.map((faq) => (
+                <details
+                  key={faq.question}
+                  className="group border-4 border-slate-950 bg-white p-6 open:bg-[#ccff00] transition-colors"
+                >
+                  <summary className="font-black uppercase list-none flex justify-between items-center cursor-pointer gap-4">
+                    <span>{faq.question}</span>
+                    <span className="group-open:rotate-180 transition-transform">↓</span>
+                  </summary>
+                  <p className="mt-4 text-sm font-mono uppercase tracking-wide text-slate-700 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-12 border-8 border-[#ccff00] bg-slate-950 p-10 shadow-[12px_12px_0px_#000] relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#ccff00] opacity-10 rotate-45 translate-x-16 -translate-y-16 group-hover:scale-150 transition-transform duration-700"></div>
+            
+            <div className="relative z-10">
+              <span className="inline-block bg-[#ccff00] text-slate-950 font-black uppercase tracking-[0.2em] text-[10px] px-3 py-1 mb-6">
+                Quem desenvolveu?
+              </span>
+              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white leading-tight mb-6">
+                Este projeto é uma iniciativa da <span className="text-[#ccff00]">Unificando</span>.
+              </h2>
+              <p className="text-slate-400 font-mono text-sm uppercase tracking-wider leading-relaxed max-w-3xl mb-8">
+                Somos especialistas em transformar processos complexos em ferramentas digitais de alta performance. 
+                Se a sua empresa precisa de automação, inteligência artificial ou sistemas robustos como este, nós somos o parceiro ideal.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <a 
+                  href="https://unificando.com.br/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-[#ccff00] text-slate-950 border-4 border-[#ccff00] px-8 py-4 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#fff] hover:translate-y-[-4px] hover:shadow-[8px_8px_0px_#fff] transition-all"
+                >
+                  Conheça a Unificando
+                </a>
+                <a 
+                  href="https://unificando.com.br/servicos/ia" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-transparent text-white border-4 border-white px-8 py-4 font-black uppercase text-xs tracking-widest hover:bg-white hover:text-slate-950 transition-all"
+                >
+                  Consultoria em IA
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </>
+  )
+}

@@ -44,6 +44,12 @@ export function Footer() {
           </p>
           <div className="flex gap-6">
             <Link
+              href="/tutoriais"
+              className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
+            >
+              Tutoriais
+            </Link>
+            <Link
               href="/privacidade"
               className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
             >

@@ -65,13 +65,24 @@ export default function PdfParaWordPage() {
             <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
               <span className="text-4xl font-black text-slate-200 block mb-2">02</span>
               <h3 className="font-bold uppercase mb-2">Processar</h3>
-              <p className="text-sm text-slate-600 font-mono">Nossa tecnologia OCR e de conversão extrai o texto mantendo o layout.</p>
+              <p className="text-sm text-slate-600 font-mono">Extraimos o texto do PDF e montamos um arquivo Word editavel preservando ao maximo a estrutura do documento.</p>
             </div>
             <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
               <span className="text-4xl font-black text-slate-200 block mb-2">03</span>
               <h3 className="font-bold uppercase mb-2">Editar</h3>
               <p className="text-sm text-slate-600 font-mono">Baixe o arquivo .docx e edite-o livremente no Microsoft Word ou Google Docs.</p>
             </div>
+          </div>
+          <div className="mt-8 flex justify-center">
+            <a 
+              href="/tutoriais/como-converter-pdf-em-word"
+              className="inline-flex items-center gap-2 bg-slate-950 text-[#ccff00] border-4 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#ccff00] hover:translate-y-[-2px] transition-transform"
+            >
+              Veja o tutorial completo
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M2 6h8M6 2l4 4-4 4" />
+              </svg>
+            </a>
           </div>
 
           <div className="mt-16">
@@ -85,7 +96,7 @@ export default function PdfParaWordPage() {
               </div>
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">Funciona com PDFs protegidos?</h3>
-                <p className="text-sm text-slate-600 font-mono">Apenas arquivos sem proteção por senha de edição podem ser convertidos. Se o seu PDF estiver protegido, você precisará desbloqueá-lo antes.</p>
+                <p className="text-sm text-slate-600 font-mono">A conversao funciona melhor com PDFs que ja tenham texto selecionavel e sem bloqueios de acesso. PDFs protegidos por senha ou compostos apenas por imagem podem nao ser convertidos corretamente.</p>
               </div>
             </div>
           </div>

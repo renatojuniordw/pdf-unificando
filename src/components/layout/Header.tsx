@@ -115,6 +115,13 @@ export function Header() {
           </div>
 
           <Link
+            href="/tutoriais"
+            className="text-xs font-black uppercase tracking-widest text-white hover:bg-[#ccff00] hover:text-slate-950 px-3 py-2 transition-colors"
+          >
+            Tutoriais
+          </Link>
+
+          <Link
             href="/privacidade"
             className="text-xs font-black uppercase tracking-widest text-white hover:bg-[#ccff00] hover:text-slate-950 px-3 py-2 transition-colors"
           >
@@ -194,6 +201,14 @@ export function Header() {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <Link
+                href="/tutoriais"
+                onClick={() => setMobileOpen(false)}
+                className="text-xs font-black uppercase tracking-widest text-white hover:bg-[#ccff00] hover:text-slate-950 px-3 py-4 transition-colors border-b border-slate-800"
+              >
+                Tutoriais
+              </Link>
 
               <Link
                 href="/privacidade"

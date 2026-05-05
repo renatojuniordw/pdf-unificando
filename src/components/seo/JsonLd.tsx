@@ -82,3 +82,42 @@ export function generateFAQSchema(faqs: { question: string; answer: string }[]) 
     })),
   }
 }
+
+export function generateArticleSchema(article: {
+  title: string
+  description: string
+  slug: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.description,
+    mainEntityOfPage: `https://pdf.unificando.com.br/tutoriais/${article.slug}`,
+    author: {
+      '@type': 'Organization',
+      name: 'Unificando',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Unificando',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://pdf.unificando.com.br/icon.png',
+      },
+    },
+  }
+}
+
+export function generateBreadcrumbSchema(items: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }
+}

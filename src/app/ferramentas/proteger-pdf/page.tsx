@@ -73,6 +73,17 @@ export default function ProtegerPdfPage() {
               <p className="text-sm text-slate-600 font-mono">Aguarde o processamento e baixe o PDF protegido.</p>
             </div>
           </div>
+          <div className="mt-8 flex justify-center">
+            <a 
+              href="/tutoriais/como-proteger-pdf-com-senha"
+              className="inline-flex items-center gap-2 bg-slate-950 text-[#ccff00] border-4 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#ccff00] hover:translate-y-[-2px] transition-transform"
+            >
+              Veja o tutorial completo
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M2 6h8M6 2l4 4-4 4" />
+              </svg>
+            </a>
+          </div>
 
           <div className="mt-16">
             <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
@@ -89,7 +100,7 @@ export default function ProtegerPdfPage() {
               </div>
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">Posso remover a senha depois?</h3>
-                <p className="text-sm text-slate-600 font-mono">Sim. Para remover a senha, abra o PDF no Adobe Acrobat ou no seu leitor preferido com a senha correta e salve uma nova cópia sem proteção.</p>
+                <p className="text-sm text-slate-600 font-mono">Sim, desde que voce tenha a senha correta. Hoje o Unificando PDF ainda nao oferece uma ferramenta propria para remover a protecao, entao esse processo precisa ser feito em outro leitor ou editor de PDF.</p>
               </div>
             </div>
           </div>

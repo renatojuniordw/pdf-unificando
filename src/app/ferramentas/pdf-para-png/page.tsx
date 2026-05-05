@@ -73,6 +73,17 @@ export default function PdfParaPngPage() {
               <p className="text-sm text-slate-600 font-mono">Baixe o PNG (página única) ou um ZIP com todas as páginas.</p>
             </div>
           </div>
+          <div className="mt-8 flex justify-center">
+            <a 
+              href="/tutoriais/como-converter-pdf-em-png"
+              className="inline-flex items-center gap-2 bg-slate-950 text-[#ccff00] border-4 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#ccff00] hover:translate-y-[-2px] transition-transform"
+            >
+              Veja o tutorial completo
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M2 6h8M6 2l4 4-4 4" />
+              </svg>
+            </a>
+          </div>
 
           <div className="mt-16">
             <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
