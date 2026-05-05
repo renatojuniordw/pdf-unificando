@@ -24,10 +24,17 @@ export function Footer() {
               href="https://unificando.com.br/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-[#ccff00] border-2 border-[#ccff00] px-6 py-3 font-black uppercase text-xs tracking-widest hover:bg-[#ccff00] hover:text-slate-950 transition-all shadow-[4px_4px_0px_rgba(204,255,0,0.3)]"
+              className="text-[#ccff00] border-2 border-[#ccff00] px-8 py-4 font-black uppercase text-xs tracking-widest hover:bg-[#ccff00] hover:text-slate-950 transition-all shadow-[6px_6px_0px_rgba(204,255,0,0.3)] hover:shadow-none"
             >
-              Fale com a Unificando
+              Consultoria em IA e Desenvolvimento
             </a>
+            <div className="flex gap-4 mt-6 text-slate-600 text-[8px] font-black uppercase tracking-widest">
+              <span>IA</span>
+              <span>•</span>
+              <span>Web</span>
+              <span>•</span>
+              <span>Sistemas</span>
+            </div>
           </div>
         </div>
 

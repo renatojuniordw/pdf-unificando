@@ -72,7 +72,10 @@ export default function HomePage() {
                     <span>COMO O UNIFICANDO PDF É GRATUITO?</span>
                     <span className="group-open:rotate-180 transition-transform">↓</span>
                   </summary>
-                  <p className="mt-4 text-sm font-mono text-slate-700">Fazemos parte do ecossistema Unificando, que oferece soluções avançadas de IA e desenvolvimento. Esta ferramenta é uma contribuição para a comunidade.</p>
+                  <p className="mt-4 text-sm font-mono text-slate-700">
+                    O Unificando PDF é uma iniciativa da <span className="font-black">Unificando</span>, uma empresa especializada em software de elite e IA. 
+                    Oferecemos esta ferramenta gratuitamente para demonstrar nossa excelência técnica e como forma de contribuir com soluções de alta performance para a comunidade digital.
+                  </p>
                 </details>
                 <details className="group border-4 border-slate-950 bg-white p-6 open:bg-[#ccff00] transition-colors cursor-pointer">
                   <summary className="font-black uppercase list-none flex justify-between items-center">

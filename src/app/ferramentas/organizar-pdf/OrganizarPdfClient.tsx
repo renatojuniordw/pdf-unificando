@@ -21,6 +21,7 @@ import { DropZone } from "@/components/upload/DropZone";
 import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
 import { RetryCountdown } from "@/components/processing/RetryCountdown";
 import { DownloadButton } from "@/components/processing/DownloadButton";
+import { PromotionBanner } from "@/components/tools/PromotionBanner";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { usePdfPages } from "@/hooks/usePdfPages";
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
@@ -270,13 +271,14 @@ export function OrganizarPdfClient() {
         </div>
       )}
       {status === "done" && downloadUrl && (
-        <div className="max-w-2xl mx-auto w-full">
+        <div className="max-w-2xl mx-auto w-full flex flex-col gap-6">
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
             fileSize={processedSize}
             onReset={handleReset}
           />
+          <PromotionBanner />
         </div>
       )}
     </div>

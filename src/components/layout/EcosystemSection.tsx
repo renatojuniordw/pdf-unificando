@@ -16,8 +16,8 @@ export function EcosystemSection() {
               <span className="text-[#ccff00]">UNIFICANDO</span>
             </h2>
             <p className="text-slate-400 font-mono text-sm uppercase tracking-widest leading-relaxed mb-8 max-w-md">
-              Não criamos apenas ferramentas. Construímos soluções digitais focadas em performance, 
-              privacidade e design extremo. O Unificando PDF Tools é apenas a ponta do iceberg.
+              Não criamos apenas ferramentas. Construímos o futuro do seu negócio com software de elite. 
+              Performance máxima, privacidade total e design que impulsiona resultados.
             </p>
             <a 
               href="https://unificando.com.br/" 
@@ -30,22 +30,22 @@ export function EcosystemSection() {
           </div>
           
           <div className="border-4 border-[#ccff00] p-8 bg-slate-900 shadow-[12px_12px_0px_#ccff00]">
-            <h3 className="text-2xl font-black uppercase tracking-tighter text-white mb-4">O que fazemos?</h3>
+            <h3 className="text-2xl font-black uppercase tracking-tighter text-white mb-4">O que entregamos?</h3>
             <ul className="space-y-4">
               {[
                 { 
-                  title: 'ATENDIMENTO COM IA', 
-                  desc: 'Automação inteligente que escala seu negócio.',
+                  title: 'INTELIGÊNCIA ARTIFICIAL', 
+                  desc: 'Automações inteligentes que escalam sua produtividade.',
                   link: 'https://unificando.com.br/servicos/ia'
                 },
                 { 
-                  title: 'DESENVOLVIMENTO WEB', 
-                  desc: 'Sistemas robustos e design extremo.',
+                  title: 'SOFTWARE SOB MEDIDA', 
+                  desc: 'Sistemas robustos e escaláveis para desafios complexos.',
                   link: 'https://unificando.com.br/'
                 },
                 { 
-                  title: 'SOLUÇÕES SOB MEDIDA', 
-                  desc: 'Transformamos problemas em software.',
+                  title: 'DESIGN DE ALTA PERFORMANCE', 
+                  desc: 'Interfaces que convertem e encantam usuários.',
                   link: 'https://unificando.com.br/'
                 },
               ].map((item, i) => (
