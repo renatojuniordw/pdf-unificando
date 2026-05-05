@@ -33,6 +33,7 @@ Copie `.env.example` e ajuste:
 
 | Variável | Padrão | Obrigatória |
 |---|---|---|
+| `API_SECRET_KEY` | — | Sim (produção) |
 | `MAX_FILE_SIZE` | `52428800` (50MB) | Não |
 | `MAX_CONCURRENT_JOBS` | `2` | Não |
 | `MAX_QUEUE_SIZE` | `5` | Não |

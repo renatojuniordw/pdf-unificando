@@ -1,6 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 export function middleware(req: NextRequest) {
+  const apiKey = process.env.API_SECRET_KEY
+  if (apiKey) {
+    const auth = req.headers.get('authorization')
+    const token = auth?.startsWith('Bearer ') ? auth.slice(7) : null
+    if (token !== apiKey) {
+      return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
+    }
+  }
+
   if (process.env.NODE_ENV !== 'production') return NextResponse.next()
   if (req.method !== 'POST') return NextResponse.next()
 
