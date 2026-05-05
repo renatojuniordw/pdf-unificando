@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ConsoleBranding } from '@/components/layout/ConsoleBranding'
 import { CommandPalette } from '@/components/layout/CommandPalette'
+import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -78,6 +79,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main-content">{children}</main>
         <Footer />
         <CommandPalette />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-WDL8Q73DPM"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-WDL8Q73DPM');
+          `}
+        </Script>
       </body>
     </html>
   )
