@@ -19,6 +19,8 @@ export interface TutorialDefinition {
   commonMistakes: string[]
   faqs: TutorialFaq[]
   targetToolSlug: string
+  estimatedTime: string
+  difficulty: 'Fácil' | 'Médio' | 'Difícil'
 }
 
 export const tutorials: TutorialDefinition[] = [
@@ -75,6 +77,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'jpg-para-pdf',
+    estimatedTime: '2 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-juntar-pdf',
@@ -129,6 +133,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'juntar-pdf',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-dividir-pdf',
@@ -182,6 +188,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'dividir-pdf',
+    estimatedTime: '2 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-converter-pdf-em-word',
@@ -230,6 +238,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'pdf-para-word',
+    estimatedTime: '3 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-proteger-pdf-com-senha',
@@ -278,6 +288,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'proteger-pdf',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-redigir-pdf-censurar-conteudo',
@@ -325,6 +337,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'redigir-pdf',
+    estimatedTime: '2 min',
+    difficulty: 'Médio',
   },
   {
     slug: 'como-adicionar-marca-dagua-em-pdf',
@@ -373,6 +387,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'marca-dagua',
+    estimatedTime: '2 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-comprimir-pdf',
@@ -427,6 +443,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'comprimir-pdf',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-converter-pdf-em-jpg',
@@ -474,6 +492,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'pdf-para-jpg',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-rotacionar-pdf',
@@ -521,6 +541,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'rodar-pdf',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-organizar-paginas-pdf',
@@ -568,6 +590,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'organizar-pdf',
+    estimatedTime: '2 min',
+    difficulty: 'Fácil',
   },
   {
     slug: 'como-converter-pdf-em-png',
@@ -615,6 +639,8 @@ export const tutorials: TutorialDefinition[] = [
       },
     ],
     targetToolSlug: 'pdf-para-png',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
   },
 ]
 

@@ -109,6 +109,38 @@ export function generateArticleSchema(article: {
   }
 }
 
+export function generateHowToSchema(tutorial: {
+  title: string
+  description: string
+  slug: string
+  steps: { title: string; description: string }[]
+  estimatedTime: string
+}) {
+  // Convert '2 min' to ISO 8601 duration format (e.g., PT2M)
+  const minutes = parseInt(tutorial.estimatedTime) || 1
+  const isoDuration = `PT${minutes}M`
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: tutorial.title,
+    description: tutorial.description,
+    totalTime: isoDuration,
+    step: tutorial.steps.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.title,
+      itemListElement: [
+        {
+          '@type': 'HowToDirection',
+          text: step.description,
+        },
+      ],
+      url: `https://pdf.unificando.com.br/tutoriais/${tutorial.slug}#step-${index + 1}`,
+    })),
+  }
+}
+
 export function generateBreadcrumbSchema(items: { name: string; url: string }[]) {
   return {
     '@context': 'https://schema.org',

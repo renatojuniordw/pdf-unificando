@@ -8,6 +8,7 @@ import {
   generateArticleSchema,
   generateBreadcrumbSchema,
   generateFAQSchema,
+  generateHowToSchema,
 } from '@/components/seo/JsonLd'
 
 type TutorialPageProps = {
@@ -52,11 +53,27 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
 
   const fullTutorial = getTutorial(tutorial.slug)
   const tool = getTool(fullTutorial.targetToolSlug)
+  
+  // Encontrar tutoriais relacionados (exceto o atual)
+  const relatedTutorials = tutorials
+    .filter((t) => t.slug !== fullTutorial.slug)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3)
+
   const articleSchema = generateArticleSchema({
     title: fullTutorial.title,
     description: fullTutorial.description,
     slug: fullTutorial.slug,
   })
+  
+  const howToSchema = generateHowToSchema({
+    title: fullTutorial.title,
+    description: fullTutorial.description,
+    slug: fullTutorial.slug,
+    steps: fullTutorial.steps,
+    estimatedTime: fullTutorial.estimatedTime,
+  })
+
   const faqSchema = generateFAQSchema(fullTutorial.faqs)
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Início', url: 'https://pdf.unificando.com.br/' },
@@ -70,14 +87,23 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
   return (
     <>
       <JsonLd data={articleSchema} />
+      <JsonLd data={howToSchema} />
       <JsonLd data={faqSchema} />
       <JsonLd data={breadcrumbSchema} />
 
       <section className="bg-[#ccff00] border-b-4 border-slate-950 py-16">
         <div className="max-w-5xl mx-auto px-6 lg:px-12">
-          <span className="inline-block bg-slate-950 text-[#ccff00] font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000] mb-5">
-            TUTORIAL
-          </span>
+          <div className="flex flex-wrap items-center gap-3 mb-5">
+            <span className="inline-block bg-slate-950 text-[#ccff00] font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000]">
+              TUTORIAL
+            </span>
+            <span className="inline-block bg-white text-slate-950 font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000]">
+              ⏱️ {fullTutorial.estimatedTime}
+            </span>
+            <span className="inline-block bg-slate-950 text-white font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000]">
+              📊 {fullTutorial.difficulty}
+            </span>
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase leading-[0.95] text-slate-950">
             {fullTutorial.title}
           </h1>
@@ -131,6 +157,7 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
               {fullTutorial.steps.map((step, index) => (
                 <div
                   key={step.title}
+                  id={`step-${index + 1}`}
                   className="border-4 border-slate-950 bg-white p-6 shadow-[6px_6px_0px_#000]"
                 >
                   <span className="text-4xl font-black text-slate-200 block mb-2">
@@ -201,6 +228,37 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
                     {faq.answer}
                   </p>
                 </details>
+              ))}
+            </div>
+          </section>
+
+          {/* Seção de Tutoriais Relacionados */}
+          <section className="mt-12">
+            <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
+              Veja também
+            </h2>
+            <div className="grid gap-6 md:grid-cols-3">
+              {relatedTutorials.map((t) => (
+                <Link 
+                  key={t.slug}
+                  href={`/tutoriais/${t.slug}`}
+                  className="group border-4 border-slate-950 bg-white p-6 shadow-[4px_4px_0px_#000] hover:translate-y-[-4px] hover:shadow-[8px_8px_0px_#000] transition-all"
+                >
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-950 transition-colors">
+                    TUTORIAL
+                  </span>
+                  <h3 className="font-black uppercase text-lg tracking-tight text-slate-950 mt-2 line-clamp-2">
+                    {t.title}
+                  </h3>
+                  <div className="flex gap-2 mt-4">
+                    <span className="text-[9px] font-bold uppercase bg-slate-100 px-2 py-1 border border-slate-200">
+                      ⏱️ {t.estimatedTime}
+                    </span>
+                    <span className="text-[9px] font-bold uppercase bg-slate-100 px-2 py-1 border border-slate-200">
+                      📊 {t.difficulty}
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           </section>
