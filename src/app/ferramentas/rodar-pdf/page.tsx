@@ -81,7 +81,7 @@ export default function RodarPdfPage() {
             <div className="space-y-6">
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">A rotação é aplicada a todas as páginas?</h3>
-                <p className="text-sm text-slate-600 font-mono">Nesta ferramenta rápida, a rotação selecionada é aplicada a todas as páginas do documento. Se precisar rotacionar apenas uma página específica, use nossa ferramenta "Organizar PDF".</p>
+                <p className="text-sm text-slate-600 font-mono">Nesta ferramenta rápida, a rotação selecionada é aplicada a todas as páginas do documento. Se precisar rotacionar apenas uma página específica, use nossa ferramenta &quot;Organizar PDF&quot;.</p>
               </div>
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">O PDF perde qualidade ao ser rotacionado?</h3>

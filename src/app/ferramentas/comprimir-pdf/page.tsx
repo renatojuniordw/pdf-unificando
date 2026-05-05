@@ -81,7 +81,7 @@ export default function ComprimirPdfPage() {
             <div className="space-y-6">
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">A compressão afeta a leitura do PDF?</h3>
-                <p className="text-sm text-slate-600 font-mono">Nossa ferramenta utiliza algoritmos inteligentes para reduzir o tamanho removendo dados redundantes. Na qualidade "Média" ou "Alta", a diferença visual é imperceptível.</p>
+                <p className="text-sm text-slate-600 font-mono">Nossa ferramenta utiliza algoritmos inteligentes para reduzir o tamanho removendo dados redundantes. Na qualidade &quot;Média&quot; ou &quot;Alta&quot;, a diferença visual é imperceptível.</p>
               </div>
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">É seguro enviar meus documentos?</h3>

@@ -81,7 +81,7 @@ export default function DividirPdfPage() {
             <div className="space-y-6">
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">Como selecionar páginas específicas?</h3>
-                <p className="text-sm text-slate-600 font-mono">Use o formato "1-5" para um intervalo contínuo ou "1, 3, 7" para páginas individuais. Você também pode combinar ambos: "1-3, 5, 10-12".</p>
+                <p className="text-sm text-slate-600 font-mono">Use o formato &quot;1-5&quot; para um intervalo contínuo ou &quot;1, 3, 7&quot; para páginas individuais. Você também pode combinar ambos: &quot;1-3, 5, 10-12&quot;.</p>
               </div>
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">O PDF original é alterado?</h3>

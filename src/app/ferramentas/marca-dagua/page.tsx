@@ -89,7 +89,7 @@ export default function MarcaDaguaPage() {
               </div>
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">Posso usar qualquer texto?</h3>
-                <p className="text-sm text-slate-600 font-mono">Sim, até 100 caracteres. Textos curtos como "CONFIDENCIAL", "RASCUNHO" ou "CÓPIA" funcionam melhor visualmente.</p>
+                <p className="text-sm text-slate-600 font-mono">Sim, até 100 caracteres. Textos curtos como &quot;CONFIDENCIAL&quot;, &quot;RASCUNHO&quot; ou &quot;CÓPIA&quot; funcionam melhor visualmente.</p>
               </div>
             </div>
           </div>

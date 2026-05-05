@@ -65,7 +65,7 @@ export default function OrganizarPdfPage() {
             <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
               <span className="text-4xl font-black text-slate-200 block mb-2">02</span>
               <h3 className="font-bold uppercase mb-2">Organizar</h3>
-              <p className="text-sm text-slate-600 font-mono">Arraste as páginas para reordenar ou clique no 'X' para remover páginas indesejadas.</p>
+              <p className="text-sm text-slate-600 font-mono">Arraste as páginas para reordenar ou clique no &apos;X&apos; para remover páginas indesejadas.</p>
             </div>
             <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
               <span className="text-4xl font-black text-slate-200 block mb-2">03</span>

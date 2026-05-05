@@ -126,7 +126,7 @@ export function CommandPalette() {
               className="relative w-full max-w-2xl bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden"
             >
               <h2 id="command-palette-title" className="sr-only">Busca de Ferramentas PDF</h2>
-                <div className="flex items-center border-b-4 border-black p-4 bg-white" role="combobox" aria-haspopup="listbox" aria-expanded={isOpen} aria-owns="command-palette-results">
+                <div className="flex items-center border-b-4 border-black p-4 bg-white" role="combobox" aria-haspopup="listbox" aria-expanded={isOpen} aria-controls="command-palette-results">
                   <svg
                     width="24"
                     height="24"
