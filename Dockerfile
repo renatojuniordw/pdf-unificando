@@ -23,6 +23,18 @@ RUN apk add --no-cache \
 
 # Usuário não-root
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Política de segurança para Ghostscript (mitigação de CVEs)
+RUN mkdir -p /etc/Ghostscript && \
+    echo '<?xml version="1.0" encoding="UTF-8"?> \
+    <policyContext> \
+      <policy domain="coder" rights="none" pattern="EPS" /> \
+      <policy domain="coder" rights="none" pattern="PS" /> \
+      <policy domain="coder" rights="none" pattern="EPI" /> \
+      <policy domain="coder" rights="none" pattern="XPS" /> \
+      <policy domain="path" rights="none" pattern="/etc/*" /> \
+    </policyContext>' > /etc/Ghostscript/policy.xml
+
 USER appuser
 
 COPY --from=builder --chown=appuser:appgroup /app/.next/standalone ./

@@ -41,9 +41,19 @@ export async function readFormFiles(req: Request): Promise<Buffer[]> {
 }
 
 export function errorResponse(err: unknown): NextResponse {
+  const isProd = process.env.NODE_ENV === 'production'
   const e = err as { message?: string; status?: number }
   const status = e?.status ?? 500
-  const message = e?.message ?? 'Erro interno. Tente novamente.'
+  
+  // Em produção, se for erro 500, ocultamos a mensagem real para evitar vazamentos
+  const message = (status === 500 && isProd) 
+    ? 'Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.' 
+    : (e?.message ?? 'Erro interno.')
+
+  if (status === 500) {
+    console.error('[API Error]:', err)
+  }
+
   return NextResponse.json({ error: message }, { status })
 }
 
