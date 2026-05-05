@@ -4,6 +4,7 @@ import '@/styles/index.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ConsoleBranding } from '@/components/layout/ConsoleBranding'
+import { CommandPalette } from '@/components/layout/CommandPalette'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main>{children}</main>
         <Footer />
+        <CommandPalette />
       </body>
     </html>
   )
