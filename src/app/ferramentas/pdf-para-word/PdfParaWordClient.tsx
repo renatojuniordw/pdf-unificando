@@ -20,6 +20,7 @@ export function PdfParaWordClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/to-word",
+    toolName: "pdf-para-word",
     outputFilename: (name) => name.replace(".pdf", ".docx"),
   });
 
@@ -82,6 +83,7 @@ export function PdfParaWordClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="pdf-para-word"
             fileSize={processedSize}
             onReset={reset}
           />

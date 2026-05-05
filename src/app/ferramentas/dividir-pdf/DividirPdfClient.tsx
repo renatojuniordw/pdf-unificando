@@ -22,6 +22,7 @@ export function DividirPdfClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/split",
+    toolName: "dividir-pdf",
     outputFilename: (name) => name.replace(".pdf", "-dividido.pdf"),
   });
 
@@ -121,6 +122,7 @@ export function DividirPdfClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="dividir-pdf"
             fileSize={processedSize}
             onReset={reset}
           />

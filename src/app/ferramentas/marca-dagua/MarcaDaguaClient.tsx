@@ -37,6 +37,7 @@ export function MarcaDaguaClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/watermark",
+    toolName: "marca-dagua",
     outputFilename: (name) => name.replace(".pdf", "-marca-dagua.pdf"),
   });
 
@@ -170,6 +171,7 @@ export function MarcaDaguaClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="marca-dagua"
             fileSize={processedSize}
             onReset={reset}
           />

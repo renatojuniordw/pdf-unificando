@@ -1,27 +1,58 @@
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID
-const GA_API_SECRET = process.env.GA_API_SECRET
+'use client'
 
-export async function trackProcessingEvent(
-  tool: string,
-  success: boolean,
-  fileSizeBytes?: number
-) {
-  if (!GA_MEASUREMENT_ID || !GA_API_SECRET) return
+// GTM Container ID: GTM-NV6BPT7T
+export const GTM_ID = 'GTM-NV6BPT7T'
 
-  await fetch(
-    `https://www.google-analytics.com/mp/collect?measurement_id=${GA_MEASUREMENT_ID}&api_secret=${GA_API_SECRET}`,
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        client_id: 'server',
-        events: [{
-          name: success ? 'pdf_processed' : 'pdf_error',
-          params: {
-            tool,
-            file_size_kb: fileSizeBytes ? Math.round(fileSizeBytes / 1024) : undefined,
-          },
-        }],
-      }),
-    }
-  ).catch(() => {})
+type GAEvent = {
+  action: string
+  category?: string
+  label?: string
+  value?: number
+}
+
+// Envia um evento para o dataLayer (GTM)
+export const trackEvent = ({ action, category, label, value }: GAEvent) => {
+  if (typeof window !== 'undefined' && (window as any).dataLayer) {
+    (window as any).dataLayer.push({
+      event: action, // O GTM usa a chave 'event' para gatilhos
+      event_category: category,
+      event_label: label,
+      value: value,
+    })
+  }
+}
+
+// Eventos específicos para ferramentas PDF
+export const trackToolUpload = (tool: string, fileCount: number, totalSize: number) => {
+  trackEvent({
+    action: 'tool_upload',
+    category: 'tools',
+    label: tool,
+    value: fileCount,
+  })
+}
+
+export const trackToolSuccess = (tool: string, outputSize: number) => {
+  trackEvent({
+    action: 'tool_success',
+    category: 'tools',
+    label: tool,
+    value: outputSize,
+  })
+}
+
+export const trackToolDownload = (tool: string, filename: string) => {
+  trackEvent({
+    action: 'tool_download',
+    category: 'tools',
+    label: `${tool}:${filename}`,
+  })
+}
+
+export const trackToolError = (tool: string, errorType: string) => {
+  trackEvent({
+    action: 'tool_error',
+    category: 'tools',
+    label: `${tool}:${errorType}`,
+  })
 }

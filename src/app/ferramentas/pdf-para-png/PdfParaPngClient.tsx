@@ -24,6 +24,7 @@ export function PdfParaPngClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/to-png",
+    toolName: "pdf-para-png",
     outputFilename: (name) => name.replace(".pdf", ".zip"),
   });
 
@@ -115,6 +116,7 @@ export function PdfParaPngClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="pdf-para-png"
             fileSize={processedSize}
             onReset={reset}
           />

@@ -2,10 +2,12 @@
 
 import { useState, useCallback, useRef } from "react";
 import type { ProcessingStatus } from "@/types/pdf";
+import { trackToolUpload, trackToolSuccess, trackToolError } from "@/lib/analytics";
 import { useRetryCountdown } from "./useRetryCountdown";
 
 interface UseFileProcessorOptions {
   endpoint: string;
+  toolName: string;
   outputFilename?: string | ((originalName: string) => string);
 }
 
@@ -28,6 +30,7 @@ interface UseFileProcessorReturn {
 
 export function useFileProcessor({
   endpoint,
+  toolName,
   outputFilename,
 }: UseFileProcessorOptions): UseFileProcessorReturn {
   const [status, setStatus] = useState<ProcessingStatus>("idle");
@@ -50,13 +53,17 @@ export function useFileProcessor({
     async (files: File | File[], extraData?: Record<string, string>) => {
       const fileArray = Array.isArray(files) ? files : [files];
       const firstFile = fileArray[0];
+      const totalSize = fileArray.reduce((acc, f) => acc + f.size, 0);
 
       setStatus("uploading");
       setError(null);
       setDownloadUrl(null);
       setOutputName(null);
-      setOriginalSize(fileArray.reduce((acc, f) => acc + f.size, 0));
+      setOriginalSize(totalSize);
       setProcessedSize(null);
+
+      // GA: Track Upload Start
+      trackToolUpload(toolName, fileArray.length, totalSize);
 
       try {
         const honeypotValue =
@@ -65,6 +72,7 @@ export function useFileProcessor({
         if (honeypotValue) {
           setStatus('error');
           setError('Erro de validação.');
+          trackToolError(toolName, 'honeypot');
           return;
         }
 
@@ -89,12 +97,14 @@ export function useFileProcessor({
           );
           startCountdown(retryAfter);
           setStatus("rate_limited");
+          trackToolError(toolName, 'rate_limit');
           return;
         }
 
         if (res.status === 413) {
           setError("Arquivo muito grande. Limite: 50MB.");
           setStatus("error");
+          trackToolError(toolName, 'payload_too_large');
           return;
         }
 
@@ -102,8 +112,10 @@ export function useFileProcessor({
           const body = await res
             .json()
             .catch(() => ({ error: "Erro desconhecido." }));
-          setError(body.error ?? "Erro ao processar arquivo.");
+          const errorMsg = body.error ?? "Erro ao processar arquivo.";
+          setError(errorMsg);
           setStatus("error");
+          trackToolError(toolName, `api_error:${res.status}`);
           return;
         }
 
@@ -124,12 +136,16 @@ export function useFileProcessor({
         setOutputName(name);
         setProcessedSize(blob.size);
         setStatus("done");
-      } catch {
+
+        // GA: Track Success
+        trackToolSuccess(toolName, blob.size);
+      } catch (e) {
         setError("Erro de conexão. Verifique sua internet.");
         setStatus("error");
+        trackToolError(toolName, 'connection_error');
       }
     },
-    [endpoint, outputFilename, startCountdown],
+    [endpoint, toolName, outputFilename, startCountdown],
   );
 
   const reset = useCallback(() => {

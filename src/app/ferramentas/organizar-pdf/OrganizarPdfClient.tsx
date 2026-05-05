@@ -117,6 +117,7 @@ export function OrganizarPdfClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/organize",
+    toolName: "organizar-pdf",
     outputFilename: (name) => name.replace(".pdf", "-organizado.pdf"),
   });
 
@@ -275,6 +276,7 @@ export function OrganizarPdfClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="organizar-pdf"
             fileSize={processedSize}
             onReset={handleReset}
           />

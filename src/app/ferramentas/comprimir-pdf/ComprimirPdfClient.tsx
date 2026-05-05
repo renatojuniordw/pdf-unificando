@@ -29,6 +29,7 @@ export function ComprimirPdfClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/compress",
+    toolName: "comprimir-pdf",
     outputFilename: (name) => name.replace(".pdf", "-comprimido.pdf"),
   });
 
@@ -142,6 +143,7 @@ export function ComprimirPdfClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="comprimir-pdf"
             fileSize={processedSize}
             onReset={reset}
           />

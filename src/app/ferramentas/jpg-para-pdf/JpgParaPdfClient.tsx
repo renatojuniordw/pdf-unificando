@@ -27,6 +27,7 @@ export function JpgParaPdfClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/from-jpg",
+    toolName: "jpg-para-pdf",
     outputFilename: "imagens.pdf",
   });
 
@@ -110,6 +111,7 @@ export function JpgParaPdfClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="jpg-para-pdf"
             fileSize={processedSize}
             onReset={handleReset}
           />

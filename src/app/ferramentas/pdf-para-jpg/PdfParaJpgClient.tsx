@@ -23,6 +23,7 @@ export function PdfParaJpgClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/to-jpg",
+    toolName: "pdf-para-jpg",
     outputFilename: (name) => name.replace(".pdf", ".zip"),
   });
 
@@ -89,6 +90,7 @@ export function PdfParaJpgClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="pdf-para-jpg"
             fileSize={processedSize}
             onReset={reset}
           />

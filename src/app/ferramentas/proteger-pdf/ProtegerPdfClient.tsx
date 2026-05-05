@@ -24,6 +24,7 @@ export function ProtegerPdfClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/protect",
+    toolName: "proteger-pdf",
     outputFilename: (name) => name.replace(".pdf", "-protegido.pdf"),
   });
 
@@ -135,6 +136,7 @@ export function ProtegerPdfClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="proteger-pdf"
             fileSize={processedSize}
             onReset={reset}
           />

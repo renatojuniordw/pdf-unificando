@@ -23,6 +23,7 @@ export function RodarPdfClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/rotate",
+    toolName: "rodar-pdf",
     outputFilename: (name) => name.replace(".pdf", "-rotacionado.pdf"),
   });
 
@@ -89,6 +90,7 @@ export function RodarPdfClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="rodar-pdf"
             fileSize={processedSize}
             onReset={reset}
           />

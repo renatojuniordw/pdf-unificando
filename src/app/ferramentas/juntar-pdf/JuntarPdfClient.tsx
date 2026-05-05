@@ -28,6 +28,7 @@ export function JuntarPdfClient() {
     progress,
   } = useFileProcessor({
     endpoint: "/api/pdf/merge",
+    toolName: "juntar-pdf",
     outputFilename: "unificado.pdf",
   });
 
@@ -143,6 +144,7 @@ export function JuntarPdfClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
+            toolName="juntar-pdf"
             fileSize={processedSize}
             onReset={handleReset}
           />
