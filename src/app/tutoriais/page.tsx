@@ -1,8 +1,7 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { tutorials } from '@/config/tutorials'
-import { getTool } from '@/config/tools'
 import { JsonLd, generateBreadcrumbSchema } from '@/components/seo/JsonLd'
+import { TutorialsList } from '@/components/tutorials/TutorialsList'
 
 export const metadata: Metadata = {
   title: 'Tutoriais',
@@ -54,49 +53,7 @@ export default function TutoriaisPage() {
         </div>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {tutorials.map((tutorial) => {
-              const tool = getTool(tutorial.targetToolSlug)
-
-              return (
-                <article
-                  key={tutorial.slug}
-                  className="border-4 border-slate-950 bg-white shadow-[8px_8px_0px_#000] p-6 flex flex-col"
-                >
-                  <span className="inline-block self-start bg-slate-950 text-[#ccff00] text-[10px] font-black uppercase tracking-widest px-2 py-1 border-2 border-slate-950 shadow-[2px_2px_0px_#ccff00]">
-                    {tutorial.searchIntent}
-                  </span>
-                  <h2 className="text-2xl font-black uppercase tracking-tighter text-slate-950 mt-4">
-                    {tutorial.title}
-                  </h2>
-                  <p className="text-xs font-mono uppercase tracking-widest text-slate-500 mt-3 leading-relaxed flex-1">
-                    {tutorial.description}
-                  </p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-700 mt-5">
-                    Ferramenta indicada: {tool.name}
-                  </p>
-                  <div className="flex gap-3 mt-6">
-                    <Link
-                      href={`/tutoriais/${tutorial.slug}`}
-                      className="flex-1 bg-[#ccff00] text-slate-950 border-4 border-slate-950 px-4 py-3 text-center font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#000] hover:translate-y-[-2px] transition-transform"
-                    >
-                      Ler tutorial
-                    </Link>
-                    <Link
-                      href={`/ferramentas/${tool.slug}`}
-                      className="flex-1 bg-white text-slate-950 border-4 border-slate-950 px-4 py-3 text-center font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#000] hover:bg-slate-100 transition-colors"
-                    >
-                      Abrir ferramenta
-                    </Link>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        </div>
-      </section>
+      <TutorialsList tutorials={tutorials} />
     </>
   )
 }
