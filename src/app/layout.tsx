@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import '@/styles/index.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { ConsoleBranding } from '@/components/layout/ConsoleBranding'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={inter.className}>
       <body>
+        <ConsoleBranding />
         <Header />
         <main>{children}</main>
         <Footer />
