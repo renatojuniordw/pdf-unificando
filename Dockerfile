@@ -24,6 +24,10 @@ RUN apk add --no-cache \
 # Usuário não-root
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
+# Diretórios mínimos de cache para ferramentas que resolvem fontes em runtime
+RUN mkdir -p /home/appuser/.cache/fontconfig /home/appuser/.fontconfig && \
+    chown -R appuser:appgroup /home/appuser
+
 # Política de segurança para Ghostscript (mitigação de CVEs)
 RUN mkdir -p /etc/Ghostscript && \
     echo '<?xml version="1.0" encoding="UTF-8"?> \
@@ -45,5 +49,6 @@ EXPOSE 11005
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=11005
+ENV XDG_CACHE_HOME=/home/appuser/.cache
 
 CMD ["node", "server.js"]

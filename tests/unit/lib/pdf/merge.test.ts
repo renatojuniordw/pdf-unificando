@@ -38,8 +38,13 @@ describe('lib/pdf/merge', () => {
     expect(merged.getPageCount()).toBe(4) // 1 + 3
   })
 
-  it('deve lançar erro se array vazio', async () => {
-    await expect(mergePdfs([])).rejects.toThrow()
+  it('deve retornar um PDF válido mesmo se array estiver vazio', async () => {
+    const result = await mergePdfs([])
+    const merged = await PDFDocument.load(result)
+
+    expect(result).toBeInstanceOf(Buffer)
+    expect(result.slice(0, 4).toString()).toBe('%PDF')
+    expect(merged.getPageCount()).toBe(1)
   })
 
   it('deve lidar com merge de múltiplos PDFs', async () => {

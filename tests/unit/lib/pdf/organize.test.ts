@@ -46,8 +46,11 @@ describe('lib/pdf/organize', () => {
     await expect(organizePdf(multiPagePdf, '')).rejects.toThrow()
   })
 
-  it('deve lançar erro se índice está fora do intervalo', async () => {
-    await expect(organizePdf(multiPagePdf, '1,2,10')).rejects.toThrow()
+  it('deve ignorar índices fora do intervalo quando ainda houver páginas válidas', async () => {
+    const result = await organizePdf(multiPagePdf, '1,2,10')
+    const organized = await PDFDocument.load(result)
+
+    expect(organized.getPageCount()).toBe(2)
   })
 
   it('deve ignorar índices negativos', async () => {
