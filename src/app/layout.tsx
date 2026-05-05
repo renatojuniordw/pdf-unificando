@@ -5,7 +5,9 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ConsoleBranding } from '@/components/layout/ConsoleBranding'
 import { CommandPalette } from '@/components/layout/CommandPalette'
+import { PWARegistration } from '@/components/pwa/PWARegistration'
 import Script from 'next/script'
+import type { Viewport } from 'next'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,6 +15,12 @@ const BASE_URL = 'https://pdf.unificando.com.br'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
+  applicationName: 'Unificando PDF',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Unificando',
+  },
   title: {
     default: 'Unificando PDF — Ferramentas PDF Gratuitas Online',
     template: '%s | Unificando PDF'
@@ -63,6 +71,12 @@ export const metadata: Metadata = {
   },
 }
 
+export const viewport: Viewport = {
+  themeColor: '#ccff00',
+  width: 'device-width',
+  initialScale: 1,
+}
+
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -79,6 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main-content">{children}</main>
         <Footer />
         <CommandPalette />
+        <PWARegistration />
         <Script id="gtm-script" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
