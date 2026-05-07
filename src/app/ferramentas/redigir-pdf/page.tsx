@@ -70,7 +70,7 @@ export default function RedigirPdfPage() {
             <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
               <span className="text-4xl font-black text-slate-200 block mb-2">03</span>
               <h3 className="font-bold uppercase mb-2">Baixar</h3>
-              <p className="text-sm text-slate-600 font-mono">Aplique a redação e baixe o PDF com retângulos pretos permanentes sobre o conteúdo censurado.</p>
+              <p className="text-sm text-slate-600 font-mono">Aplique a censura e baixe o PDF com retângulos pretos permanentes sobre o conteúdo ocultado.</p>
             </div>
           </div>
           <div className="mt-8 flex justify-center">
@@ -92,15 +92,15 @@ export default function RedigirPdfPage() {
             <div className="space-y-6">
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">O texto sob o retângulo pode ser recuperado?</h3>
-                <p className="text-sm text-slate-600 font-mono">Não. A redação é permanente: um retângulo preto opaco é desenhado diretamente sobre o conteúdo da página, sem possibilidade de remoção ou recuperação do texto original.</p>
+                <p className="text-sm text-slate-600 font-mono">Não. A censura é permanente: um retângulo preto opaco é desenhado diretamente sobre o conteúdo da página, sem possibilidade de remoção ou recuperação do texto original.</p>
               </div>
               <div className="border-4 border-slate-950 p-6">
                 <h3 className="font-black uppercase text-lg mb-2">Funciona em PDFs escaneados?</h3>
                 <p className="text-sm text-slate-600 font-mono">Sim. Como aplicamos retângulos sobre a imagem da página, funciona tanto em PDFs com texto selecionável quanto em PDFs baseados em imagens (escaneados).</p>
               </div>
               <div className="border-4 border-slate-950 p-6">
-                <h3 className="font-black uppercase text-lg mb-2">Posso redigir múltiplas páginas?</h3>
-                <p className="text-sm text-slate-600 font-mono">Sim. Todas as páginas do PDF são exibidas, e você pode desenhar marcações em qualquer página antes de aplicar a redação final.</p>
+                <h3 className="font-black uppercase text-lg mb-2">Posso censurar múltiplas páginas?</h3>
+                <p className="text-sm text-slate-600 font-mono">Sim. Todas as páginas do PDF são exibidas, e você pode desenhar marcações em qualquer página antes de aplicar a censura final.</p>
               </div>
             </div>
           </div>

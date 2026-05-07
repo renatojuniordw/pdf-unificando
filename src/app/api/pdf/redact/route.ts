@@ -28,7 +28,12 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'Nenhuma área de redação informada.' }, { status: 400 })
     }
 
-    const result = await redactPdf(buffer, regions)
+    const resolutionRaw = Number(formData.get('resolution'))
+    const resolution = ([72, 144, 216] as const).includes(resolutionRaw as 72 | 144 | 216)
+      ? (resolutionRaw as 72 | 144 | 216)
+      : 144
+
+    const result = await redactPdf(buffer, regions, resolution)
     return streamResponse(result, buildOutputFilename(file.name, 'pdf'), 'application/pdf')
   } catch (err) {
     return errorResponse(err)

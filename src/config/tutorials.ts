@@ -296,9 +296,9 @@ export const tutorials: TutorialDefinition[] = [
     title: 'Como censurar e ocultar informações em PDF',
     description:
       'Aprenda como remover permanentemente informações sensíveis de um documento PDF.',
-    searchIntent: 'como redigir pdf',
+    searchIntent: 'como censurar pdf',
     intro:
-      'Redigir (ou censurar) é o ato de ocultar informações que não devem ser vistas por terceiros, como CPFs, valores ou nomes em documentos públicos.',
+      'Censurar um PDF é o ato de ocultar informações que não devem ser vistas por terceiros, como CPFs, valores bancários ou nomes em documentos públicos.',
     whenToUse: [
       'Para ocultar dados sensíveis em processos públicos.',
       'Para remover informações confidenciais antes de compartilhar um documento.',
@@ -308,15 +308,15 @@ export const tutorials: TutorialDefinition[] = [
       {
         title: 'Selecione o PDF para censura',
         description:
-          'Carregue o arquivo e o sistema abrirá a ferramenta de marcação.',
+          'Carregue o arquivo e o sistema abrirá o workspace de edição.',
       },
       {
         title: 'Marque as áreas que deseja ocultar',
         description:
-          'Desenhe retângulos pretos sobre os textos ou imagens que devem ser removidos.',
+          'Desenhe retângulos pretos sobre os textos ou imagens que devem ser ocultados.',
       },
       {
-        title: 'Aplique a redação permanente',
+        title: 'Aplique as alterações',
         description:
           'O sistema removerá de fato o conteúdo por baixo das tarjas pretas, impedindo qualquer recuperação.',
       },
@@ -333,7 +333,7 @@ export const tutorials: TutorialDefinition[] = [
       {
         question: 'Dá para remover a tarja depois?',
         answer:
-          'Não. Uma vez aplicado o processo de redação, o conteúdo original é destruído por segurança.',
+          'Não. Uma vez aplicado o processo de censura, o conteúdo original é destruído por segurança.',
       },
     ],
     targetToolSlug: 'redigir-pdf',

@@ -1,134 +1,220 @@
-"use client";
+"use client"
 
-import { useState, useCallback, useRef } from "react";
-import { DropZone } from "@/components/upload/DropZone";
-import { PromotionBanner } from "@/components/tools/PromotionBanner";
-import { DownloadButton } from "@/components/processing/DownloadButton";
+import { useState, useCallback, useRef, useEffect } from "react"
+import { DropZone } from "@/components/upload/DropZone"
+import { PromotionBanner } from "@/components/tools/PromotionBanner"
+import { DownloadButton } from "@/components/processing/DownloadButton"
+import { useHistory } from "./hooks/useHistory"
+import { getNormalized, clamp } from "./utils"
+import { PageCanvas } from "./components/PageCanvas"
+import { ThumbnailSidebar } from "./components/ThumbnailSidebar"
+import { EditorToolbar } from "./components/EditorToolbar"
+import type { Rect, PageInfo, DrawingRect, Resolution } from "./types"
 
-type Rect = { id: string; page: number; x: number; y: number; w: number; h: number };
-type PageInfo = { image: string; width: number; height: number };
-type DrawingRect = { page: number; startX: number; startY: number; currentX: number; currentY: number };
-
-type State =
+type Phase =
   | { phase: "idle" }
   | { phase: "loading"; file: File }
-  | { phase: "editing"; file: File; pages: PageInfo[]; rects: Rect[] }
-  | { phase: "processing"; file: File; pages: PageInfo[]; rects: Rect[] }
+  | { phase: "editing"; file: File; pages: PageInfo[] }
+  | { phase: "processing"; file: File; pages: PageInfo[] }
   | { phase: "done"; url: string; filename: string; size: number }
-  | { phase: "error"; message: string };
+  | { phase: "error"; message: string }
 
-function getNormalized(d: DrawingRect) {
-  return {
-    x: Math.min(d.startX, d.currentX),
-    y: Math.min(d.startY, d.currentY),
-    w: Math.abs(d.currentX - d.startX),
-    h: Math.abs(d.currentY - d.startY),
-  };
-}
+const ZOOM_STEPS = [75, 100, 125, 150, 175, 200]
 
 export function RedigirPdfClient() {
-  const [state, setState] = useState<State>({ phase: "idle" });
-  const [drawing, setDrawing] = useState<DrawingRect | null>(null);
-  const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  const urlRef = useRef<string | null>(null);
+  const [state, setState] = useState<Phase>({ phase: "idle" })
+  const [drawing, setDrawing] = useState<DrawingRect | null>(null)
+  const [zoom, setZoom] = useState(100)
+  const [resolution, setResolution] = useState<Resolution>(144)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchCount, setSearchCount] = useState<number | null>(null)
+
+  const history = useHistory<Rect[]>([])
+  const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map())
+  const urlRef = useRef<string | null>(null)
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    if (state.phase !== "editing") return
+    const handler = (e: KeyboardEvent) => {
+      const mod = e.ctrlKey || e.metaKey
+      if (mod && e.key === "z" && !e.shiftKey) { e.preventDefault(); history.undo() }
+      if (mod && (e.key === "y" || (e.key === "z" && e.shiftKey))) { e.preventDefault(); history.redo() }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [state.phase, history])
 
   const handleDrop = useCallback(async (files: File[]) => {
-    const file = files[0];
-    setState({ phase: "loading", file });
+    const file = files[0]
+    setState({ phase: "loading", file })
+    history.reset([])
 
-    const hp = document.querySelector<HTMLInputElement>("[data-honeypot]")?.value ?? "";
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("_hp", hp);
+    const hp = document.querySelector<HTMLInputElement>("[data-honeypot]")?.value ?? ""
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("_hp", hp)
 
     try {
-      const res = await fetch("/api/pdf/redact/preview", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Erro ao carregar preview.");
-      setState({ phase: "editing", file, pages: data.pages, rects: [] });
+      const res = await fetch("/api/pdf/redact/preview", { method: "POST", body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? "Erro ao carregar preview.")
+      setState({ phase: "editing", file, pages: data.pages })
+      setCurrentPage(0)
     } catch (err) {
-      setState({ phase: "error", message: err instanceof Error ? err.message : "Erro desconhecido." });
+      setState({ phase: "error", message: err instanceof Error ? err.message : "Erro desconhecido." })
     }
-  }, []);
+  }, [history])
 
+  // Drawing — mouse
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>, page: number) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    setDrawing({ page, startX: x, startY: y, currentX: x, currentY: y });
-    e.preventDefault();
-  }, []);
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    setDrawing({ page, startX: x, startY: y, currentX: x, currentY: y })
+    e.preventDefault()
+  }, [])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!drawing) return;
-    const el = pageRefs.current.get(drawing.page);
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
-    const y = Math.min(Math.max((e.clientY - rect.top) / rect.height, 0), 1);
-    setDrawing((prev) => prev ? { ...prev, currentX: x, currentY: y } : null);
-  }, [drawing]);
+    if (!drawing) return
+    const el = pageRefs.current.get(drawing.page)
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const x = clamp((e.clientX - rect.left) / rect.width, 0, 1)
+    const y = clamp((e.clientY - rect.top) / rect.height, 0, 1)
+    setDrawing((prev) => prev ? { ...prev, currentX: x, currentY: y } : null)
+  }, [drawing])
 
-  const handleMouseUp = useCallback(() => {
-    if (!drawing) return;
-    const norm = getNormalized(drawing);
+  // Drawing — touch
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>, page: number) => {
+    if (e.touches.length !== 1) return
+    const touch = e.touches[0]
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = (touch.clientX - rect.left) / rect.width
+    const y = (touch.clientY - rect.top) / rect.height
+    setDrawing({ page, startX: x, startY: y, currentX: x, currentY: y })
+    e.preventDefault()
+  }, [])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!drawing || e.touches.length !== 1) return
+    const touch = e.touches[0]
+    const el = pageRefs.current.get(drawing.page)
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const x = clamp((touch.clientX - rect.left) / rect.width, 0, 1)
+    const y = clamp((touch.clientY - rect.top) / rect.height, 0, 1)
+    setDrawing((prev) => prev ? { ...prev, currentX: x, currentY: y } : null)
+    e.preventDefault()
+  }, [drawing])
+
+  const commitDrawing = useCallback((d: DrawingRect | null) => {
+    if (!d) return
+    const norm = getNormalized(d)
     if (norm.w > 0.01 && norm.h > 0.005) {
-      setState((prev) => {
-        if (prev.phase !== "editing") return prev;
-        return {
-          ...prev,
-          rects: [...prev.rects, { id: crypto.randomUUID(), page: drawing.page, ...norm }],
-        };
-      });
+      history.push((prev) => [...prev, { id: crypto.randomUUID(), page: d.page, ...norm }])
     }
-    setDrawing(null);
-  }, [drawing]);
+    setDrawing(null)
+  }, [history])
+
+  const handleMouseUp = useCallback(() => commitDrawing(drawing), [drawing, commitDrawing])
+  const handleTouchEnd = useCallback(() => commitDrawing(drawing), [drawing, commitDrawing])
 
   const removeRect = useCallback((id: string) => {
-    setState((prev) => {
-      if (prev.phase !== "editing") return prev;
-      return { ...prev, rects: prev.rects.filter((r) => r.id !== id) };
-    });
-  }, []);
+    history.push((prev) => prev.filter((r) => r.id !== id))
+  }, [history])
 
+  // Zoom
+  const handleZoomIn = useCallback(() => {
+    setZoom((z) => ZOOM_STEPS[Math.min(ZOOM_STEPS.indexOf(z) + 1, ZOOM_STEPS.length - 1)])
+  }, [])
+  const handleZoomOut = useCallback(() => {
+    setZoom((z) => ZOOM_STEPS[Math.max(ZOOM_STEPS.indexOf(z) - 1, 0)])
+  }, [])
+
+  // Page navigation
+  const handlePageSelect = useCallback((idx: number) => {
+    setCurrentPage(idx)
+    document.getElementById(`page-${idx}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [])
+
+  // Find and redact
+  const handleSearch = useCallback(async () => {
+    if (state.phase !== "editing" || !searchQuery.trim()) return
+    setIsSearching(true)
+    setSearchCount(null)
+    try {
+      const hp = document.querySelector<HTMLInputElement>("[data-honeypot]")?.value ?? ""
+      const formData = new FormData()
+      formData.append("file", state.file)
+      formData.append("query", searchQuery.trim())
+      formData.append("_hp", hp)
+      const res = await fetch("/api/pdf/redact/search", { method: "POST", body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      const newRects: Rect[] = data.regions.map((r: { page: number; x: number; y: number; width: number; height: number }) => ({
+        id: crypto.randomUUID(),
+        page: r.page,
+        x: r.x,
+        y: r.y,
+        w: r.width,
+        h: r.height,
+      }))
+      setSearchCount(newRects.length)
+      if (newRects.length > 0) history.push((prev) => [...prev, ...newRects])
+    } catch {
+      setSearchCount(0)
+    } finally {
+      setIsSearching(false)
+    }
+  }, [state, searchQuery, history])
+
+
+  // Apply redaction
   const handleApply = useCallback(async () => {
-    if (state.phase !== "editing" || state.rects.length === 0) return;
-    const { file, pages, rects } = state;
-    setState({ phase: "processing", file, pages, rects });
+    if (state.phase !== "editing" || history.value.length === 0) return
+    const { file, pages } = state
+    setState({ phase: "processing", file, pages })
 
-    const hp = document.querySelector<HTMLInputElement>("[data-honeypot]")?.value ?? "";
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("_hp", hp);
-    formData.append(
-      "regions",
-      JSON.stringify(rects.map((r) => ({ page: r.page, x: r.x, y: r.y, width: r.w, height: r.h }))),
-    );
+    const hp = document.querySelector<HTMLInputElement>("[data-honeypot]")?.value ?? ""
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("_hp", hp)
+    formData.append("regions", JSON.stringify(history.value.map((r) => ({ page: r.page, x: r.x, y: r.y, width: r.w, height: r.h }))))
+    formData.append("resolution", String(resolution))
 
     try {
-      const res = await fetch("/api/pdf/redact", { method: "POST", body: formData });
+      const res = await fetch("/api/pdf/redact", { method: "POST", body: formData })
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Erro ao aplicar redação.");
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error ?? "Erro ao aplicar alterações.")
       }
-      const blob = await res.blob();
-      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-      urlRef.current = URL.createObjectURL(blob);
-      setState({ phase: "done", url: urlRef.current, filename: file.name.replace(".pdf", "-redigido.pdf"), size: blob.size });
+      const blob = await res.blob()
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current)
+      urlRef.current = URL.createObjectURL(blob)
+      setState({ phase: "done", url: urlRef.current, filename: file.name.replace(".pdf", "-censurado.pdf"), size: blob.size })
     } catch (err) {
-      setState({ phase: "error", message: err instanceof Error ? err.message : "Erro desconhecido." });
+      setState({ phase: "error", message: err instanceof Error ? err.message : "Erro desconhecido." })
     }
-  }, [state]);
+  }, [state, history.value, resolution])
 
   const reset = useCallback(() => {
-    if (urlRef.current) {
-      URL.revokeObjectURL(urlRef.current);
-      urlRef.current = null;
-    }
-    setState({ phase: "idle" });
-    setDrawing(null);
-    pageRefs.current.clear();
-  }, []);
+    if (urlRef.current) { URL.revokeObjectURL(urlRef.current); urlRef.current = null }
+    setState({ phase: "idle" })
+    setDrawing(null)
+    history.reset([])
+    setZoom(100)
+    setCurrentPage(0)
+    setSearchQuery("")
+    setSearchCount(null)
+    pageRefs.current.clear()
+  }, [history])
+
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false)
+
+  // ── Phases ──────────────────────────────────────────────────────────────────
 
   if (state.phase === "idle") {
     return (
@@ -137,13 +223,13 @@ export function RedigirPdfClient() {
           <p className="text-xs font-black uppercase tracking-widest mb-2">COMO FUNCIONA</p>
           <ol className="text-xs font-mono text-slate-600 space-y-1 list-decimal list-inside uppercase tracking-widest">
             <li>Faça upload do PDF</li>
-            <li>Desenhe retângulos sobre as áreas a censurar</li>
-            <li>Clique em &quot;Aplicar Redação&quot; para gerar o PDF final</li>
+            <li>Desenhe retângulos ou use a busca para marcar o que deseja ocultar</li>
+            <li>Clique em &quot;Aplicar Alterações&quot; para gerar o PDF final</li>
           </ol>
         </div>
         <DropZone accept={{ "application/pdf": [".pdf"] }} onDrop={handleDrop} />
       </div>
-    );
+    )
   }
 
   if (state.phase === "loading") {
@@ -152,7 +238,7 @@ export function RedigirPdfClient() {
         <div className="w-8 h-8 border-4 border-slate-950 border-t-[#ccff00] rounded-full animate-spin" />
         <p className="font-black uppercase tracking-widest text-sm">CARREGANDO PÁGINAS...</p>
       </div>
-    );
+    )
   }
 
   if (state.phase === "done") {
@@ -163,14 +249,14 @@ export function RedigirPdfClient() {
             <path d="M4 10l4 4 8-8" />
           </svg>
           <p className="font-black uppercase tracking-widest text-sm">
-            REDAÇÃO APLICADA
-            <span className="font-mono text-xs ml-2">{(state.size / 1024 / 1024).toFixed(1)}MB</span>
+            ALTERAÇÕES APLICADAS
+            <span className="font-mono text-xs ml-2">{(state.size / 1024 / 1024).toFixed(1)} MB</span>
           </p>
         </div>
         <DownloadButton url={state.url} filename={state.filename} fileSize={state.size} onReset={reset} />
         <PromotionBanner />
       </div>
-    );
+    )
   }
 
   if (state.phase === "error") {
@@ -184,98 +270,117 @@ export function RedigirPdfClient() {
           TENTAR NOVAMENTE
         </button>
       </div>
-    );
+    )
   }
 
-  // editing or processing phase
-  const isProcessing = state.phase === "processing";
-  const { pages, rects } = state;
+  // editing or processing
+  const isProcessing = state.phase === "processing"
+  const { pages } = state
+  const rects = history.value
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col gap-6">
-      <div className="flex items-center justify-between border-4 border-slate-950 bg-white shadow-[8px_8px_0px_#000] p-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-widest">
-            {rects.length === 0
-              ? "DESENHE AS ÁREAS A CENSURAR"
-              : `${rects.length} ÁREA${rects.length > 1 ? "S" : ""} MARCADA${rects.length > 1 ? "S" : ""}`}
-          </p>
-          <p className="text-[10px] font-mono text-slate-500 mt-1 uppercase tracking-widest">
-            Clique e arraste sobre o texto ou área que deseja cobrir
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={reset}
-            disabled={isProcessing}
-            className="border-4 border-slate-950 px-4 py-2 font-black uppercase text-xs tracking-widest hover:bg-slate-100 transition-colors disabled:opacity-40"
-          >
-            CANCELAR
-          </button>
-          <button
-            onClick={handleApply}
-            disabled={rects.length === 0 || isProcessing}
-            className="border-4 border-slate-950 bg-slate-950 text-[#ccff00] px-4 py-2 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#ccff00] hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:shadow-none flex items-center gap-2"
-          >
-            {isProcessing && <span className="w-3 h-3 border-2 border-[#ccff00] border-t-transparent rounded-full animate-spin" />}
-            APLICAR REDAÇÃO
-          </button>
-        </div>
+    <div className="fixed inset-0 z-50 bg-slate-200 flex flex-col overflow-hidden">
+      
+      {/* Top Bar - Fixed */}
+      <div className="flex-shrink-0 z-20">
+        <EditorToolbar
+          canUndo={history.canUndo}
+          canRedo={history.canRedo}
+          onUndo={history.undo}
+          onRedo={history.redo}
+          zoom={zoom}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          resolution={resolution}
+          onResolutionChange={setResolution}
+          search={{ query: searchQuery, isSearching, resultCount: searchCount }}
+          onSearchQueryChange={(q) => { setSearchQuery(q); setSearchCount(null) }}
+          onSearchSubmit={handleSearch}
+          rectCount={rects.length}
+          isProcessing={isProcessing}
+          onApply={handleApply}
+          onCancel={reset}
+        />
       </div>
 
-      <div
-        className="flex flex-col gap-4 select-none"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={() => setDrawing(null)}
-      >
-        {pages.map((page, pageIdx) => {
-          const pageRects = rects.filter((r) => r.page === pageIdx);
-          const drawingHere = drawing?.page === pageIdx ? getNormalized(drawing) : null;
+      <div className="flex-1 flex overflow-hidden relative">
+        
+        {/* Sidebar - Desktop (Fixed left) */}
+        <aside className="hidden md:flex w-24 flex-shrink-0 border-r-4 border-slate-950 bg-white overflow-y-auto">
+          <ThumbnailSidebar
+            pages={pages}
+            rects={rects}
+            currentPage={currentPage}
+            onPageSelect={handlePageSelect}
+          />
+        </aside>
 
-          return (
-            <div key={pageIdx} className="relative border-4 border-slate-950 shadow-[4px_4px_0px_#000] overflow-hidden">
-              <div className="absolute top-0 left-0 z-10 bg-slate-950 text-[#ccff00] text-[10px] font-black px-2 py-1 pointer-events-none">
-                PÁG {pageIdx + 1}
+        {/* Sidebar - Mobile (Overlay/Drawer) */}
+        {showMobileSidebar && (
+          <>
+            <div 
+              className="md:hidden fixed inset-0 bg-slate-950/40 z-30 transition-opacity"
+              onClick={() => setShowMobileSidebar(false)}
+            />
+            <aside className="md:hidden fixed left-0 top-0 bottom-0 w-24 bg-white border-r-4 border-slate-950 z-40 overflow-y-auto animate-in slide-in-from-left duration-200">
+              <div className="p-2 border-b-2 border-slate-950 bg-[#ccff00] text-[9px] font-black uppercase text-center mb-2">
+                PÁGINAS
               </div>
+              <ThumbnailSidebar
+                pages={pages}
+                rects={rects}
+                currentPage={currentPage}
+                onPageSelect={(idx) => {
+                  handlePageSelect(idx);
+                  setShowMobileSidebar(false);
+                }}
+              />
+            </aside>
+          </>
+        )}
 
-              <div
-                ref={(el) => { if (el) pageRefs.current.set(pageIdx, el); else pageRefs.current.delete(pageIdx); }}
-                className={`relative ${isProcessing ? "cursor-not-allowed" : "cursor-crosshair"}`}
-                onMouseDown={isProcessing ? undefined : (e) => handleMouseDown(e, pageIdx)}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={page.image} alt={`Página ${pageIdx + 1}`} className="w-full block" draggable={false} />
+        {/* Main Canvas Area - Scrollable */}
+        <main className="flex-1 overflow-auto p-4 md:p-8 no-scrollbar">
+          <div
+            style={{ width: `${zoom}%`, minWidth: "100%" }}
+            className={`flex flex-col gap-8 select-none max-w-5xl mx-auto ${drawing ? "touch-none" : "touch-pan-y"}`}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={() => setDrawing(null)}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={() => setDrawing(null)}
+          >
+            {pages.map((page, pageIdx) => (
+              <PageCanvas
+                key={pageIdx}
+                page={page}
+                pageIdx={pageIdx}
+                rects={rects.filter((r) => r.page === pageIdx)}
+                drawing={drawing}
+                isProcessing={isProcessing}
+                pageRef={(el) => { if (el) pageRefs.current.set(pageIdx, el); else pageRefs.current.delete(pageIdx) }}
+                onMouseDown={(e) => handleMouseDown(e, pageIdx)}
+                onTouchStart={(e) => handleTouchStart(e, pageIdx)}
+                onRemoveRect={removeRect}
+              />
+            ))}
+          </div>
+        </main>
 
-                {pageRects.map((r) => (
-                  <div
-                    key={r.id}
-                    className="absolute bg-slate-950"
-                    style={{ left: `${r.x * 100}%`, top: `${r.y * 100}%`, width: `${r.w * 100}%`, height: `${r.h * 100}%` }}
-                  >
-                    {!isProcessing && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); removeRect(r.id); }}
-                        className="absolute -top-3 -right-3 w-6 h-6 bg-[#ff4d4d] text-white text-xs font-black flex items-center justify-center border-2 border-slate-950 z-20 hover:bg-red-700"
-                        title="Remover"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
+        {/* Mobile FAB - To open pages menu */}
+        <button
+          onClick={() => setShowMobileSidebar(true)}
+          className="md:hidden fixed bottom-6 left-6 w-12 h-12 bg-[#ccff00] border-4 border-slate-950 shadow-[4px_4px_0px_#000] flex items-center justify-center z-20 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+          title="Ver páginas"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square">
+            <rect x="3" y="3" width="18" height="18" rx="0" />
+            <path d="M3 9h18M9 21V9" />
+          </svg>
+        </button>
 
-                {drawingHere && (
-                  <div
-                    className="absolute bg-slate-950 opacity-60 pointer-events-none"
-                    style={{ left: `${drawingHere.x * 100}%`, top: `${drawingHere.y * 100}%`, width: `${drawingHere.w * 100}%`, height: `${drawingHere.h * 100}%` }}
-                  />
-                )}
-              </div>
-            </div>
-          );
-        })}
       </div>
     </div>
-  );
+  )
 }

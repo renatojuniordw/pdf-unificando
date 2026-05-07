@@ -127,9 +127,9 @@ export const tools: ToolDefinition[] = [
   },
   {
     slug: "redigir-pdf",
-    name: "Redigir PDF",
-    description: "Censure permanentemente trechos do PDF com retângulos pretos.",
-    seoDescription: "Redija e censure texto em PDF online grátis. Retângulos pretos permanentes, sem possibilidade de recuperação.",
+    name: "Censurar PDF",
+    description: "Oculte permanentemente informações sensíveis com retângulos pretos.",
+    seoDescription: "Censure dados e oculte informações em PDF online grátis. Retângulos pretos permanentes, sem possibilidade de recuperação.",
     icon: "redact",
     tier: 1,
     accept: [".pdf"],
