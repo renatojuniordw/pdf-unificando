@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server'
 import { pdfToMarkdown } from '@/lib/pdf/to-markdown'
-import { binaryLimit, validateRateLimit } from '@/lib/queue'
+import { validateRateLimit } from '@/lib/queue'
 import { buildOutputFilename, errorResponse, isPdf, streamResponse, validateHoneypot } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer())
     if (!isPdf(buffer)) return Response.json({ error: 'O arquivo não é um PDF válido.' }, { status: 400 })
 
-    const result = await binaryLimit(() => pdfToMarkdown(buffer))
+    const result = await pdfToMarkdown(buffer)
     return streamResponse(result, buildOutputFilename(file.name, 'md'), 'text/markdown; charset=utf-8')
   } catch (err) {
     return errorResponse(err)

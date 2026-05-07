@@ -19,6 +19,7 @@ type RichFragment = {
 type RichLine = {
   text: string
   fontSize: number
+  y: number
 }
 
 export async function pdfToMarkdown(buffer: Buffer): Promise<Buffer> {
@@ -69,7 +70,6 @@ function groupIntoLines(items: TextItem[]): RichLine[] {
 
     const x = transform[4] ?? 0
     const y = transform[5] ?? 0
-    // height field is the most reliable font size; fall back to transform scale
     const fontSize = (item.height && item.height > 0) ? item.height : Math.abs(transform[3] ?? 0)
     const rowKey = String(Math.round(y * 2) / 2)
 
@@ -81,11 +81,12 @@ function groupIntoLines(items: TextItem[]): RichLine[] {
 
   return [...rows.entries()]
     .sort((a, b) => (yMap.get(b[0]) ?? 0) - (yMap.get(a[0]) ?? 0))
-    .map(([, frags]) => {
+    .map(([key, frags]) => {
       const sorted = frags.sort((a, b) => a.x - b.x)
       return {
         text: sorted.map((f) => f.text).join(' ').replace(/\s+/g, ' ').trim(),
         fontSize: Math.max(...sorted.map((f) => f.fontSize)),
+        y: yMap.get(key) ?? 0,
       }
     })
     .filter((l) => l.text.length > 0)
@@ -114,23 +115,61 @@ function formatLine(text: string): string {
   return text
 }
 
+function isListItem(text: string): boolean {
+  // Unordered
+  if (/^[•·▪▸►‣⁃–—]\s/.test(text)) return true
+  // Numbered: "1." "1)" "(1)" "a." "a)"
+  if (/^(\(?\d+[.)]\s|\(?[a-zA-Z][.)]\s)/.test(text)) return true
+  return false
+}
+
 function buildMarkdown(pages: RichLine[][]): string {
   const body = bodyFontSize(pages)
   const pageParts: string[] = []
 
   for (const lines of pages) {
-    const mdLines: string[] = []
+    const mdBlocks: string[] = []
+    let paraLines: string[] = []
+    let lastY: number | null = null
+    let lastFontSize: number = body
 
-    for (const { text, fontSize } of lines) {
-      const prefix = headingPrefix(fontSize, body)
-      if (prefix) {
-        mdLines.push(prefix + text)
-      } else {
-        mdLines.push(formatLine(text))
+    const flushParagraph = () => {
+      if (paraLines.length > 0) {
+        mdBlocks.push(paraLines.join(' '))
+        paraLines = []
       }
     }
 
-    if (mdLines.length > 0) pageParts.push(mdLines.join('\n'))
+    for (const { text, fontSize, y } of lines) {
+      const prefix = headingPrefix(fontSize, body)
+      const isHeading = prefix !== ''
+      const formatted = isHeading ? prefix + text : formatLine(text)
+      const isList = !isHeading && isListItem(text)
+
+      if (isHeading || isList) {
+        flushParagraph()
+        mdBlocks.push(formatted)
+        lastY = y
+        lastFontSize = fontSize
+        continue
+      }
+
+      // Detect paragraph break by y-gap relative to expected line spacing
+      if (lastY !== null && paraLines.length > 0) {
+        const gap = lastY - y  // y decreases top→bottom in PDF coords
+        const expectedSpacing = Math.max(lastFontSize, fontSize) * 1.8
+        if (gap > expectedSpacing) {
+          flushParagraph()
+        }
+      }
+
+      paraLines.push(text)
+      lastY = y
+      lastFontSize = fontSize
+    }
+
+    flushParagraph()
+    if (mdBlocks.length > 0) pageParts.push(mdBlocks.join('\n\n'))
   }
 
   return pageParts.join('\n\n---\n\n').trim() + '\n'

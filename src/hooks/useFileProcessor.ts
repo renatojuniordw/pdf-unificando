@@ -9,6 +9,7 @@ interface UseFileProcessorOptions {
   endpoint: string;
   toolName: string;
   outputFilename?: string | ((originalName: string) => string);
+  captureText?: boolean;
 }
 
 interface UseFileProcessorReturn {
@@ -18,6 +19,7 @@ interface UseFileProcessorReturn {
   outputName: string | null;
   originalSize: number | null;
   processedSize: number | null;
+  textContent: string | null;
   process: (
     files: File | File[],
     extraData?: Record<string, string>,
@@ -32,6 +34,7 @@ export function useFileProcessor({
   endpoint,
   toolName,
   outputFilename,
+  captureText = false,
 }: UseFileProcessorOptions): UseFileProcessorReturn {
   const [status, setStatus] = useState<ProcessingStatus>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +42,7 @@ export function useFileProcessor({
   const [outputName, setOutputName] = useState<string | null>(null);
   const [originalSize, setOriginalSize] = useState<number | null>(null);
   const [processedSize, setProcessedSize] = useState<number | null>(null);
+  const [textContent, setTextContent] = useState<string | null>(null);
   const objectUrlRef = useRef<string | null>(null);
 
   const {
@@ -120,6 +124,7 @@ export function useFileProcessor({
         }
 
         const blob = await res.blob();
+        if (captureText) setTextContent(await blob.text());
         const url = URL.createObjectURL(blob);
         objectUrlRef.current = url;
 
@@ -145,7 +150,7 @@ export function useFileProcessor({
         trackToolError(toolName, 'connection_error');
       }
     },
-    [endpoint, toolName, outputFilename, startCountdown],
+    [endpoint, toolName, outputFilename, captureText, startCountdown],
   );
 
   const reset = useCallback(() => {
@@ -159,6 +164,7 @@ export function useFileProcessor({
     setOutputName(null);
     setOriginalSize(null);
     setProcessedSize(null);
+    setTextContent(null);
     resetCountdown();
   }, [resetCountdown]);
 
@@ -169,6 +175,7 @@ export function useFileProcessor({
     outputName,
     originalSize,
     processedSize,
+    textContent,
     process,
     reset,
     secondsLeft,
