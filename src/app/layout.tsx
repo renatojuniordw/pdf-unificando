@@ -96,6 +96,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CommandPalette />
         <PWARegistration />
         <PWAInstallBanner />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-WDL8Q73DPM"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WDL8Q73DPM');`}
+        </Script>
         <Script id="gtm-script" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

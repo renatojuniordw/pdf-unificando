@@ -1,7 +1,6 @@
 'use client'
 
-// GTM Container ID: GTM-NV6BPT7T
-export const GTM_ID = 'GTM-NV6BPT7T'
+export const GA_ID = 'G-WDL8Q73DPM'
 
 type GAEvent = {
   action: string
@@ -13,19 +12,17 @@ type GAEvent = {
 declare global {
   interface Window {
     dataLayer: Record<string, unknown>[]
+    gtag: (...args: unknown[]) => void
   }
 }
 
-// Envia um evento para o dataLayer (GTM)
 export const trackEvent = ({ action, category, label, value }: GAEvent) => {
-  if (typeof window !== 'undefined' && window.dataLayer) {
-    window.dataLayer.push({
-      event: action, // O GTM usa a chave 'event' para gatilhos
-      event_category: category,
-      event_label: label,
-      value: value,
-    })
-  }
+  if (typeof window === 'undefined' || !window.gtag) return
+  window.gtag('event', action, {
+    event_category: category,
+    event_label: label,
+    value,
+  })
 }
 
 // Eventos específicos para ferramentas PDF
