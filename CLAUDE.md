@@ -50,14 +50,17 @@ Analytics e AdSense são completamente opcionais — o app funciona sem eles.
 src/
   app/
     api/pdf/           # Rotas de API — uma por ferramenta
-    ferramentas/       # Páginas das 8 ferramentas (pt-BR)
+    ferramentas/       # Páginas das 13 ferramentas (pt-BR)
     layout.tsx         # Root layout (Inter font, lang="pt-BR")
     page.tsx           # Home
   components/
     ads/               # Google AdSense
     layout/            # Header, Footer
     processing/        # Status, retry, download
+    pwa/               # PWAInstallBanner, PWARegistration
+    seo/               # JsonLd (structured data)
     tools/             # ToolCard, ToolGrid, PrivacyBanner
+    tutorials/         # TutorialsList
     upload/            # DropZone, FileQueue
   config/tools.ts      # Metadados de todas as ferramentas
   hooks/               # useFileProcessor, usePdfPages, useDragReorder, useRetryCountdown
@@ -73,7 +76,7 @@ tests/
   e2e/                 # Playwright — fluxos completos
 ```
 
-## Ferramentas disponíveis (8)
+## Ferramentas disponíveis (13)
 
 | Rota | Lib | Binário externo |
 |---|---|---|
@@ -82,7 +85,12 @@ tests/
 | `/api/pdf/split` | `lib/pdf/split.ts` | — (pdf-lib) |
 | `/api/pdf/rotate` | `lib/pdf/rotate.ts` | — (pdf-lib) |
 | `/api/pdf/organize` | `lib/pdf/organize.ts` | — (pdf-lib) |
+| `/api/pdf/protect` | `lib/pdf/protect.ts` | Ghostscript |
+| `/api/pdf/watermark` | `lib/pdf/watermark.ts` | — (pdf-lib) |
+| `/api/pdf/redact` | `lib/pdf/redact.ts` | — (pdf-lib + pdfjs-dist) |
 | `/api/pdf/to-jpg` | `lib/pdf/to-jpg.ts` | poppler-utils |
+| `/api/pdf/to-png` | `lib/pdf/to-png.ts` | — (pdfjs-dist + @napi-rs/canvas) |
+| `/api/pdf/to-markdown` | `lib/pdf/to-markdown.ts` | — (pdfjs-dist) |
 | `/api/pdf/to-word` | `lib/pdf/to-word.ts` | LibreOffice |
 | `/api/pdf/from-jpg` | `lib/pdf/from-jpg.ts` | — (Sharp + pdf-lib) |
 
