@@ -1,12 +1,3 @@
-export function deriveOutputName(
-  originalName: string,
-  outputExt: string,
-  suffix = 'processado'
-): string {
-  const base = originalName.replace(/\.[^.]+$/, '')
-  return `${base}_${suffix}.${outputExt}`
-}
-
 export function parsePageRange(input: string, totalPages: number): number[] {
   const pages: number[] = []
   const parts = input.split(',').map(s => s.trim())

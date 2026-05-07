@@ -54,11 +54,16 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
   const fullTutorial = getTutorial(tutorial.slug)
   const tool = getTool(fullTutorial.targetToolSlug)
   
-  // Encontrar tutoriais relacionados (exceto o atual)
-  const relatedTutorials = tutorials
-    .filter((t) => t.slug !== fullTutorial.slug)
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 3)
+  // Encontrar tutoriais relacionados (exceto o atual) de forma estável
+  const tutorialIndex = tutorials.findIndex((t) => t.slug === fullTutorial.slug)
+  const otherTutorials = tutorials.filter((t) => t.slug !== fullTutorial.slug)
+  
+  // Pega 3 tutoriais começando de um ponto baseado no índice do atual
+  const relatedTutorials = []
+  for (let i = 0; i < 3 && otherTutorials.length > 0; i++) {
+    const nextIdx = (tutorialIndex + 1 + i) % otherTutorials.length
+    relatedTutorials.push(otherTutorials[nextIdx])
+  }
 
   const articleSchema = generateArticleSchema({
     title: fullTutorial.title,

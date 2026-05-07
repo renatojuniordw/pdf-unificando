@@ -10,10 +10,16 @@ type GAEvent = {
   value?: number
 }
 
+declare global {
+  interface Window {
+    dataLayer: Record<string, unknown>[]
+  }
+}
+
 // Envia um evento para o dataLayer (GTM)
 export const trackEvent = ({ action, category, label, value }: GAEvent) => {
-  if (typeof window !== 'undefined' && (window as any).dataLayer) {
-    (window as any).dataLayer.push({
+  if (typeof window !== 'undefined' && window.dataLayer) {
+    window.dataLayer.push({
       event: action, // O GTM usa a chave 'event' para gatilhos
       event_category: category,
       event_label: label,
@@ -23,7 +29,7 @@ export const trackEvent = ({ action, category, label, value }: GAEvent) => {
 }
 
 // Eventos específicos para ferramentas PDF
-export const trackToolUpload = (tool: string, fileCount: number, totalSize: number) => {
+export const trackToolUpload = (tool: string, fileCount: number) => {
   trackEvent({
     action: 'tool_upload',
     category: 'tools',

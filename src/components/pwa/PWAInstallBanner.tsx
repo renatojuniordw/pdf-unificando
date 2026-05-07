@@ -8,9 +8,18 @@ import { motion, AnimatePresence } from 'framer-motion'
  * Lida com a lógica específica para iOS (instruções manuais) 
  * e Android/Desktop (prompt nativo).
  */
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[]
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed'
+    platform: string
+  }>
+  prompt(): Promise<void>
+}
+
 export function PWAInstallBanner() {
   const [isVisible, setIsVisible] = useState(false)
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(false)
 
@@ -18,7 +27,7 @@ export function PWAInstallBanner() {
     // 1. Verificar se já está instalado (standalone)
     const checkStandalone = () => {
       const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches
-      // @ts-ignore - navigator.standalone é específico para Safari iOS
+      // @ts-expect-error - navigator.standalone é específico para Safari iOS
       const isIOSStandalone = window.navigator.standalone === true
       setIsStandalone(isStandaloneMode || isIOSStandalone)
     }
@@ -30,7 +39,7 @@ export function PWAInstallBanner() {
     }
 
     // 3. Capturar evento de instalação (Android/Chrome/Edge)
-    const handleBeforeInstallPrompt = (e: Event) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault()
       setDeferredPrompt(e)
       // Mostrar o banner se não estiver instalado e não tiver sido fechado nesta sessão
@@ -42,7 +51,7 @@ export function PWAInstallBanner() {
     checkStandalone()
     checkIOS()
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
 
     // Para iOS, mostramos o banner mesmo sem o evento nativo
     if (/iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase()) && 
@@ -51,7 +60,7 @@ export function PWAInstallBanner() {
     }
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
     }
   }, [])
 
@@ -111,11 +120,11 @@ export function PWAInstallBanner() {
                   <div className="bg-gray-100 border-2 border-black p-3 text-xs font-black uppercase space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="bg-black text-white px-1.5 py-0.5">1</span>
-                      Toque em <svg className="inline w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg> "Compartilhar"
+                      Toque em <svg className="inline w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg> &quot;Compartilhar&quot;
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="bg-black text-white px-1.5 py-0.5">2</span>
-                      Selecione "Adicionar à Tela de Início"
+                      Selecione &quot;Adicionar à Tela de Início&quot;
                     </div>
                   </div>
                 ) : (

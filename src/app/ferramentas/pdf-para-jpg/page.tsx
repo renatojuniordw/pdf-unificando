@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Metadata } from "next";
 import { getTool } from "@/config/tools";
 import { PdfParaJpgClient } from "./PdfParaJpgClient";
@@ -74,7 +75,7 @@ export default function PdfParaJpgPage() {
             </div>
           </div>
           <div className="mt-8 flex justify-center">
-            <a 
+            <Link 
               href="/tutoriais/como-converter-pdf-em-jpg"
               className="inline-flex items-center gap-2 bg-slate-950 text-[#ccff00] border-4 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#ccff00] hover:translate-y-[-2px] transition-transform"
             >
@@ -82,7 +83,7 @@ export default function PdfParaJpgPage() {
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M2 6h8M6 2l4 4-4 4" />
               </svg>
-            </a>
+            </Link>
           </div>
 
           <div className="mt-16">

@@ -85,7 +85,6 @@ function groupTextIntoLines(items: TextLikeItem[]): string[] {
 }
 
 async function buildDocx(pages: string[][]): Promise<Buffer> {
-  const documentXml = buildDocumentXml(pages)
 
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []

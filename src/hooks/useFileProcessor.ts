@@ -67,7 +67,7 @@ export function useFileProcessor({
       setProcessedSize(null);
 
       // GA: Track Upload Start
-      trackToolUpload(toolName, fileArray.length, totalSize);
+      trackToolUpload(toolName, fileArray.length);
 
       try {
         const honeypotValue =
@@ -144,7 +144,7 @@ export function useFileProcessor({
 
         // GA: Track Success
         trackToolSuccess(toolName, blob.size);
-      } catch (e) {
+      } catch {
         setError("Erro de conexão. Verifique sua internet.");
         setStatus("error");
         trackToolError(toolName, 'connection_error');

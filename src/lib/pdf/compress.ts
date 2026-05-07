@@ -44,8 +44,9 @@ export async function compressPdf(
       if (stderr) {
         console.warn('[Ghostscript Warning]:', stderr)
       }
-    } catch (err: any) {
-      const msg = err.stderr || err.message
+    } catch (err) {
+      const e = err as { stderr?: string; message?: string }
+      const msg = e.stderr || e.message
       console.error('[Ghostscript Error]:', msg)
       throw new Error(`Falha na compressão do PDF: ${msg}`)
     }
