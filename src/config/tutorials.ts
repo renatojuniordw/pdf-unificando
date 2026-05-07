@@ -594,6 +594,68 @@ export const tutorials: TutorialDefinition[] = [
     difficulty: 'Fácil',
   },
   {
+    slug: 'como-converter-pdf-em-markdown',
+    title: 'Como converter PDF em Markdown para IA e RAG',
+    description:
+      'Aprenda como transformar documentos PDF em arquivos Markdown estruturados, prontos para uso com LLMs, LangChain, LlamaIndex e pipelines de RAG.',
+    searchIntent: 'como converter pdf em markdown',
+    intro:
+      'Modelos de linguagem e pipelines de RAG trabalham muito melhor com texto puro e bem estruturado do que com PDFs binários. Converter um PDF para Markdown é o primeiro passo para alimentar sistemas de IA com documentos de qualidade.',
+    whenToUse: [
+      'Para preparar documentos para uso com LangChain, LlamaIndex ou Haystack.',
+      'Para criar bases de conhecimento em wikis, Obsidian ou Notion a partir de PDFs.',
+      'Para extrair texto estruturado de relatórios, artigos e manuais técnicos.',
+      'Para reduzir o custo de tokens ao enviar documentos para LLMs (Markdown é mais compacto que HTML).',
+    ],
+    steps: [
+      {
+        title: 'Envie o arquivo PDF',
+        description:
+          'Selecione o documento que você quer converter. A ferramenta funciona com PDFs de texto digital — manuais, relatórios, artigos, contratos e similares.',
+      },
+      {
+        title: 'Aguarde a extração',
+        description:
+          'O sistema analisa o tamanho de cada elemento de texto para identificar títulos, subtítulos e parágrafos automaticamente.',
+      },
+      {
+        title: 'Baixe o arquivo .md',
+        description:
+          'O resultado é um arquivo Markdown com # para títulos, ## para subtítulos, - para listas e --- separando as páginas. Pronto para usar em qualquer ferramenta.',
+      },
+    ],
+    commonMistakes: [
+      'Tentar converter PDFs escaneados (fotos de papel) — a ferramenta extrai texto digital embutido no arquivo, não realiza OCR.',
+      'Esperar uma reprodução visual perfeita — o foco é texto estruturado para uso em IA, não design.',
+      'Não revisar a detecção de títulos em PDFs com fontes personalizadas ou tamanhos muito semelhantes.',
+    ],
+    faqs: [
+      {
+        question: 'Por que Markdown é melhor que PDF para IA?',
+        answer:
+          'PDFs são formatos binários opacos para LLMs. Markdown é texto puro com marcadores semânticos (#, -, **) que os modelos interpretam nativamente. Isso melhora a qualidade das respostas em sistemas de RAG e reduz o consumo de tokens.',
+      },
+      {
+        question: 'O arquivo funciona diretamente com LangChain?',
+        answer:
+          'Sim. O arquivo .md gerado é compatível com o UnstructuredMarkdownLoader e o MarkdownTextSplitter do LangChain, além de parsers equivalentes no LlamaIndex e Haystack.',
+      },
+      {
+        question: 'Como os títulos são detectados?',
+        answer:
+          'A ferramenta analisa o tamanho de fonte de cada linha em relação à mediana do documento. Linhas com fonte significativamente maior viram #, ## ou ### proporcionalmente.',
+      },
+      {
+        question: 'Funciona com PDFs em português?',
+        answer:
+          'Sim, o processo de extração não depende do idioma — funciona para qualquer texto digital embutido no PDF.',
+      },
+    ],
+    targetToolSlug: 'pdf-para-markdown',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
+  },
+  {
     slug: 'como-converter-pdf-em-png',
     title: 'Como converter PDF em PNG com fundo transparente',
     description:

@@ -136,6 +136,17 @@ export const tools: ToolDefinition[] = [
     multiple: false,
     usesBinary: false,
   },
+  {
+    slug: "pdf-para-markdown",
+    name: "PDF para Markdown",
+    description: "Converta PDF em Markdown estruturado, ideal para RAG e IA.",
+    seoDescription: "Converta PDF para Markdown online grátis. Extrai texto com títulos e listas — perfeito para LLMs, RAG, LangChain e LlamaIndex.",
+    icon: "pdf-to-markdown",
+    tier: 1,
+    accept: [".pdf"],
+    multiple: false,
+    usesBinary: false,
+  },
 ];
 
 export function getTool(slug: string): ToolDefinition {
