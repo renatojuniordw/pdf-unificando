@@ -9,6 +9,7 @@ import { PWARegistration } from '@/components/pwa/PWARegistration'
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner'
 import Script from 'next/script'
 import type { Viewport } from 'next'
+import { isAdsenseEnabled, monetizationConfig } from '@/config/monetization'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -114,6 +115,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="meta-pixel" strategy="afterInteractive">
           {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1491713342606274');fbq('track','PageView');`}
         </Script>
+        {isAdsenseEnabled ? (
+          <Script
+            id="adsense-script"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${monetizationConfig.adsenseClientId}`}
+            strategy="afterInteractive"
+            crossOrigin="anonymous"
+          />
+        ) : null}
         <noscript>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img height="1" width="1" style={{ display: 'none' }} src="https://www.facebook.com/tr?id=1491713342606274&ev=PageView&noscript=1" alt="" />

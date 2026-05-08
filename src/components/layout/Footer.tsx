@@ -1,9 +1,26 @@
 import Link from 'next/link'
+import { DonationCard } from '@/components/monetization/DonationCard'
+import { AdSlot } from '@/components/monetization/AdSlot'
+import { hasDonationEnabled, monetizationConfig } from '@/config/monetization'
 
 export function Footer() {
+  const hasFooterMonetization =
+    hasDonationEnabled || Boolean(monetizationConfig.adsenseFooterSlot)
+
   return (
     <footer className="bg-slate-950 border-t-8 border-[#ccff00] py-16 px-6">
       <div className="max-w-7xl mx-auto">
+        {hasFooterMonetization ? (
+          <div className="mb-12 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+            <DonationCard compact />
+            <AdSlot
+              slot={monetizationConfig.adsenseFooterSlot}
+              className="hidden lg:block"
+              minHeightClassName="min-h-[180px]"
+            />
+          </div>
+        ) : null}
+
         <div className="grid md:grid-cols-2 gap-12 mb-12 border-b-2 border-slate-800 pb-12">
           <div>
             <div className="flex items-center gap-3 mb-6">

@@ -1,8 +1,14 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { DonationCard } from '@/components/monetization/DonationCard'
+import { AdSlot } from '@/components/monetization/AdSlot'
+import { hasDonationEnabled, monetizationConfig } from '@/config/monetization'
 
 export function PromotionBanner() {
+  const hasMonetizationSection =
+    hasDonationEnabled || Boolean(monetizationConfig.adsenseResultSlot)
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -45,6 +51,16 @@ export function PromotionBanner() {
             Atendimento com IA
           </a>
         </div>
+
+        {hasMonetizationSection ? (
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <DonationCard />
+            <AdSlot
+              slot={monetizationConfig.adsenseResultSlot}
+              minHeightClassName="min-h-[220px]"
+            />
+          </div>
+        ) : null}
       </div>
     </motion.div>
   )
