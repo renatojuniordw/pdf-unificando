@@ -30,13 +30,13 @@ export async function generateMetadata({ params }: TutorialPageProps): Promise<M
   }
 
   return {
-    title: tutorial.title,
+    title: `${tutorial.title} | Unificando PDF`,
     description: tutorial.description,
     alternates: {
       canonical: `/tutoriais/${tutorial.slug}`,
     },
     openGraph: {
-      title: tutorial.title,
+      title: `${tutorial.title} | Unificando PDF`,
       description: tutorial.description,
       type: 'article',
     },

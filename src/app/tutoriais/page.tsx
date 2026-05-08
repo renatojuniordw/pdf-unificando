@@ -4,16 +4,16 @@ import { JsonLd, generateBreadcrumbSchema } from '@/components/seo/JsonLd'
 import { TutorialsList } from '@/components/tutorials/TutorialsList'
 
 export const metadata: Metadata = {
-  title: 'Tutoriais',
+  title: 'Guias e Tutoriais de PDF: Como Juntar, Comprimir e Converter',
   description:
-    'Guias práticos para usar as ferramentas do Unificando PDF e resolver tarefas comuns com documentos online.',
+    'Aprenda como gerenciar seus documentos com os tutoriais do Unificando PDF. Guias práticos sobre como juntar, comprimir, converter e proteger arquivos PDF online e grátis.',
   alternates: {
     canonical: '/tutoriais',
   },
   openGraph: {
-    title: 'Tutoriais de PDF Online',
+    title: 'Guias e Tutoriais de PDF Online | Unificando PDF',
     description:
-      'Aprenda como comprimir, juntar e converter arquivos usando as ferramentas do Unificando PDF.',
+      'Aprenda o passo a passo para comprimir, juntar e converter arquivos usando as ferramentas do Unificando PDF.',
     type: 'website',
   },
 }
