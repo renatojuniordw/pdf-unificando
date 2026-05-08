@@ -74,8 +74,8 @@ export const metadata: Metadata = {
       }
     : undefined,
   icons: {
-    icon: '/icon.png',
-    apple: '/icon.png',
+    icon: '/icon.png?v=2',
+    apple: '/icon.png?v=2',
   },
 }
 
