@@ -83,7 +83,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={inter.className}>
       <body>
-        <a 
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5FJHKG2C" height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
+        <a
           href="#main-content" 
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-6 focus:py-3 focus:bg-neon-yellow focus:text-black focus:border-4 focus:border-black focus:font-black focus:uppercase focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
         >
@@ -108,7 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-NV6BPT7T');`}
+            })(window,document,'script','dataLayer','GTM-5FJHKG2C');`}
         </Script>
         <Script id="meta-pixel" strategy="afterInteractive">
           {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1491713342606274');fbq('track','PageView');`}
