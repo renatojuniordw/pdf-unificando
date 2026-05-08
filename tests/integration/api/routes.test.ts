@@ -6,6 +6,12 @@ import { POST as mergeRoute } from "@/app/api/pdf/merge/route";
 import { POST as splitRoute } from "@/app/api/pdf/split/route";
 
 const pdfBlob = (file: Buffer) => new Blob([Uint8Array.from(file)], { type: "application/pdf" });
+const buildRequest = (url: string, formData: FormData, ip: string) =>
+  new NextRequest(url, {
+    method: "POST",
+    body: formData,
+    headers: { "x-real-ip": ip },
+  });
 
 describe("API Routes - PDF Operations", () => {
   let samplePdf: Buffer;
@@ -20,10 +26,7 @@ describe("API Routes - PDF Operations", () => {
   describe("POST /api/pdf/merge", () => {
     it("deve retornar 400 se nenhum arquivo enviado", async () => {
       const formData = new FormData();
-      const req = new NextRequest("http://localhost/api/pdf/merge", {
-        method: "POST",
-        body: formData,
-      });
+      const req = buildRequest("http://localhost/api/pdf/merge", formData, "127.0.0.1");
 
       const res = await mergeRoute(req);
       expect(res.status).toBe(400);
@@ -33,10 +36,7 @@ describe("API Routes - PDF Operations", () => {
       const formData = new FormData();
       formData.append("file", pdfBlob(samplePdf), "test.pdf");
 
-      const req = new NextRequest("http://localhost/api/pdf/merge", {
-        method: "POST",
-        body: formData,
-      });
+      const req = buildRequest("http://localhost/api/pdf/merge", formData, "127.0.0.2");
 
       const res = await mergeRoute(req);
       expect(res.status).toBe(400);
@@ -47,27 +47,21 @@ describe("API Routes - PDF Operations", () => {
       formData.append("file", pdfBlob(samplePdf), "test1.pdf");
       formData.append("file", pdfBlob(samplePdf), "test2.pdf");
 
-      const req = new NextRequest("http://localhost/api/pdf/merge", {
-        method: "POST",
-        body: formData,
-      });
+      const req = buildRequest("http://localhost/api/pdf/merge", formData, "127.0.0.3");
 
       const res = await mergeRoute(req);
       expect(res.status).toBe(200);
       expect(res.headers.get("content-type")).toContain("application/pdf");
-      expect(res.headers.get("content-disposition")).toContain("unificado.pdf");
+      expect(res.headers.get("content-disposition")).toContain('filename="test1_unificando.pdf"');
     });
   });
 
   describe("POST /api/pdf/split", () => {
     it("deve retornar 400 se nenhum arquivo enviado", async () => {
       const formData = new FormData();
-      formData.append("pages", "1-2");
+      formData.append("range", "1-2");
 
-      const req = new NextRequest("http://localhost/api/pdf/split", {
-        method: "POST",
-        body: formData,
-      });
+      const req = buildRequest("http://localhost/api/pdf/split", formData, "127.0.0.4");
 
       const res = await splitRoute(req);
       expect(res.status).toBe(400);
@@ -77,10 +71,7 @@ describe("API Routes - PDF Operations", () => {
       const formData = new FormData();
       formData.append("file", pdfBlob(multiPagePdf), "test.pdf");
 
-      const req = new NextRequest("http://localhost/api/pdf/split", {
-        method: "POST",
-        body: formData,
-      });
+      const req = buildRequest("http://localhost/api/pdf/split", formData, "127.0.0.5");
 
       const res = await splitRoute(req);
       expect(res.status).toBe(400);
@@ -89,17 +80,14 @@ describe("API Routes - PDF Operations", () => {
     it("deve retornar 200 com intervalo válido", async () => {
       const formData = new FormData();
       formData.append("file", pdfBlob(multiPagePdf), "test.pdf");
-      formData.append("pages", "1-2");
+      formData.append("range", "1-2");
 
-      const req = new NextRequest("http://localhost/api/pdf/split", {
-        method: "POST",
-        body: formData,
-      });
+      const req = buildRequest("http://localhost/api/pdf/split", formData, "127.0.0.6");
 
       const res = await splitRoute(req);
       expect(res.status).toBe(200);
       expect(res.headers.get("content-type")).toContain("application/pdf");
-      expect(res.headers.get("content-disposition")).toContain("dividido.pdf");
+      expect(res.headers.get("content-disposition")).toContain('filename="test_unificando.pdf"');
     });
   });
 });

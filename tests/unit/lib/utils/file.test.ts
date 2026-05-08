@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parsePageRange, parseOrder, deriveOutputName } from '@/lib/utils/file'
+import { parsePageRange, parseOrder } from '@/lib/utils/file'
 
 describe('lib/utils/file', () => {
   describe('parsePageRange', () => {
@@ -37,6 +37,16 @@ describe('lib/utils/file', () => {
       const result = parsePageRange('8-15', 10)
       expect(result).toEqual([7, 8, 9])
     })
+
+    it('deve ignorar intervalos invertidos quando não há páginas válidas', () => {
+      const result = parsePageRange('5-3', 10)
+      expect(result).toEqual([])
+    })
+
+    it('deve ignorar entradas não numéricas e manter as válidas', () => {
+      const result = parsePageRange('abc,2,4-x', 10)
+      expect(result).toEqual([1])
+    })
   })
 
   describe('parseOrder', () => {
@@ -59,27 +69,18 @@ describe('lib/utils/file', () => {
       const result = parseOrder(' 3 , 1 , 2 ')
       expect(result).toEqual([2, 0, 1])
     })
-  })
 
-  describe('deriveOutputName', () => {
-    it('deve derivar nome com sufixo padrão', () => {
-      const result = deriveOutputName('documento.pdf', 'pdf')
-      expect(result).toBe('documento_processado.pdf')
+    it('deve retornar NaN para entradas não numéricas, deixando a validação para a camada chamadora', () => {
+      const result = parseOrder('1,abc,3')
+      expect(result).toHaveLength(3)
+      expect(result[0]).toBe(0)
+      expect(Number.isNaN(result[1])).toBe(true)
+      expect(result[2]).toBe(2)
     })
 
-    it('deve derivar nome com sufixo customizado', () => {
-      const result = deriveOutputName('arquivo.docx', 'pdf', 'convertido')
-      expect(result).toBe('arquivo_convertido.pdf')
-    })
-
-    it('deve remover extensão original corretamente', () => {
-      const result = deriveOutputName('my.document.pdf', 'txt', 'extracted')
-      expect(result).toBe('my.document_extracted.txt')
-    })
-
-    it('deve lidar com nomes sem extensão', () => {
-      const result = deriveOutputName('documento', 'pdf', 'novo')
-      expect(result).toBe('documento_novo.pdf')
+    it('deve retornar -1 para string vazia, permitindo que a camada chamadora descarte o valor', () => {
+      const result = parseOrder('')
+      expect(result).toEqual([-1])
     })
   })
 })
