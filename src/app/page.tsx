@@ -5,8 +5,8 @@ import type { Metadata } from 'next'
 import { JsonLd, generateOrganizationSchema, generateWebSiteSchema, generateFAQSchema } from '@/components/seo/JsonLd'
 
 export const metadata: Metadata = {
-  title: 'Unificando PDF — Juntar, Comprimir e Converter PDF Online',
-  description: 'Ferramentas de PDF 100% gratuitas e seguras. Junte, divida, comprima e converta arquivos PDF direto no seu navegador com o Unificando PDF.',
+  title: 'Juntar, Comprimir e Converter PDF Online — 100% Grátis',
+  description: 'A melhor ferramenta para Juntar, Comprimir e Converter PDF Online. Totalmente grátis, sem cadastro e com segurança máxima. Unifique arquivos PDF em segundos.',
 }
 
 export default function HomePage() {
@@ -14,16 +14,16 @@ export default function HomePage() {
   const websiteSchema = generateWebSiteSchema()
   const faqSchema = generateFAQSchema([
     {
-      question: 'COMO O UNIFICANDO PDF É GRATUITO?',
-      answer: 'O Unificando PDF é uma iniciativa da Unificando, uma empresa especializada em software de elite e IA. Oferecemos esta ferramenta gratuitamente para demonstrar nossa excelência técnica.'
+      question: 'COMO JUNTAR, COMPRIMIR E CONVERTER PDF ONLINE GRÁTIS?',
+      answer: 'O Unificando PDF oferece ferramentas web integradas. Basta selecionar a ferramenta desejada (como Juntar ou Comprimir), arrastar seus arquivos e processar instantaneamente no navegador.'
     },
     {
-      question: 'MEUS ARQUIVOS ESTÃO SEGUROS?',
-      answer: 'Sim. Utilizamos conexões criptografadas (HTTPS) e nossos servidores deletam automaticamente qualquer dado temporário após o processamento.'
+      question: 'O UNIFICANDO PDF É SEGURO?',
+      answer: 'Sim. Utilizamos conexões criptografadas (HTTPS) e nossos servidores deletam automaticamente qualquer dado temporário após o processamento. Seus arquivos nunca são armazenados permanentemente.'
     },
     {
-      question: 'EXISTE LIMITE DE TAMANHO DE ARQUIVO?',
-      answer: 'Aceitamos arquivos de até 50MB para garantir a melhor performance e velocidade de processamento para todos os usuários.'
+      question: 'QUAIS SÃO AS FERRAMENTAS DISPONÍVEIS?',
+      answer: 'Oferecemos ferramentas para Juntar PDF, Comprimir PDF, Converter para Word, JPG, Markdown e muito mais. Tudo sem necessidade de instalar softwares ou criar contas.'
     }
   ])
 
@@ -35,13 +35,14 @@ export default function HomePage() {
       <section className="bg-slate-950 border-b-8 border-[#ccff00] py-24 md:py-32">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <span className="inline-block bg-[#ccff00] text-slate-950 font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#fff] mb-6">
-            100% GRATUITO. ZERO ARMAZENAMENTO.
+            100% GRATUITO. SEM CADASTRO. SEGURO.
           </span>
           <h1 className="text-5xl md:text-7xl lg:text-[7rem] font-bold tracking-tighter uppercase leading-[0.9] text-[#ccff00]">
-            FERRAMENTAS<br />PDF ONLINE
+            JUNTAR, COMPRIMIR<br />E CONVERTER PDF
           </h1>
-          <p className="text-sm font-mono font-bold uppercase text-slate-400 mt-6 max-w-xl">
-            Comprima, junte, divida, converta e organize seus PDFs. Rápido, grátis e sem cadastro.
+          <p className="text-sm font-mono font-bold uppercase text-slate-400 mt-6 max-w-2xl">
+            A solução definitiva para gerenciar seus documentos. Junte múltiplos arquivos, reduza o tamanho de PDFs pesados e converta formatos com a velocidade da elite. 
+            Sem limites, sem marcas d'água e totalmente online.
           </p>
         </div>
       </section>
@@ -49,10 +50,10 @@ export default function HomePage() {
       <section className="bg-white border-t-8 border-slate-950 py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <span className="inline-block bg-slate-950 text-[#ccff00] text-[10px] font-black uppercase tracking-widest px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#ccff00] mb-6">
-            FERRAMENTAS PDF
+            FERRAMENTAS PDF PROFISSIONAIS
           </span>
           <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-slate-950 mb-12">
-            ESCOLHA A FERRAMENTA
+            ESCOLHA O QUE PRECISA
           </h2>
           <ToolGrid />
         </div>

@@ -4,6 +4,7 @@ import { getTool } from "@/config/tools";
 import { PdfParaWordClient } from "./PdfParaWordClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
 import { EcosystemSection } from "@/components/layout/EcosystemSection";
+import { ToolRichContent } from "@/components/tools/ToolRichContent";
 import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
 
 const tool = getTool("pdf-para-word");
@@ -52,57 +53,27 @@ export default function PdfParaWordPage() {
 
       <EcosystemSection />
 
-      <section className="max-w-4xl mx-auto px-6 py-24">
-        <div className="prose prose-slate max-w-none">
-          <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
-            Como converter PDF para Word editável
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
-              <span className="text-4xl font-black text-slate-200 block mb-2">01</span>
-              <h3 className="font-bold uppercase mb-2">Selecionar</h3>
-              <p className="text-sm text-slate-600 font-mono">Escolha o arquivo PDF que você deseja transformar em documento Word.</p>
-            </div>
-            <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
-              <span className="text-4xl font-black text-slate-200 block mb-2">02</span>
-              <h3 className="font-bold uppercase mb-2">Processar</h3>
-              <p className="text-sm text-slate-600 font-mono">Extraimos o texto do PDF e montamos um arquivo Word editavel preservando ao maximo a estrutura do documento.</p>
-            </div>
-            <div className="border-4 border-slate-950 p-6 shadow-[4px_4px_0px_#000]">
-              <span className="text-4xl font-black text-slate-200 block mb-2">03</span>
-              <h3 className="font-bold uppercase mb-2">Editar</h3>
-              <p className="text-sm text-slate-600 font-mono">Baixe o arquivo .docx e edite-o livremente no Microsoft Word ou Google Docs.</p>
-            </div>
-          </div>
-          <div className="mt-8 flex justify-center">
-            <Link 
-              href="/tutoriais/como-converter-pdf-em-word"
-              className="inline-flex items-center gap-2 bg-slate-950 text-[#ccff00] border-4 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#ccff00] hover:translate-y-[-2px] transition-transform"
-            >
-              Veja o tutorial completo
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M2 6h8M6 2l4 4-4 4" />
-              </svg>
-            </Link>
-          </div>
-
-          <div className="mt-16">
-            <h2 className="text-3xl font-black uppercase tracking-tighter border-b-4 border-slate-950 pb-2 mb-8">
-              Perguntas Frequentes
-            </h2>
-            <div className="space-y-6">
-              <div className="border-4 border-slate-950 p-6">
-                <h3 className="font-black uppercase text-lg mb-2">O arquivo Word fica idêntico ao PDF?</h3>
-                <p className="text-sm text-slate-600 font-mono">Nosso conversor tenta manter o máximo possível da formatação original. Para PDFs complexos com muitas imagens e tabelas, pequenos ajustes podem ser necessários após a conversão.</p>
-              </div>
-              <div className="border-4 border-slate-950 p-6">
-                <h3 className="font-black uppercase text-lg mb-2">Funciona com PDFs protegidos?</h3>
-                <p className="text-sm text-slate-600 font-mono">A conversao funciona melhor com PDFs que ja tenham texto selecionavel e sem bloqueios de acesso. PDFs protegidos por senha ou compostos apenas por imagem podem nao ser convertidos corretamente.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ToolRichContent 
+        toolName="PDF para Word"
+        toolSlug="pdf-para-word"
+        description={tool.seoDescription}
+        benefits={[
+          { title: "Edição Facilitada", text: "Transforme PDFs estáticos em documentos editáveis para correções rápidas e reutilização de conteúdo." },
+          { title: "Preservação de Layout", text: "Nosso motor de conversão respeita parágrafos, listas e a estrutura geral do seu documento." },
+          { title: "Velocidade de Elite", text: "Conclua conversões complexas em segundos, sem precisar instalar softwares pesados." }
+        ]}
+        useCases={[
+          { title: "Atualização de Currículos", text: "Perdeu o arquivo original do seu CV? Converta o PDF de volta para Word e edite." },
+          { title: "Revisão de Contratos", text: "Transforme contratos em PDF para Word para sugerir alterações e revisões." },
+          { title: "Tradução de Documentos", text: "Converta para Word para facilitar o uso de ferramentas de tradução e revisão ortográfica." }
+        ]}
+        faq={[
+          { question: "O arquivo Word fica idêntico ao PDF?", answer: "Nosso conversor tenta manter o máximo possível da formatação original. Para PDFs complexos, pequenos ajustes podem ser necessários." },
+          { question: "Meus dados estão protegidos?", answer: "Sim. A conversão é feita e o arquivo temporário é deletado imediatamente. Não guardamos cópias dos seus documentos." },
+          { question: "Preciso pagar para converter?", answer: "Não. A ferramenta PDF para Word do Unificando PDF é 100% gratuita e ilimitada." }
+        ]}
+        tutorialSlug="como-converter-pdf-em-word"
+      />
 
       <div className="max-w-2xl mx-auto px-6 pb-12">
         <PrivacyBanner />

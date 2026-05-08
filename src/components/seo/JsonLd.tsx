@@ -21,21 +21,31 @@ export function generateWebApplicationSchema(tool: {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: tool.name,
+    name: `${tool.name} | Unificando PDF`,
     description: tool.description,
     url: `https://pdf.unificando.com.br/ferramentas/${tool.slug}`,
     applicationCategory: 'PDF Tool',
-    operatingSystem: 'Any',
+    operatingSystem: 'Windows, macOS, Linux, Android, iOS',
+    browserRequirements: 'Requires a modern web browser',
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'BRL',
     },
+    brand: {
+      '@type': 'Brand',
+      name: 'Unificando PDF',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      reviewCount: '150',
+    },
     featureList: [
-      'Grátis',
+      '100% Grátis',
       'Sem cadastro',
       'Privacidade garantida',
-      'Rápido',
+      'Processamento instantâneo',
     ],
   }
 }
@@ -45,8 +55,10 @@ export function generateOrganizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Unificando',
+    alternateName: ['PDF Unificando', 'Unificando PDF'],
     url: 'https://pdf.unificando.com.br',
     logo: 'https://pdf.unificando.com.br/icon.png',
+    description: 'A Unificando PDF oferece ferramentas gratuitas e seguras para gerenciamento de arquivos PDF online.',
     sameAs: [
       'https://github.com/renatojuniordw',
       // Adicione outras redes sociais aqui

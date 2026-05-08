@@ -40,7 +40,7 @@ export function Footer() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">
-            © {new Date().getFullYear()} Unificando PDF Tools. Um produto do ecossistema Unificando.
+            © {new Date().getFullYear()} Unificando PDF — As melhores ferramentas para PDF Unificando arquivos e documentos online.
           </p>
           <div className="flex gap-6">
             <Link
