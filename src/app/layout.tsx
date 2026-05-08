@@ -13,6 +13,8 @@ import type { Viewport } from 'next'
 const inter = Inter({ subsets: ['latin'] })
 
 const BASE_URL = 'https://pdf.unificando.com.br'
+const ADSENSE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_ADSENSE_ID ?? 'ca-pub-6897422992813570'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -66,6 +68,11 @@ export const metadata: Metadata = {
   verification: {
     google: 'mzCsSCYc1DwIFe-ucUtkISy2Fovv39sxKjMmkMO1ffM',
   },
+  other: ADSENSE_CLIENT_ID
+    ? {
+        'google-adsense-account': ADSENSE_CLIENT_ID,
+      }
+    : undefined,
   icons: {
     icon: '/icon.png',
     apple: '/icon.png',
@@ -97,6 +104,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CommandPalette />
         <PWARegistration />
         <PWAInstallBanner />
+        {ADSENSE_CLIENT_ID ? (
+          <Script
+            id="google-adsense"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+            strategy="beforeInteractive"
+            crossOrigin="anonymous"
+          />
+        ) : null}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-WDL8Q73DPM"
           strategy="afterInteractive"
