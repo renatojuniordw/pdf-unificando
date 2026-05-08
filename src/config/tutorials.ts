@@ -656,6 +656,192 @@ export const tutorials: TutorialDefinition[] = [
     difficulty: 'Fácil',
   },
   {
+    slug: 'como-converter-pdf-em-txt',
+    title: 'Como converter PDF em TXT e extrair só o texto',
+    description:
+      'Aprenda como transformar um PDF em arquivo TXT para copiar conteúdo, fazer leitura simples ou reutilizar o texto em outros sistemas.',
+    searchIntent: 'como converter pdf em txt',
+    intro:
+      'Converter PDF em TXT é uma das formas mais rápidas de extrair apenas o conteúdo textual de um documento, sem layout, imagens ou elementos visuais. É útil quando o foco está em leitura, cópia, revisão ou reaproveitamento do texto em outras ferramentas.',
+    whenToUse: [
+      'Para copiar rapidamente o conteúdo de um PDF para outro editor.',
+      'Para gerar uma versão leve e simples de leitura do documento.',
+      'Para reaproveitar o texto em IA, buscas internas ou automações.',
+      'Para remover o peso visual do PDF e ficar só com o conteúdo escrito.',
+    ],
+    steps: [
+      {
+        title: 'Selecione o arquivo PDF',
+        description:
+          'Escolha o documento que contém texto digital embutido. Relatórios, contratos e manuais costumam funcionar muito bem.',
+      },
+      {
+        title: 'Envie para a ferramenta de PDF para TXT',
+        description:
+          'A ferramenta faz a extração textual e ignora elementos visuais como layout, bordas e imagens.',
+      },
+      {
+        title: 'Revise a prévia do texto',
+        description:
+          'Antes de baixar, você pode conferir o conteúdo extraído e até copiar o texto diretamente da tela.',
+      },
+      {
+        title: 'Baixe o arquivo .txt',
+        description:
+          'Faça o download do TXT final para usar em editores, sistemas internos, buscas ou fluxos com IA.',
+      },
+    ],
+    commonMistakes: [
+      'Tentar extrair texto de PDFs escaneados ou compostos apenas por imagem, que exigem OCR.',
+      'Esperar que o arquivo TXT preserve a formatação visual do PDF original.',
+      'Não revisar quebras de linha quando o documento tem colunas ou diagramação mais complexa.',
+    ],
+    faqs: [
+      {
+        question: 'PDF para TXT mantém imagens e tabelas?',
+        answer:
+          'Não. O objetivo da conversão é extrair apenas o texto do PDF. Imagens, estilos e estrutura visual não são mantidos no arquivo TXT.',
+      },
+      {
+        question: 'Funciona com PDF escaneado?',
+        answer:
+          'Não nesta versão. PDFs escaneados são basicamente imagens e precisam de OCR para transformar a imagem em texto editável.',
+      },
+      {
+        question: 'Posso copiar o texto antes de baixar?',
+        answer:
+          'Sim. A ferramenta mostra uma prévia do conteúdo extraído e permite copiar o texto diretamente da interface.',
+      },
+    ],
+    targetToolSlug: 'pdf-para-txt',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
+  },
+  {
+    slug: 'como-numerar-paginas-de-um-pdf',
+    title: 'Como numerar páginas de um PDF online',
+    description:
+      'Veja como adicionar numeração automática no cabeçalho ou rodapé do PDF para uso jurídico, acadêmico ou administrativo.',
+    searchIntent: 'como numerar paginas de um pdf',
+    intro:
+      'Numerar páginas em PDF ajuda a organizar documentos longos, facilita referências internas e deixa o arquivo mais adequado para protocolos, petições, trabalhos acadêmicos e processos administrativos.',
+    whenToUse: [
+      'Para preparar documentos jurídicos com paginação clara.',
+      'Para organizar TCCs, apostilas e materiais acadêmicos.',
+      'Para facilitar citações e conferência em relatórios extensos.',
+      'Para padronizar PDFs administrativos antes do envio.',
+    ],
+    steps: [
+      {
+        title: 'Defina onde a numeração deve aparecer',
+        description:
+          'Escolha se os números ficarão no cabeçalho ou no rodapé do documento, conforme o seu padrão de uso.',
+      },
+      {
+        title: 'Escolha o alinhamento e o número inicial',
+        description:
+          'Você pode posicionar os números à esquerda, ao centro ou à direita e decidir em qual número a contagem começa.',
+      },
+      {
+        title: 'Envie o arquivo PDF',
+        description:
+          'Selecione o documento que precisa de paginação. O sistema aplicará a numeração automaticamente em todas as páginas.',
+      },
+      {
+        title: 'Baixe o PDF numerado',
+        description:
+          'Depois do processamento, faça o download do novo arquivo já pronto para compartilhar, imprimir ou protocolar.',
+      },
+    ],
+    commonMistakes: [
+      'Escolher uma posição que pode conflitar com conteúdo existente no topo ou no rodapé.',
+      'Começar a contagem no número errado quando o documento é parte de um arquivo maior.',
+      'Não revisar o resultado final em PDFs que já possuem rodapé ou cabeçalho próprio.',
+    ],
+    faqs: [
+      {
+        question: 'Posso começar a numeração em outro número?',
+        answer:
+          'Sim. A ferramenta permite escolher o número inicial, o que é útil quando o PDF faz parte de uma sequência maior.',
+      },
+      {
+        question: 'Os números aparecem em todas as páginas?',
+        answer:
+          'Sim. A paginação é aplicada automaticamente em todas as páginas do arquivo processado.',
+      },
+      {
+        question: 'O conteúdo original do PDF é alterado?',
+        answer:
+          'O conteúdo do documento é preservado. A ferramenta apenas adiciona a numeração escolhida no cabeçalho ou no rodapé.',
+      },
+    ],
+    targetToolSlug: 'numerar-paginas',
+    estimatedTime: '1 min',
+    difficulty: 'Fácil',
+  },
+  {
+    slug: 'como-extrair-paginas-do-pdf',
+    title: 'Como extrair páginas do PDF em arquivos separados',
+    description:
+      'Aprenda como selecionar páginas específicas de um PDF e baixar cada uma como arquivo individual dentro de um ZIP.',
+    searchIntent: 'como extrair paginas do pdf',
+    intro:
+      'Extrair páginas do PDF é ideal quando você quer separar partes específicas de um documento sem levar o arquivo inteiro. Em vez de gerar um único PDF menor, essa opção cria um PDF individual para cada página selecionada.',
+    whenToUse: [
+      'Para separar anexos ou páginas específicas de um processo.',
+      'Para enviar páginas isoladas sem compartilhar o documento completo.',
+      'Para organizar laudos, comprovantes ou capítulos em arquivos independentes.',
+      'Para montar um pacote com páginas escolhidas em PDFs separados.',
+    ],
+    steps: [
+      {
+        title: 'Informe as páginas que deseja extrair',
+        description:
+          'Use números avulsos e intervalos como 1, 3, 7-9 para selecionar exatamente as páginas que devem virar arquivos separados.',
+      },
+      {
+        title: 'Envie o PDF original',
+        description:
+          'Selecione o documento completo. O sistema usará esse arquivo apenas como base para criar cópias individuais das páginas escolhidas.',
+      },
+      {
+        title: 'Aguarde a geração dos arquivos',
+        description:
+          'Cada página selecionada é convertida em um PDF próprio, com nome organizado automaticamente.',
+      },
+      {
+        title: 'Baixe o arquivo ZIP',
+        description:
+          'O resultado final é um arquivo compactado contendo todos os PDFs individuais, prontos para abrir, compartilhar ou arquivar.',
+      },
+    ],
+    commonMistakes: [
+      'Confundir esta ferramenta com dividir PDF, que normalmente gera um único arquivo com várias páginas selecionadas.',
+      'Digitar páginas fora do total disponível no documento.',
+      'Não revisar a ordem informada quando as páginas precisam seguir uma sequência específica.',
+    ],
+    faqs: [
+      {
+        question: 'Cada página vira um PDF separado?',
+        answer:
+          'Sim. A ferramenta cria um PDF individual para cada página selecionada e entrega tudo junto em um arquivo ZIP.',
+      },
+      {
+        question: 'Posso extrair páginas não sequenciais?',
+        answer:
+          'Sim. Você pode combinar páginas avulsas e intervalos, como 1, 4, 8-10.',
+      },
+      {
+        question: 'Qual a diferença entre extrair páginas e dividir PDF?',
+        answer:
+          'Dividir PDF costuma gerar um novo documento com várias páginas selecionadas juntas. Extrair páginas, neste caso, gera um arquivo separado para cada página escolhida.',
+      },
+    ],
+    targetToolSlug: 'extrair-paginas',
+    estimatedTime: '2 min',
+    difficulty: 'Fácil',
+  },
+  {
     slug: 'como-converter-pdf-em-png',
     title: 'Como converter PDF em PNG com fundo transparente',
     description:

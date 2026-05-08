@@ -20,10 +20,23 @@ export const TOOL_ICONS: Record<string, (size: number) => React.ReactNode> = {
       <path d="M9 28h6M17 28h6" />
     </svg>
   ),
+  'extract-pages': (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+      <rect x="4" y="4" width="11" height="16" />
+      <rect x="17" y="12" width="11" height="16" />
+      <path d="M16 8h6M19 5l-3 3 3 3" />
+    </svg>
+  ),
   'pdf-to-word': (size) => (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
       <rect x="4" y="4" width="14" height="18" />
       <path d="M22 10l6 6-6 6M18 16h10" />
+    </svg>
+  ),
+  'pdf-to-txt': (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+      <rect x="4" y="4" width="14" height="18" />
+      <path d="M20 10h8M24 10v12M21 22h6" />
     </svg>
   ),
   'pdf-to-jpg': (size) => (
@@ -67,6 +80,14 @@ export const TOOL_ICONS: Record<string, (size: number) => React.ReactNode> = {
       <rect x="4" y="4" width="16" height="20" />
       <line x1="10" y1="24" x2="28" y2="8" strokeDasharray="3,2" />
       <line x1="14" y1="28" x2="28" y2="14" strokeDasharray="3,2" />
+    </svg>
+  ),
+  'page-numbers': (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+      <rect x="4" y="4" width="18" height="24" />
+      <line x1="9" y1="9" x2="17" y2="9" />
+      <line x1="9" y1="23" x2="17" y2="23" />
+      <path d="M25 10v10M23 12l2-2 2 2M23 18l2 2 2-2" />
     </svg>
   ),
   'pdf-to-png': (size) => (

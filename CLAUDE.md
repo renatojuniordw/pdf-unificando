@@ -76,20 +76,23 @@ tests/
   e2e/                 # Playwright — fluxos completos
 ```
 
-## Ferramentas disponíveis (13)
+## Ferramentas disponíveis (16)
 
 | Rota | Lib | Binário externo |
 |---|---|---|
 | `/api/pdf/compress` | `lib/pdf/compress.ts` | Ghostscript |
 | `/api/pdf/merge` | `lib/pdf/merge.ts` | — (pdf-lib) |
 | `/api/pdf/split` | `lib/pdf/split.ts` | — (pdf-lib) |
+| `/api/pdf/extract-pages` | `lib/pdf/extract-pages.ts` | — (pdf-lib + archiver) |
 | `/api/pdf/rotate` | `lib/pdf/rotate.ts` | — (pdf-lib) |
 | `/api/pdf/organize` | `lib/pdf/organize.ts` | — (pdf-lib) |
 | `/api/pdf/protect` | `lib/pdf/protect.ts` | Ghostscript |
 | `/api/pdf/watermark` | `lib/pdf/watermark.ts` | — (pdf-lib) |
+| `/api/pdf/page-numbers` | `lib/pdf/page-numbers.ts` | — (pdf-lib) |
 | `/api/pdf/redact` | `lib/pdf/redact.ts` | — (pdf-lib + pdfjs-dist) |
 | `/api/pdf/to-jpg` | `lib/pdf/to-jpg.ts` | poppler-utils |
 | `/api/pdf/to-png` | `lib/pdf/to-png.ts` | — (pdfjs-dist + @napi-rs/canvas) |
+| `/api/pdf/to-txt` | `lib/pdf/to-txt.ts` | — (pdfjs-dist) |
 | `/api/pdf/to-markdown` | `lib/pdf/to-markdown.ts` | — (pdfjs-dist) |
 | `/api/pdf/to-word` | `lib/pdf/to-word.ts` | LibreOffice |
 | `/api/pdf/from-jpg` | `lib/pdf/from-jpg.ts` | — (Sharp + pdf-lib) |
