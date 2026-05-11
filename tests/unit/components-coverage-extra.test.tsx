@@ -47,7 +47,10 @@ vi.mock('next/link', () => ({
 }))
 
 vi.mock('next/dynamic', () => ({
-  default: () => () => null,
+  default: (loader: () => unknown) => {
+    void loader()
+    return () => null
+  },
 }))
 
 vi.mock('next/navigation', () => ({
@@ -145,6 +148,113 @@ describe('componentes e schemas extras', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Navegou para/i)).toBeTruthy()
+    })
+  })
+
+  it('deve usar o título padrão quando o document.title está vazio', async () => {
+    document.title = ''
+
+    render(<ClientChrome />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Navegou para Página')).toBeTruthy()
+    })
+  })
+
+  it('deve abrir, filtrar, selecionar e devolver o foco no CommandPalette', async () => {
+    render(<CommandPalette />)
+
+    const trigger = screen.getByRole('button', { name: /Abrir busca/i })
+    trigger.focus()
+    fireEvent.click(trigger)
+
+    const dialog = await screen.findByRole('dialog')
+    expect(document.body.style.overflow).toBe('hidden')
+
+    const input = screen.getByPlaceholderText(/Pesquisar ferramentas/i)
+    fireEvent.change(input, { target: { value: 'juntar' } })
+
+    expect(screen.getByText(/1 ferramentas encontradas/i)).toBeTruthy()
+    const result = screen.getByRole('option', { name: /Juntar PDF/i })
+    expect(result).toBeTruthy()
+
+    fireEvent.mouseEnter(result)
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'ArrowUp' })
+
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(navState.push).toHaveBeenCalledWith('/ferramentas/juntar-pdf')
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    await waitFor(() => {
+      expect(document.body.style.overflow).toBe('unset')
+    })
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: /Abrir busca/i }))
+  })
+
+  it('deve prender o foco com Tab e navegar entre elementos focáveis', async () => {
+    render(<CommandPalette />)
+
+    fireEvent.click(screen.getByRole('button', { name: /Abrir busca/i }))
+    const dialog = await screen.findByRole('dialog')
+    const input = screen.getByPlaceholderText(/Pesquisar ferramentas/i)
+
+    fireEvent.change(input, { target: { value: 'juntar' } })
+    const result = screen.getByRole('option', { name: /Juntar PDF/i })
+    expect(result).toBeTruthy()
+
+    const closeButton = screen.getByRole('button', { name: /Fechar busca/i })
+    closeButton.focus()
+    fireEvent.keyDown(closeButton, { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(result)
+
+    result.focus()
+    expect(document.activeElement).toBe(result)
+    fireEvent.keyDown(result, { key: 'Tab' })
+    expect(document.activeElement).toBe(closeButton)
+  })
+
+  it('deve exibir o estado vazio quando não houver correspondência', async () => {
+    render(<CommandPalette />)
+
+    fireEvent.click(screen.getByRole('button', { name: /Abrir busca/i }))
+    await screen.findByRole('dialog')
+
+    const input = screen.getByPlaceholderText(/Pesquisar ferramentas/i)
+    fireEvent.change(input, { target: { value: 'sem correspondencia' } })
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(screen.getByText(/Nenhuma ferramenta encontrada/i)).toBeTruthy()
+    expect(screen.getByText(/Tente buscar por termos diferentes/i)).toBeTruthy()
+  })
+
+  it('deve sair cedo do trap de Tab quando não houver focáveis', async () => {
+    render(<CommandPalette />)
+
+    fireEvent.click(screen.getByRole('button', { name: /Abrir busca/i }))
+    const dialog = await screen.findByRole('dialog')
+    const input = screen.getByPlaceholderText(/Pesquisar ferramentas/i)
+    fireEvent.change(input, { target: { value: 'juntar' } })
+
+    const querySelectorAllSpy = vi.spyOn(dialog, 'querySelectorAll').mockReturnValue([] as never)
+    fireEvent.keyDown(dialog, { key: 'Tab' })
+    expect(querySelectorAllSpy).toHaveBeenCalled()
+    querySelectorAllSpy.mockRestore()
+  })
+
+  it('deve alternar a paleta com o atalho Ctrl+K', async () => {
+    render(<CommandPalette />)
+
+    expect(screen.queryByRole('dialog')).toBeNull()
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true })
+
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog).toBeTruthy()
+
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true })
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull()
     })
   })
 
