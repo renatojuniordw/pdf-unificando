@@ -1,13 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { useEventListener } from '@/hooks/useEventListener'
+import { logError } from '@/lib/utils/logger'
 
-/**
- * Componente que exibe um banner incentivando a instalação do PWA.
- * Lida com a lógica específica para iOS (instruções manuais) 
- * e Android/Desktop (prompt nativo).
- */
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[]
   readonly userChoice: Promise<{
@@ -20,83 +17,105 @@ interface BeforeInstallPromptEvent extends Event {
 export function PWAInstallBanner() {
   const [isVisible, setIsVisible] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [isIOS, setIsIOS] = useState(false)
-  const [isStandalone, setIsStandalone] = useState(false)
-
-  useEffect(() => {
-    // 1. Verificar se já está instalado (standalone)
-    const checkStandalone = () => {
-      const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches
+  const [isInstalling, setIsInstalling] = useState(false)
+  const [installError, setInstallError] = useState<string | null>(null)
+  const shouldReduceMotion = useReducedMotion()
+  const windowTarget = typeof window === 'undefined' ? null : window
+  const showTimerRef = React.useRef<number | null>(null)
+  const isStandalone =
+    typeof window !== 'undefined' &&
+    (window.matchMedia('(display-mode: standalone)').matches ||
       // @ts-expect-error - navigator.standalone é específico para Safari iOS
-      const isIOSStandalone = window.navigator.standalone === true
-      setIsStandalone(isStandaloneMode || isIOSStandalone)
-    }
+      window.navigator.standalone === true)
+  const isIOS =
+    typeof window !== 'undefined' &&
+    /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase())
 
-    // 2. Detectar iOS
-    const checkIOS = () => {
-      const userAgent = window.navigator.userAgent.toLowerCase()
-      setIsIOS(/iphone|ipad|ipod/.test(userAgent))
-    }
-
-    // 3. Capturar evento de instalação (Android/Chrome/Edge)
-    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
-      e.preventDefault()
-      setDeferredPrompt(e)
-      // Mostrar o banner se não estiver instalado e não tiver sido fechado nesta sessão
-      if (!sessionStorage.getItem('pwa-banner-dismissed')) {
-        setTimeout(() => setIsVisible(true), 5000) // Aparece após 5 segundos
-      }
-    }
-
-    checkStandalone()
-    checkIOS()
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
-
-    // Para iOS, mostramos o banner mesmo sem o evento nativo
-    if (/iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase()) && 
-        !sessionStorage.getItem('pwa-banner-dismissed')) {
-      setTimeout(() => setIsVisible(true), 5000)
-    }
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
+  const readDismissed = React.useCallback(() => {
+    try {
+      return sessionStorage.getItem('pwa-banner-dismissed') === 'true'
+    } catch {
+      return false
     }
   }, [])
+
+  const scheduleVisibility = React.useCallback(() => {
+    if (readDismissed()) return
+    if (showTimerRef.current) window.clearTimeout(showTimerRef.current)
+    showTimerRef.current = window.setTimeout(() => setIsVisible(true), 5000)
+  }, [readDismissed])
+
+  React.useEffect(() => {
+    if (isIOS) {
+      scheduleVisibility()
+    }
+  }, [isIOS, scheduleVisibility])
+
+  React.useEffect(() => {
+    return () => {
+      if (showTimerRef.current) {
+        window.clearTimeout(showTimerRef.current)
+      }
+    }
+  }, [])
+
+  const handleBeforeInstallPrompt = React.useCallback((event: Event) => {
+    const e = event as BeforeInstallPromptEvent
+    e.preventDefault()
+    setDeferredPrompt(e)
+
+    scheduleVisibility()
+  }, [scheduleVisibility])
+
+  useEventListener(windowTarget, 'beforeinstallprompt', handleBeforeInstallPrompt)
 
   const handleInstall = async () => {
     if (!deferredPrompt) return
 
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    console.log(`PWA: Usuário escolheu ${outcome}`)
-    
-    setDeferredPrompt(null)
-    setIsVisible(false)
+    setInstallError(null)
+    setIsInstalling(true)
+
+    try {
+      await deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      console.log(`PWA: Usuário escolheu ${outcome}`)
+      setDeferredPrompt(null)
+      setIsVisible(false)
+    } catch (error) {
+      const message = 'Não foi possível abrir o instalador agora. Tente novamente.'
+      setInstallError(message)
+      logError('PWA Install', error, { outcome: 'failed' })
+    } finally {
+      setIsInstalling(false)
+    }
   }
 
   const dismiss = () => {
     setIsVisible(false)
-    sessionStorage.setItem('pwa-banner-dismissed', 'true')
+    try {
+      sessionStorage.setItem('pwa-banner-dismissed', 'true')
+    } catch {
+      // Ignora falhas de storage em navegação restrita
+    }
   }
 
-  // Se já estiver instalado, não mostra nada
   if (isStandalone) return null
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
+          initial={shouldReduceMotion ? false : { y: 100, opacity: 0 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { y: 0, opacity: 1 }}
+          exit={shouldReduceMotion ? { opacity: 0 } : { y: 100, opacity: 0 }}
           className="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 md:w-96 z-40"
         >
           <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-5 relative">
-            {/* Botão Fechar */}
-            <button 
+            <button
+              type="button"
               onClick={dismiss}
-              className="absolute -top-4 -right-4 bg-red-500 text-white border-4 border-black w-10 h-10 flex items-center justify-center font-black hover:scale-110 transition-transform cursor-pointer"
+              className="absolute -top-4 -right-4 bg-[#b91c1c] text-white border-4 border-black w-10 h-10 flex items-center justify-center font-black hover:scale-110 transition-transform cursor-pointer"
+              aria-label="Fechar aviso de instalação"
             >
               X
             </button>
@@ -109,7 +128,7 @@ export function PWAInstallBanner() {
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
               </div>
-              
+
               <div>
                 <h3 className="font-black uppercase text-lg leading-tight mb-1">Instalar no Celular</h3>
                 <p className="text-sm font-bold text-gray-600 mb-4">
@@ -128,13 +147,21 @@ export function PWAInstallBanner() {
                     </div>
                   </div>
                 ) : (
-                  <button
-                    onClick={handleInstall}
-                    className="w-full bg-neon-yellow border-4 border-black py-2 px-4 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
-                  >
-                    Instalar Agora
-                  </button>
-                )}
+                    <button
+                      type="button"
+                      onClick={handleInstall}
+                      disabled={isInstalling}
+                      aria-busy={isInstalling}
+                      className="w-full bg-neon-yellow border-4 border-black py-2 px-4 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:hover:translate-x-0 motion-reduce:hover:translate-y-0"
+                    >
+                      {isInstalling ? 'Instalando...' : 'Instalar Agora'}
+                    </button>
+                  )}
+                  {installError ? (
+                  <p role="alert" aria-live="assertive" className="mt-3 text-xs font-black uppercase tracking-widest text-[#b91c1c]">
+                    {installError}
+                  </p>
+                ) : null}
               </div>
             </div>
           </div>

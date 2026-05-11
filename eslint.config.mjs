@@ -19,6 +19,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Minified third-party bundles in public/
     "public/**/*.min.*",
+    // Generated coverage reports
+    "coverage/**",
   ]),
 ]);
 

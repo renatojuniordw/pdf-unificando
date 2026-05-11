@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { logError, logInfo } from '@/lib/utils/logger'
 
 /**
  * Componente responsável por registrar o Service Worker do PWA.
@@ -17,10 +18,12 @@ export function PWARegistration() {
         navigator.serviceWorker
           .register('/sw.js')
           .then((registration) => {
-            console.log('PWA: Service Worker registrado com sucesso:', registration.scope)
+            logInfo('PWA', 'Service Worker registrado com sucesso', {
+              scope: registration.scope,
+            })
           })
           .catch((error) => {
-            console.error('PWA: Falha ao registrar Service Worker:', error)
+            logError('PWA', error, { action: 'register_service_worker' })
           })
       })
     }

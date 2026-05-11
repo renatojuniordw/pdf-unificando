@@ -31,7 +31,7 @@ export function EcosystemSection() {
           
           <div className="border-4 border-[#ccff00] p-8 bg-slate-900 shadow-[12px_12px_0px_#ccff00]">
             <h3 className="text-2xl font-black uppercase tracking-tighter text-white mb-4">O que entregamos?</h3>
-            <ul className="space-y-4">
+            <ul className="space-y-4 list-none">
               {[
                 { 
                   title: 'INTELIGÊNCIA ARTIFICIAL', 
@@ -54,7 +54,7 @@ export function EcosystemSection() {
                     <span className="text-[#ccff00] font-black font-mono group-hover:translate-x-1 transition-transform">0{i + 1}</span>
                     <div>
                       <h4 className="text-white font-black uppercase text-sm tracking-widest group-hover:text-[#ccff00] transition-colors">{item.title}</h4>
-                      <p className="text-slate-500 text-xs font-mono uppercase mt-1">{item.desc}</p>
+                      <p className="text-slate-400 text-xs font-mono uppercase mt-1">{item.desc}</p>
                     </div>
                   </a>
                 </li>

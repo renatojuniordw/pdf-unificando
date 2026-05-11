@@ -1,8 +1,9 @@
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { withTmpFile } from '@/lib/utils/tmp'
+import { createApiError } from '@/lib/utils/http'
 
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 export type CompressionQuality = 
   | 'low' | 'medium' | 'high' 
@@ -33,11 +34,18 @@ export async function compressPdf(
 
   const compressed = await withTmpFile(buffer, 'pdf', 'pdf', async (inputPath, outputPath) => {
     try {
-      const { stderr } = await execAsync(
-        `gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 \
-         -dPDFSETTINGS=${gsQuality} \
-         -dNOPAUSE -dQUIET -dBATCH \
-         -sOutputFile="${outputPath}" "${inputPath}"`,
+      const { stderr } = await execFileAsync(
+        'gs',
+        [
+          '-sDEVICE=pdfwrite',
+          '-dCompatibilityLevel=1.4',
+          `-dPDFSETTINGS=${gsQuality}`,
+          '-dNOPAUSE',
+          '-dQUIET',
+          '-dBATCH',
+          `-sOutputFile=${outputPath}`,
+          inputPath,
+        ],
         { timeout: 60_000 }
       )
       
@@ -48,12 +56,16 @@ export async function compressPdf(
       const e = err as { stderr?: string; message?: string }
       const msg = e.stderr || e.message
       console.error('[Ghostscript Error]:', msg)
-      throw new Error(`Falha na compressão do PDF: ${msg}`)
+      throw createApiError(500, 'INTERNAL_ERROR', `Falha na compressão do PDF: ${msg}`, {
+        reason: 'ghostscript_failed',
+      }, true)
     }
   })
 
   if (!compressed || compressed.byteLength === 0) {
-    throw new Error('A compressão resultou em um arquivo vazio.')
+    throw createApiError(500, 'INTERNAL_ERROR', 'A compressão resultou em um arquivo vazio.', {
+      reason: 'empty_result',
+    })
   }
 
   return {
@@ -62,4 +74,3 @@ export async function compressPdf(
     compressedSize: compressed.byteLength,
   }
 }
-

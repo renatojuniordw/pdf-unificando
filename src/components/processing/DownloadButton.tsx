@@ -1,9 +1,12 @@
-import { trackToolDownload } from "@/lib/analytics"
+"use client"
+
+import { useDownloadTracking } from "@/hooks/useDownloadTracking"
 
 interface DownloadButtonProps {
   url: string
   filename: string
   toolName?: string
+  onDownload?: () => void
   fileSize?: number | null
   onReset: () => void
 }
@@ -14,11 +17,12 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
-export function DownloadButton({ url, filename, toolName, fileSize, onReset }: DownloadButtonProps) {
-  const handleDownloadClick = () => {
-    if (toolName) {
-      trackToolDownload(toolName, filename)
-    }
+export function DownloadButton({ url, filename, toolName, onDownload, fileSize, onReset }: DownloadButtonProps) {
+  const trackDownload = useDownloadTracking(toolName ?? '', filename)
+
+  const handleDownload = () => {
+    if (toolName) trackDownload()
+    onDownload?.()
   }
 
   return (
@@ -26,7 +30,7 @@ export function DownloadButton({ url, filename, toolName, fileSize, onReset }: D
       <a
         href={url}
         download={filename}
-        onClick={handleDownloadClick}
+        onClick={handleDownload}
         className="bg-[#ccff00] text-slate-950 border-4 border-slate-950 shadow-[8px_8px_0px_#000] px-8 py-5 font-black uppercase tracking-[0.2em] hover:bg-[#b3ff00] hover:-translate-y-1 transition-all inline-block text-center"
       >
         BAIXAR ARQUIVO
@@ -35,6 +39,7 @@ export function DownloadButton({ url, filename, toolName, fileSize, onReset }: D
         <p className="text-xs font-mono uppercase tracking-widest text-slate-500">{formatBytes(fileSize)}</p>
       )}
       <button
+        type="button"
         onClick={onReset}
         className="text-xs font-black uppercase tracking-widest text-slate-950 border-b-2 border-current hover:text-slate-600 transition-colors"
       >

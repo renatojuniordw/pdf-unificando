@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useRef, useEffect, useMemo } from "react"
+import type { MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from "react"
 import { DropZone } from "@/components/upload/DropZone"
 import { PromotionBanner } from "@/components/tools/PromotionBanner"
 import { DownloadButton } from "@/components/processing/DownloadButton"
@@ -9,6 +10,8 @@ import { getNormalized, clamp } from "./utils"
 import { PageCanvas } from "./components/PageCanvas"
 import { ThumbnailSidebar } from "./components/ThumbnailSidebar"
 import { EditorToolbar } from "./components/EditorToolbar"
+import { normalizeApiError } from "@/lib/utils/api-error"
+import { logError } from "@/lib/utils/logger"
 import type { Rect, PageInfo, DrawingRect, Resolution } from "./types"
 
 type Phase =
@@ -20,6 +23,128 @@ type Phase =
   | { phase: "error"; message: string }
 
 const ZOOM_STEPS = [75, 100, 125, 150, 175, 200]
+const EMPTY_RECTS: Rect[] = []
+const REQUEST_TIMEOUT_MS = 60_000
+const REQUEST_MAX_RETRIES = 2
+const REQUEST_BASE_DELAY_MS = 350
+
+class RetryableRequestError extends Error {
+  readonly status?: number
+
+  constructor(message: string, status?: number) {
+    super(message)
+    this.name = "RetryableRequestError"
+    this.status = status
+  }
+}
+
+function isRetryableTransportError(error: unknown) {
+  return (
+    error instanceof DOMException && error.name === "AbortError"
+  ) || (error instanceof Error && error.name === "TypeError")
+}
+
+function isRetryableResponseStatus(status: number) {
+  return status === 408 || status === 429 || status >= 500
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms))
+}
+
+async function requestJsonWithRetry<T>(input: RequestInfo | URL, init: RequestInit) {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt <= REQUEST_MAX_RETRIES; attempt++) {
+    const controller = new AbortController()
+    const timeoutHandle = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+    try {
+      const res = await fetch(input, {
+        ...init,
+        signal: controller.signal,
+      })
+      const data = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        const normalized = normalizeApiError(data, res.status)
+        if (isRetryableResponseStatus(res.status)) {
+          throw new RetryableRequestError(normalized.message, res.status)
+        }
+        throw new Error(normalized.message)
+      }
+
+      return data as T
+    } catch (error) {
+      lastError = error
+
+      if (
+        attempt < REQUEST_MAX_RETRIES &&
+        (error instanceof RetryableRequestError || isRetryableTransportError(error))
+      ) {
+        await delay(REQUEST_BASE_DELAY_MS * 2 ** attempt)
+        continue
+      }
+
+      throw error
+    } finally {
+      window.clearTimeout(timeoutHandle)
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("Falha inesperada.")
+}
+
+async function requestBlobWithRetry(input: RequestInfo | URL, init: RequestInit) {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt <= REQUEST_MAX_RETRIES; attempt++) {
+    const controller = new AbortController()
+    const timeoutHandle = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+    try {
+      const res = await fetch(input, {
+        ...init,
+        signal: controller.signal,
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        const normalized = normalizeApiError(data, res.status)
+        if (isRetryableResponseStatus(res.status)) {
+          throw new RetryableRequestError(normalized.message, res.status)
+        }
+        throw new Error(normalized.message)
+      }
+
+      return await res.blob()
+    } catch (error) {
+      lastError = error
+
+      if (
+        attempt < REQUEST_MAX_RETRIES &&
+        (error instanceof RetryableRequestError || isRetryableTransportError(error))
+      ) {
+        await delay(REQUEST_BASE_DELAY_MS * 2 ** attempt)
+        continue
+      }
+
+      throw error
+    } finally {
+      window.clearTimeout(timeoutHandle)
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("Falha inesperada.")
+}
+
+function friendlyMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message
+  }
+
+  return fallback
+}
 
 export function RedigirPdfClient() {
   const [state, setState] = useState<Phase>({ phase: "idle" })
@@ -30,10 +155,25 @@ export function RedigirPdfClient() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
   const [searchCount, setSearchCount] = useState<number | null>(null)
+  const [searchError, setSearchError] = useState<string | null>(null)
 
   const history = useHistory<Rect[]>([])
   const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map())
   const urlRef = useRef<string | null>(null)
+  const rects = history.value
+  const hasUnsavedChanges = rects.length > 0 || searchQuery.trim().length > 0
+  const rectsByPage = useMemo(() => {
+    const map = new Map<number, Rect[]>()
+    for (const rect of rects) {
+      const list = map.get(rect.page)
+      if (list) {
+        list.push(rect)
+      } else {
+        map.set(rect.page, [rect])
+      }
+    }
+    return map
+  }, [rects])
 
   // Keyboard shortcuts for undo/redo
   useEffect(() => {
@@ -58,18 +198,32 @@ export function RedigirPdfClient() {
     formData.append("_hp", hp)
 
     try {
-      const res = await fetch("/api/pdf/redact/preview", { method: "POST", body: formData })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? "Erro ao carregar preview.")
+      const data = await requestJsonWithRetry<{ pages: PageInfo[] }>("/api/pdf/redact/preview", {
+        method: "POST",
+        body: formData,
+      })
+      if (!data || !Array.isArray(data.pages)) {
+        throw new Error("A resposta do servidor veio incompleta. Tente novamente.")
+      }
       setState({ phase: "editing", file, pages: data.pages })
       setCurrentPage(0)
     } catch (err) {
-      setState({ phase: "error", message: err instanceof Error ? err.message : "Erro desconhecido." })
+      logError("Redigir PDF Preview", err, { fileName: file.name })
+      setState({ phase: "error", message: friendlyMessage(err, "Não foi possível preparar o PDF para redação.") })
     }
   }, [history])
 
+  const registerPageRef = useCallback((pageIdx: number, el: HTMLDivElement | null) => {
+    if (el) {
+      pageRefs.current.set(pageIdx, el)
+      return
+    }
+
+    pageRefs.current.delete(pageIdx)
+  }, [])
+
   // Drawing — mouse
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>, page: number) => {
+  const handleMouseDown = useCallback((page: number, e: ReactMouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const x = (e.clientX - rect.left) / rect.width
     const y = (e.clientY - rect.top) / rect.height
@@ -77,7 +231,7 @@ export function RedigirPdfClient() {
     e.preventDefault()
   }, [])
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+  const handleMouseMove = useCallback((e: ReactMouseEvent) => {
     if (!drawing) return
     const el = pageRefs.current.get(drawing.page)
     if (!el) return
@@ -88,7 +242,7 @@ export function RedigirPdfClient() {
   }, [drawing])
 
   // Drawing — touch
-  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>, page: number) => {
+  const handleTouchStart = useCallback((page: number, e: ReactTouchEvent<HTMLDivElement>) => {
     if (e.touches.length !== 1) return
     const touch = e.touches[0]
     const rect = e.currentTarget.getBoundingClientRect()
@@ -98,7 +252,7 @@ export function RedigirPdfClient() {
     e.preventDefault()
   }, [])
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+  const handleTouchMove = useCallback((e: ReactTouchEvent) => {
     if (!drawing || e.touches.length !== 1) return
     const touch = e.touches[0]
     const el = pageRefs.current.get(drawing.page)
@@ -140,20 +294,31 @@ export function RedigirPdfClient() {
     document.getElementById(`page-${idx}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
   }, [])
 
+  const handleSearchQueryChange = useCallback((q: string) => {
+    setSearchQuery(q)
+    setSearchCount(null)
+    setSearchError(null)
+  }, [])
+
   // Find and redact
   const handleSearch = useCallback(async () => {
     if (state.phase !== "editing" || !searchQuery.trim()) return
     setIsSearching(true)
     setSearchCount(null)
+    setSearchError(null)
     try {
       const hp = document.querySelector<HTMLInputElement>("[data-honeypot]")?.value ?? ""
       const formData = new FormData()
       formData.append("file", state.file)
       formData.append("query", searchQuery.trim())
       formData.append("_hp", hp)
-      const res = await fetch("/api/pdf/redact/search", { method: "POST", body: formData })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      const data = await requestJsonWithRetry<{ regions: Array<{ page: number; x: number; y: number; width: number; height: number }> }>("/api/pdf/redact/search", {
+        method: "POST",
+        body: formData,
+      })
+      if (!data || !Array.isArray(data.regions)) {
+        throw new Error("A resposta da busca veio incompleta. Tente novamente.")
+      }
       const newRects: Rect[] = data.regions.map((r: { page: number; x: number; y: number; width: number; height: number }) => ({
         id: crypto.randomUUID(),
         page: r.page,
@@ -164,7 +329,9 @@ export function RedigirPdfClient() {
       }))
       setSearchCount(newRects.length)
       if (newRects.length > 0) history.push((prev) => [...prev, ...newRects])
-    } catch {
+    } catch (err) {
+      logError("Redigir PDF Search", err, { query: searchQuery.trim() })
+      setSearchError(friendlyMessage(err, "Não foi possível concluir a busca agora. Tente novamente."))
       setSearchCount(0)
     } finally {
       setIsSearching(false)
@@ -186,17 +353,16 @@ export function RedigirPdfClient() {
     formData.append("resolution", String(resolution))
 
     try {
-      const res = await fetch("/api/pdf/redact", { method: "POST", body: formData })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.error ?? "Erro ao aplicar alterações.")
-      }
-      const blob = await res.blob()
+      const blob = await requestBlobWithRetry("/api/pdf/redact", {
+        method: "POST",
+        body: formData,
+      })
       if (urlRef.current) URL.revokeObjectURL(urlRef.current)
       urlRef.current = URL.createObjectURL(blob)
       setState({ phase: "done", url: urlRef.current, filename: file.name.replace(".pdf", "-censurado.pdf"), size: blob.size })
     } catch (err) {
-      setState({ phase: "error", message: err instanceof Error ? err.message : "Erro desconhecido." })
+      logError("Redigir PDF Apply", err, { fileName: file.name, rectCount: history.value.length })
+      setState({ phase: "error", message: friendlyMessage(err, "Não foi possível gerar o PDF censurado agora.") })
     }
   }, [state, history.value, resolution])
 
@@ -209,8 +375,17 @@ export function RedigirPdfClient() {
     setCurrentPage(0)
     setSearchQuery("")
     setSearchCount(null)
+    setSearchError(null)
     pageRefs.current.clear()
   }, [history])
+
+  const handleCancel = useCallback(() => {
+    if (hasUnsavedChanges && !window.confirm("Você tem alterações não aplicadas. Deseja sair mesmo assim?")) {
+      return
+    }
+
+    reset()
+  }, [hasUnsavedChanges, reset])
 
   const [showMobileSidebar, setShowMobileSidebar] = useState(false)
 
@@ -276,7 +451,7 @@ export function RedigirPdfClient() {
   // editing or processing
   const isProcessing = state.phase === "processing"
   const { pages } = state
-  const rects = history.value
+  const currentDrawingPage = drawing?.page ?? -1
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-200 flex flex-col overflow-hidden">
@@ -293,13 +468,13 @@ export function RedigirPdfClient() {
           onZoomOut={handleZoomOut}
           resolution={resolution}
           onResolutionChange={setResolution}
-          search={{ query: searchQuery, isSearching, resultCount: searchCount }}
-          onSearchQueryChange={(q) => { setSearchQuery(q); setSearchCount(null) }}
+          search={{ query: searchQuery, isSearching, resultCount: searchCount, errorMessage: searchError }}
+          onSearchQueryChange={handleSearchQueryChange}
           onSearchSubmit={handleSearch}
           rectCount={rects.length}
           isProcessing={isProcessing}
           onApply={handleApply}
-          onCancel={reset}
+          onCancel={handleCancel}
         />
       </div>
 
@@ -307,11 +482,11 @@ export function RedigirPdfClient() {
         
         {/* Sidebar - Desktop (Fixed left) */}
         <aside className="hidden md:flex w-24 flex-shrink-0 border-r-4 border-slate-950 bg-white overflow-y-auto">
-          <ThumbnailSidebar
-            pages={pages}
-            rects={rects}
-            currentPage={currentPage}
-            onPageSelect={handlePageSelect}
+            <ThumbnailSidebar
+              pages={pages}
+              rects={rects}
+              currentPage={currentPage}
+              onPageSelect={handlePageSelect}
           />
         </aside>
 
@@ -326,11 +501,11 @@ export function RedigirPdfClient() {
               <div className="p-2 border-b-2 border-slate-950 bg-[#ccff00] text-[9px] font-black uppercase text-center mb-2">
                 PÁGINAS
               </div>
-              <ThumbnailSidebar
-                pages={pages}
-                rects={rects}
-                currentPage={currentPage}
-                onPageSelect={(idx) => {
+            <ThumbnailSidebar
+              pages={pages}
+              rects={rects}
+              currentPage={currentPage}
+              onPageSelect={(idx) => {
                   handlePageSelect(idx);
                   setShowMobileSidebar(false);
                 }}
@@ -356,12 +531,12 @@ export function RedigirPdfClient() {
                 key={pageIdx}
                 page={page}
                 pageIdx={pageIdx}
-                rects={rects.filter((r) => r.page === pageIdx)}
-                drawing={drawing}
+                rects={rectsByPage.get(pageIdx) ?? EMPTY_RECTS}
+                drawing={currentDrawingPage === pageIdx ? drawing : null}
                 isProcessing={isProcessing}
-                pageRef={(el) => { if (el) pageRefs.current.set(pageIdx, el); else pageRefs.current.delete(pageIdx) }}
-                onMouseDown={(e) => handleMouseDown(e, pageIdx)}
-                onTouchStart={(e) => handleTouchStart(e, pageIdx)}
+                onRegisterRef={registerPageRef}
+                onStartMouseDown={handleMouseDown}
+                onStartTouchStart={handleTouchStart}
                 onRemoveRect={removeRect}
               />
             ))}
@@ -369,11 +544,11 @@ export function RedigirPdfClient() {
         </main>
 
         {/* Mobile FAB - To open pages menu */}
-        <button
-          onClick={() => setShowMobileSidebar(true)}
-          className="md:hidden fixed bottom-6 left-6 w-12 h-12 bg-[#ccff00] border-4 border-slate-950 shadow-[4px_4px_0px_#000] flex items-center justify-center z-20 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
-          title="Ver páginas"
-        >
+              <button
+                onClick={() => setShowMobileSidebar(true)}
+                className="md:hidden fixed bottom-6 left-6 w-12 h-12 bg-[#ccff00] border-4 border-slate-950 shadow-[4px_4px_0px_#000] flex items-center justify-center z-20 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                title="Ver páginas"
+              >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square">
             <rect x="3" y="3" width="18" height="18" rx="0" />
             <path d="M3 9h18M9 21V9" />

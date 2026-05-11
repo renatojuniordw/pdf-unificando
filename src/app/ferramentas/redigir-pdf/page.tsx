@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { getTool } from "@/config/tools";
 import { RedigirPdfClient } from "./RedigirPdfClient";
+import { LocalErrorBoundary } from "@/components/errors/LocalErrorBoundary";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
 import { EcosystemSection } from "@/components/layout/EcosystemSection";
 import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
@@ -47,7 +48,12 @@ export default function RedigirPdfPage() {
           <PrivacyBanner />
         </div>
 
-        <RedigirPdfClient />
+        <LocalErrorBoundary
+          title="EDITOR INDISPONÍVEL"
+          message="O editor de redação encontrou um problema. Você pode tentar novamente sem sair da página."
+        >
+          <RedigirPdfClient />
+        </LocalErrorBoundary>
       </div>
 
       <EcosystemSection />

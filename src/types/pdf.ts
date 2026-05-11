@@ -5,13 +5,3 @@ export type ProcessingStatus =
   | 'done'
   | 'error'
   | 'rate_limited'
-
-export interface ProcessedFile {
-  url: string
-  name: string
-  size: number
-}
-
-export interface PdfApiError {
-  error: string
-}

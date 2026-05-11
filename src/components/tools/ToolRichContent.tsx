@@ -13,8 +13,8 @@ interface RichContentProps {
 
 export function ToolRichContent({
   toolName,
-  toolSlug,
-  description,
+  toolSlug: _toolSlug,
+  description: _description,
   benefits,
   useCases,
   faq,

@@ -1,6 +1,7 @@
-'use client'
+"use client"
 
-import { useCallback, useState } from 'react'
+import { useCallback, useId, useRef, useState } from 'react'
+import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react'
 
 interface DropZoneProps {
   accept: Record<string, string[]>
@@ -8,12 +9,89 @@ interface DropZoneProps {
   multiple?: boolean
   disabled?: boolean
   onDrop: (files: File[]) => void
+  onError?: (message: string) => void
 }
 
-export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false, disabled = false, onDrop }: DropZoneProps) {
-  const [isDragOver, setIsDragOver] = useState(false)
+function matchesAccept(file: File, accept: Record<string, string[]>): boolean {
+  const mimeType = file.type.toLowerCase()
+  const fileName = file.name.toLowerCase()
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  return Object.entries(accept).some(([mimePattern, extensions]) => {
+    const normalizedPattern = mimePattern.toLowerCase()
+      const mimeMatches =
+        normalizedPattern === "*/*" ||
+        mimeType === normalizedPattern ||
+        (normalizedPattern.endsWith("/*") &&
+          mimeType.startsWith(normalizedPattern.slice(0, normalizedPattern.indexOf("/") + 1)))
+
+    if (mimeMatches) return true
+
+    return extensions.some((extension) => fileName.endsWith(extension.toLowerCase()))
+  })
+}
+
+function validateFiles(files: File[], accept: Record<string, string[]>, maxSize: number) {
+  const accepted: File[] = []
+  let hasOversized = false
+  let hasUnsupported = false
+
+  for (const file of files) {
+    if (file.size > maxSize) {
+      hasOversized = true
+      continue
+    }
+
+    if (!matchesAccept(file, accept)) {
+      hasUnsupported = true
+      continue
+    }
+
+    accepted.push(file)
+  }
+
+  return { accepted, hasOversized, hasUnsupported }
+}
+
+function buildFeedbackMessage({
+  maxSize,
+  hasOversized,
+  hasUnsupported,
+  acceptedCount,
+}: {
+  maxSize: number
+  hasOversized: boolean
+  hasUnsupported: boolean
+  acceptedCount: number
+}) {
+  const sizeMessage = `Arquivo muito grande. Limite: ${Math.round(maxSize / 1024 / 1024)}MB.`
+
+  if (!acceptedCount && hasOversized && hasUnsupported) {
+    return `${sizeMessage} Também houve arquivos incompatíveis com este formato.`
+  }
+
+  if (!acceptedCount && hasOversized) {
+    return sizeMessage
+  }
+
+  if (!acceptedCount && hasUnsupported) {
+    return "Arquivo inválido para esta ferramenta. Selecione um tipo compatível."
+  }
+
+  if (hasOversized || hasUnsupported) {
+    return "Alguns arquivos foram ignorados por tipo ou tamanho."
+  }
+
+  return null
+}
+
+export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false, disabled = false, onDrop, onError }: DropZoneProps) {
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [feedback, setFeedback] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const hintId = useId()
+  const feedbackId = useId()
+
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     if (!disabled) setIsDragOver(true)
   }, [disabled])
@@ -22,25 +100,77 @@ export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false,
     setIsDragOver(false)
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsDragOver(false)
     if (disabled) return
-    const files = Array.from(e.dataTransfer.files).filter(f => f.size <= maxSize)
-    if (files.length) onDrop(multiple ? files : [files[0]])
-  }, [disabled, maxSize, multiple, onDrop])
+    const allFiles = Array.from(e.dataTransfer.files)
+    const { accepted, hasOversized, hasUnsupported } = validateFiles(allFiles, accept, maxSize)
+    const files = multiple ? accepted : accepted.slice(0, 1)
+    const message = buildFeedbackMessage({
+      maxSize,
+      hasOversized,
+      hasUnsupported,
+      acceptedCount: files.length,
+    })
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!files.length) {
+      if (message) {
+        setFeedback(message)
+        onError?.(message)
+      }
+      return
+    }
+    setFeedback(message)
+    onDrop(files)
+    if (message) onError?.(message)
+  }, [accept, disabled, maxSize, multiple, onDrop, onError])
+
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
-    const files = Array.from(e.target.files).filter(f => f.size <= maxSize)
-    if (files.length) onDrop(multiple ? files : [files[0]])
+    const allFiles = Array.from(e.target.files)
+    const { accepted, hasOversized, hasUnsupported } = validateFiles(allFiles, accept, maxSize)
+    const files = multiple ? accepted : accepted.slice(0, 1)
+    const message = buildFeedbackMessage({
+      maxSize,
+      hasOversized,
+      hasUnsupported,
+      acceptedCount: files.length,
+    })
+    if (!files.length) {
+      if (message) {
+        setFeedback(message)
+        onError?.(message)
+      }
+      e.target.value = ''
+      return
+    }
+    setFeedback(message)
+    onDrop(files)
+    if (message) onError?.(message)
     e.target.value = ''
-  }, [maxSize, multiple, onDrop])
+  }, [accept, maxSize, multiple, onDrop, onError])
 
   const acceptStr = Object.values(accept).flat().join(',')
+  const openFilePicker = useCallback(() => {
+    if (disabled) return
+    inputRef.current?.click()
+  }, [disabled])
+
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      openFilePicker()
+    }
+  }, [disabled, openFilePicker])
 
   return (
-    <label
+    <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
+      aria-describedby={`${hintId}${feedback ? ` ${feedbackId}` : ''}`}
       className={`
         relative flex flex-col items-center justify-center p-12 cursor-pointer
         border-4 border-dashed transition-all
@@ -53,8 +183,11 @@ export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false,
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onClick={openFilePicker}
+      onKeyDown={handleKeyDown}
     >
       <input
+        ref={inputRef}
         type="file"
         className="sr-only"
         accept={acceptStr}
@@ -84,11 +217,17 @@ export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false,
           <p className="font-black uppercase tracking-tighter text-xl text-slate-950 text-center">
             ARRASTE OU CLIQUE
           </p>
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-500 mt-2 text-center">
+          <p id={hintId} className="text-xs font-mono uppercase tracking-widest text-slate-600 mt-2 text-center">
             Máximo {Math.round(maxSize / 1024 / 1024)}MB
           </p>
         </>
       )}
-    </label>
+
+      {feedback && (
+        <p id={feedbackId} role="status" aria-live="polite" className="mt-4 text-xs font-black uppercase tracking-widest text-[#b91c1c] text-center">
+          {feedback}
+        </p>
+      )}
+    </div>
   )
 }

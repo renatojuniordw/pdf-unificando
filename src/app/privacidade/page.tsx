@@ -1,13 +1,36 @@
 import type { Metadata } from 'next'
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
+import { siteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidade — Unificando PDF Tools',
-  description: 'Seus arquivos não são armazenados. Processamento em memória.',
+  title: 'Política de Privacidade',
+  description: 'Entenda como o Unificando PDF processa arquivos, cookies e analytics, e quais dados são armazenados durante o uso das ferramentas.',
+  alternates: {
+    canonical: '/privacidade',
+  },
+  openGraph: {
+    title: 'Política de Privacidade | Unificando PDF',
+    description: 'Saiba como tratamos arquivos, cookies e analytics no Unificando PDF.',
+    url: siteUrl('/privacidade'),
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Política de Privacidade | Unificando PDF',
+    description: 'Saiba como tratamos arquivos, cookies e analytics no Unificando PDF.',
+  },
 }
 
 export default function PrivacidadePage() {
   return (
-    <div className="max-w-3xl mx-auto px-6 lg:px-12 py-16">
+    <main className="max-w-3xl mx-auto px-6 lg:px-12 py-16">
+      <Breadcrumbs
+        className="mb-6"
+        items={[
+          { label: 'Início', href: '/' },
+          { label: 'Privacidade' },
+        ]}
+      />
       <span className="inline-block bg-slate-950 text-[#ccff00] font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#ccff00] mb-6">
         PRIVACIDADE
       </span>
@@ -34,6 +57,6 @@ export default function PrivacidadePage() {
           </p>
         </section>
       </div>
-    </div>
+    </main>
   )
 }

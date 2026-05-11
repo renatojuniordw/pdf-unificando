@@ -1,29 +1,30 @@
 import { type NextRequest } from 'next/server'
 import { mergePdfs } from '@/lib/pdf/merge'
 import { validateRateLimit } from '@/lib/queue'
-import { buildOutputFilename, errorResponse, isPdf, streamResponse, validateHoneypot } from '@/lib/utils/http'
-
-const MAX_SIZE = Number(process.env.MAX_FILE_SIZE ?? 52_428_800)
+import { apiErrorResponse, assertMaxFileCount, assertMaxFileSize, buildOutputFilename, errorResponse, isFileEntry, isPdf, streamResponse, validateHoneypot } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
     validateRateLimit(req)
     const formData = await req.formData()
-    if (!validateHoneypot(formData)) return Response.json({ error: 'Acesso negado.' }, { status: 400 })
-    const files = formData.getAll('file') as File[]
+    if (!validateHoneypot(formData)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Acesso negado.', { field: '_hp', reason: 'honeypot_triggered' })
+    const files = formData.getAll('file').filter(isFileEntry)
 
     if (files.length < 2) {
-      return Response.json({ error: 'Envie pelo menos 2 arquivos.' }, { status: 400 })
+      return apiErrorResponse(400, 'VALIDATION_ERROR', 'Envie pelo menos 2 arquivos.', { field: 'file', reason: 'minimum_files', min: 2 })
     }
+    assertMaxFileCount(files.length)
 
     const buffers = await Promise.all(
       files.map(async f => {
+        assertMaxFileSize(f)
         const buf = Buffer.from(await f.arrayBuffer())
-        if (buf.byteLength > MAX_SIZE) {
-          throw Object.assign(new Error('Arquivo muito grande. Limite: 50MB.'), { status: 413 })
-        }
         if (!isPdf(buf)) {
-          throw Object.assign(new Error(`"${f.name}" não é um PDF válido.`), { status: 400 })
+          throw Object.assign(new Error(`"${f.name}" não é um PDF válido.`), {
+            status: 400,
+            code: 'VALIDATION_ERROR',
+            details: { field: 'file', reason: 'invalid_pdf', fileName: f.name },
+          })
         }
         return buf
       })

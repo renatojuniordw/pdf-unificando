@@ -34,7 +34,7 @@ const config: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://connect.facebook.net https://googleads.g.doubleclick.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com https://www.facebook.com https://googleads.g.doubleclick.net; connect-src 'self' https://www.google-analytics.com https://www.facebook.com https://googleads.g.doubleclick.net; font-src 'self' data:; frame-src https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.facebook.com;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://connect.facebook.net https://googleads.g.doubleclick.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com https://www.facebook.com https://googleads.g.doubleclick.net; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com https://stats.g.doubleclick.net https://pagead2.googlesyndication.com https://www.facebook.com https://graph.facebook.com https://googleads.g.doubleclick.net https://sa.stape.co https://ep1.adtrafficquality.google; font-src 'self' data:; frame-src https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.facebook.com https://www.googletagmanager.com;",
           },
         ],
       },

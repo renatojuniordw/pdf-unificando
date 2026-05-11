@@ -12,7 +12,7 @@ export function Footer() {
               </div>
               <span className="font-black text-white text-xs uppercase tracking-widest">ECOSSISTEMA</span>
             </div>
-            <p className="text-slate-400 font-mono text-[10px] uppercase tracking-widest leading-relaxed max-w-sm">
+            <p className="text-slate-300 font-mono text-[10px] uppercase tracking-widest leading-relaxed max-w-sm">
               Desenvolvido com foco total em performance e privacidade pela Unificando. 
               Nossas ferramentas são projetadas para serem rápidas, seguras e extremamente fáceis de usar.
             </p>
@@ -24,54 +24,64 @@ export function Footer() {
               href="https://unificando.com.br/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-[#ccff00] border-2 border-[#ccff00] px-8 py-4 font-black uppercase text-xs tracking-widest hover:bg-[#ccff00] hover:text-slate-950 transition-all shadow-[6px_6px_0px_rgba(204,255,0,0.3)] hover:shadow-none"
+              className="text-[#ccff00] border-2 border-[#ccff00] px-8 py-4 font-black uppercase text-xs tracking-widest hover:bg-[#ccff00] hover:text-slate-950 transition-all shadow-[6px_6px_0px_rgba(204,255,0,0.3)] hover:shadow-none motion-reduce:transition-none"
             >
               Consultoria em IA e Desenvolvimento
             </a>
-            <div className="flex gap-4 mt-6 text-slate-600 text-[8px] font-black uppercase tracking-widest">
-              <span>IA</span>
-              <span>•</span>
-              <span>Web</span>
-              <span>•</span>
-              <span>Sistemas</span>
-            </div>
+            <ul className="flex gap-4 mt-6 text-slate-500 text-[8px] font-black uppercase tracking-widest list-none">
+              <li>IA</li>
+              <li aria-hidden="true">•</li>
+              <li>Web</li>
+              <li aria-hidden="true">•</li>
+              <li>Sistemas</li>
+            </ul>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">
+          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
             © {new Date().getFullYear()} Unificando PDF — As melhores ferramentas para PDF Unificando arquivos e documentos online.
           </p>
-          <div className="flex gap-6">
-            <Link
-              href="/tutoriais"
-              className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
-            >
-              Tutoriais
-            </Link>
-            <Link
-              href="/privacidade"
-              className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
-            >
-              Privacidade
-            </Link>
-            <a
-              href="https://unificando.com.br/servicos/ia"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#ccff00] hover:underline text-[9px] font-black uppercase tracking-widest transition-colors"
-            >
-              Atendimento com IA
-            </a>
-            <a
-              href="https://unificando.com.br/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
-            >
-              Site Oficial
-            </a>
-          </div>
+          <nav aria-label="Rodapé">
+            <ul className="flex flex-wrap gap-6 list-none">
+              <li>
+                <Link
+                  href="/tutoriais"
+                  className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
+                >
+                  Tutoriais
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacidade"
+                  className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
+                >
+                  Privacidade
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="https://unificando.com.br/servicos/ia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#ccff00] hover:underline text-[9px] font-black uppercase tracking-widest transition-colors"
+                >
+                  Atendimento com IA
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://unificando.com.br/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
+                >
+                  Site Oficial
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>

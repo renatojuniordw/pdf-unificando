@@ -42,7 +42,7 @@ export default function HomePage() {
           </h1>
           <p className="text-sm font-mono font-bold uppercase text-slate-400 mt-6 max-w-2xl">
             A solução definitiva para gerenciar seus documentos. Junte múltiplos arquivos, reduza o tamanho de PDFs pesados e converta formatos com a velocidade da elite. 
-            Sem limites, sem marcas d'água e totalmente online.
+            Sem limites, sem marcas d&apos;água e totalmente online.
           </p>
         </div>
       </section>
@@ -125,4 +125,3 @@ export default function HomePage() {
     </>
   )
 }
-

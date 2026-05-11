@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib'
+import { createApiError } from '@/lib/utils/http'
 
 export type WatermarkColor = 'gray' | 'black' | 'red'
 
@@ -19,6 +20,12 @@ export async function watermarkPdf(
   buffer: Buffer,
   { text, opacity = 0.3, fontSize = 60, color = 'gray' }: WatermarkOptions
 ): Promise<Buffer> {
+  if (!text.trim()) {
+    throw createApiError(400, 'VALIDATION_ERROR', 'Texto da marca d\'água não informado.', {
+      field: 'text',
+      reason: 'missing_text',
+    })
+  }
   const pdfDoc = await PDFDocument.load(buffer)
   const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   const [r, g, b] = COLOR_MAP[color]

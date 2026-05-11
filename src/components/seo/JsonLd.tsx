@@ -1,14 +1,24 @@
 import React from 'react'
+import { siteUrl } from '@/lib/site'
 
 interface JsonLdProps {
   data: Record<string, unknown>
+}
+
+function safeJsonLd(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
 }
 
 export function JsonLd({ data }: JsonLdProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(data) }}
     />
   )
 }
@@ -23,7 +33,7 @@ export function generateWebApplicationSchema(tool: {
     '@type': 'WebApplication',
     name: `${tool.name} | Unificando PDF`,
     description: tool.description,
-    url: `https://pdf.unificando.com.br/ferramentas/${tool.slug}`,
+    url: siteUrl(`/ferramentas/${tool.slug}`),
     applicationCategory: 'PDF Tool',
     operatingSystem: 'Windows, macOS, Linux, Android, iOS',
     browserRequirements: 'Requires a modern web browser',
@@ -35,11 +45,6 @@ export function generateWebApplicationSchema(tool: {
     brand: {
       '@type': 'Brand',
       name: 'Unificando PDF',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: '150',
     },
     featureList: [
       '100% Grátis',
@@ -56,8 +61,8 @@ export function generateOrganizationSchema() {
     '@type': 'Organization',
     name: 'Unificando',
     alternateName: ['PDF Unificando', 'Unificando PDF'],
-    url: 'https://pdf.unificando.com.br',
-    logo: 'https://pdf.unificando.com.br/icon.png',
+    url: siteUrl('/'),
+    logo: siteUrl('/icon.png'),
     description: 'A Unificando PDF oferece ferramentas gratuitas e seguras para gerenciamento de arquivos PDF online.',
     sameAs: [
       'https://github.com/renatojuniordw',
@@ -71,10 +76,10 @@ export function generateWebSiteSchema() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Unificando PDF',
-    url: 'https://pdf.unificando.com.br',
+    url: siteUrl('/'),
     potentialAction: {
       '@type': 'SearchAction',
-      target: 'https://pdf.unificando.com.br/?q={search_term_string}',
+      target: `${siteUrl('/')}?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
   }
@@ -105,7 +110,7 @@ export function generateArticleSchema(article: {
     '@type': 'Article',
     headline: article.title,
     description: article.description,
-    mainEntityOfPage: `https://pdf.unificando.com.br/tutoriais/${article.slug}`,
+    mainEntityOfPage: siteUrl(`/tutoriais/${article.slug}`),
     author: {
       '@type': 'Organization',
       name: 'Unificando',
@@ -115,7 +120,7 @@ export function generateArticleSchema(article: {
       name: 'Unificando',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://pdf.unificando.com.br/icon.png',
+        url: siteUrl('/icon.png'),
       },
     },
   }
@@ -148,7 +153,7 @@ export function generateHowToSchema(tutorial: {
           text: step.description,
         },
       ],
-      url: `https://pdf.unificando.com.br/tutoriais/${tutorial.slug}#step-${index + 1}`,
+      url: `${siteUrl(`/tutoriais/${tutorial.slug}`)}#step-${index + 1}`,
     })),
   }
 }
