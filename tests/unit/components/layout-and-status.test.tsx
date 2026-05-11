@@ -60,6 +60,39 @@ describe('componentes de layout e status', () => {
     expect(document.getElementById('mobile-menu')).toBeTruthy()
   })
 
+  it('deve abrir o dropdown desktop e seguir os links', () => {
+    render(<Header />)
+
+    const desktopToolsButton = screen.getAllByRole('button', { name: /Ferramentas/i })[0]
+    fireEvent.mouseEnter(desktopToolsButton)
+
+    expect(screen.getByRole('link', { name: /Juntar PDF/i }).getAttribute('href')).toBe('/ferramentas/juntar-pdf')
+    expect(screen.getByRole('link', { name: /Ver todas as ferramentas/i }).getAttribute('href')).toBe('/')
+
+    fireEvent.click(screen.getByRole('link', { name: /Ver todas as ferramentas/i }))
+    expect(desktopToolsButton.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('deve abrir o submenu mobile e fechar com escape', () => {
+    render(<Header />)
+
+    fireEvent.click(screen.getByRole('button', { name: /Abrir menu/i }))
+    fireEvent.click(screen.getAllByRole('button', { name: /^Ferramentas$/i })[1])
+
+    const mobileMenu = screen.getByRole('dialog', { name: /Menu móvel/i })
+    const firstFocusable = mobileMenu.querySelector('button') as HTMLButtonElement
+    const lastFocusable = screen.getAllByRole('link', { name: /Unificando.com.br/i })[1] as HTMLAnchorElement
+    expect(screen.getByRole('link', { name: /Juntar PDF/i })).toBeTruthy()
+    firstFocusable.focus()
+    fireEvent.keyDown(mobileMenu, { key: 'Tab', shiftKey: true })
+    lastFocusable.focus()
+    fireEvent.keyDown(mobileMenu, { key: 'Tab' })
+
+    fireEvent.click(lastFocusable)
+    fireEvent.keyDown(mobileMenu, { key: 'Escape' })
+    expect(screen.getByRole('button', { name: /Abrir menu/i }).getAttribute('aria-expanded')).toBe('false')
+  })
+
   it('deve renderizar footer com links importantes', () => {
     render(<Footer />)
 

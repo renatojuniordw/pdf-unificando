@@ -155,4 +155,105 @@ describe('hooks/useFileProcessor', () => {
     expect(result.current.retryable).toBe(false)
     expect(trackToolError).toHaveBeenCalledWith('comprimir-pdf', 'api_error:500')
   })
+
+  it('deve aplicar outputFilename customizado e capturar texto', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response('conteudo extraido', {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+        }),
+      ),
+    )
+
+    const file = new File(['arquivo'], 'entrada.pdf', { type: 'application/pdf' })
+    const { result } = renderHook(() =>
+      useFileProcessor({
+        endpoint: '/api/pdf/txt',
+        toolName: 'extrair-texto',
+        captureText: true,
+        outputFilename: (original) => `custom-${original}`,
+        maxRetries: 0,
+      }),
+    )
+
+    await act(async () => {
+      await result.current.process(file)
+    })
+
+    expect(result.current.outputName).toBe('custom-entrada.pdf')
+    expect(result.current.textContent).toBe('conteudo extraido')
+    expect(trackToolSuccess).toHaveBeenCalledWith('extrair-texto', expect.any(Number))
+  })
+
+  it('deve tratar timeout e rede como erros recuperáveis', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValueOnce(new DOMException('aborted', 'AbortError')),
+    )
+
+    const file = new File(['arquivo'], 'entrada.pdf', { type: 'application/pdf' })
+    const { result } = renderHook(() =>
+      useFileProcessor({
+        endpoint: '/api/pdf/txt',
+        toolName: 'extrair-texto',
+        maxRetries: 0,
+        timeoutMs: 10,
+      }),
+    )
+
+    await act(async () => {
+      await result.current.process(file)
+    })
+
+    expect(result.current.status).toBe('error')
+    expect(['TIMEOUT_ERROR', 'NETWORK_ERROR']).toContain(result.current.errorCode)
+    expect(trackToolError).toHaveBeenCalled()
+  })
+
+  it('deve bloquear honeypot e permitir retry/reset', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }),
+      ),
+    )
+
+    const hp = document.createElement('input')
+    hp.setAttribute('data-honeypot', '')
+    hp.value = 'bot'
+    document.body.appendChild(hp)
+
+    const file = new File(['arquivo'], 'entrada.pdf', { type: 'application/pdf' })
+    const { result } = renderHook(() =>
+      useFileProcessor({
+        endpoint: '/api/pdf/txt',
+        toolName: 'extrair-texto',
+        maxRetries: 0,
+      }),
+    )
+
+    await act(async () => {
+      await result.current.process(file)
+    })
+
+    expect(result.current.status).toBe('error')
+    expect(result.current.errorCode).toBe('VALIDATION_ERROR')
+    expect(trackToolError).toHaveBeenCalledWith('extrair-texto', 'honeypot')
+
+    act(() => {
+      result.current.reset()
+    })
+
+    expect(result.current.status).toBe('idle')
+    expect(result.current.downloadUrl).toBeNull()
+  })
 })
