@@ -25,7 +25,6 @@ import { ErrorScreen } from '@/components/errors/ErrorScreen'
 import { tools } from '@/config/tools'
 import { tutorials } from '@/config/tutorials'
 import { trackEvent } from '@/lib/analytics'
-import { logError } from '@/lib/utils/logger'
 
 const navState = vi.hoisted(() => ({
   pathname: '/tutoriais',
@@ -168,7 +167,7 @@ describe('componentes e schemas extras', () => {
     trigger.focus()
     fireEvent.click(trigger)
 
-    const dialog = await screen.findByRole('dialog')
+    await screen.findByRole('dialog')
     expect(document.body.style.overflow).toBe('hidden')
 
     const input = screen.getByPlaceholderText(/Pesquisar ferramentas/i)
@@ -196,7 +195,7 @@ describe('componentes e schemas extras', () => {
     render(<CommandPalette />)
 
     fireEvent.click(screen.getByRole('button', { name: /Abrir busca/i }))
-    const dialog = await screen.findByRole('dialog')
+    await screen.findByRole('dialog')
     const input = screen.getByPlaceholderText(/Pesquisar ferramentas/i)
 
     fireEvent.change(input, { target: { value: 'juntar' } })
