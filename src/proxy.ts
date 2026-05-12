@@ -2,38 +2,40 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { apiErrorResponse } from '@/lib/utils/http'
 import { logWarn } from '@/lib/utils/logger'
 
+function normalizeOrigin(value: string | null | undefined): string | null {
+  if (!value) return null
+
+  try {
+    return new URL(value).origin
+  } catch {
+    return null
+  }
+}
+
 export function proxy(req: NextRequest) {
   if (req.method !== 'POST') return NextResponse.next()
 
   const requestId = req.headers.get('x-request-id') ?? globalThis.crypto.randomUUID()
   const origin = req.headers.get('origin')
-  const envAllowedOrigin = process.env.ALLOWED_ORIGIN
-  const isProduction = process.env.NODE_ENV === 'production'
+  const referer = req.headers.get('referer')
   const allowedOrigin =
-    envAllowedOrigin ||
-    (!isProduction
-      ? `${req.headers.get('x-forwarded-proto') || 'http'}://${req.headers.get('x-forwarded-host') || req.headers.get('host')}`
-      : null)
+    normalizeOrigin(process.env.ALLOWED_ORIGIN) ??
+    normalizeOrigin(req.nextUrl?.origin) ??
+    (() => {
+      const forwardedHost = req.headers.get('x-forwarded-host') || req.headers.get('host')
+      if (!forwardedHost) return null
+      const forwardedProto = req.headers.get('x-forwarded-proto') || 'https'
+      return normalizeOrigin(`${forwardedProto}://${forwardedHost}`)
+    })()
+  const requestOrigin = normalizeOrigin(origin) ?? normalizeOrigin(referer)
 
-  if (!allowedOrigin) {
-    logWarn('CORS', 'ALLOWED_ORIGIN não configurado em produção.', { requestId })
-    return apiErrorResponse(
-      500,
-      'INTERNAL_ERROR',
-      'Configuração de origem ausente.',
-      { reason: 'missing_allowed_origin' },
-      false,
-      { 'X-Request-Id': requestId },
-    )
-  }
+  if (requestOrigin && allowedOrigin) {
+    const isLocal = requestOrigin.includes('localhost') || requestOrigin.includes('127.0.0.1')
 
-  if (origin) {
-    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1')
-
-    if (origin !== allowedOrigin && !isLocal) {
+    if (requestOrigin !== allowedOrigin && !isLocal) {
       logWarn('CORS', 'Requisição bloqueada por origem diferente.', {
         requestId,
-        origin,
+        origin: requestOrigin,
         allowedOrigin,
       })
       return apiErrorResponse(
@@ -45,17 +47,6 @@ export function proxy(req: NextRequest) {
         { 'X-Request-Id': requestId },
       )
     }
-
-    const response = NextResponse.next({
-      request: {
-        headers: new Headers({
-          ...Object.fromEntries(req.headers.entries()),
-          'x-request-id': requestId,
-        }),
-      },
-    })
-    response.headers.set('X-Request-Id', requestId)
-    return response
   }
 
   const apiKey = process.env.API_SECRET_KEY
