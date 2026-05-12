@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState, useCallback } from "react";
+import { memo, useState, useCallback, useMemo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -24,6 +24,7 @@ import { DownloadButton } from "@/components/processing/DownloadButton";
 import { PromotionBanner } from "@/components/tools/PromotionBanner";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { usePdfPages } from "@/hooks/usePdfPages";
+import { useDownloadTracking } from "@/hooks/useDownloadTracking";
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 
 interface PageItem {
@@ -46,7 +47,7 @@ function SortablePage({
   onRemove,
 }: {
   item: PageItem;
-  onRemove: () => void;
+  onRemove: (id: string) => void;
 }) {
   const {
     attributes,
@@ -91,7 +92,7 @@ function SortablePage({
         </svg>
       </button>
       <button
-        onClick={onRemove}
+        onClick={() => onRemove(item.id)}
         className="absolute top-1 right-1 bg-[#ff4d4d] text-white border-2 border-slate-950 p-0.5 font-black text-[10px]"
       >
         ✕
@@ -100,8 +101,10 @@ function SortablePage({
   );
 }
 
+const MemoizedSortablePage = memo(SortablePage);
+
 export function OrganizarPdfClient() {
-  const { loading, loadFile } = usePdfPages();
+  const { loading, loadFile, error: pagesError, progress: pageProgress, currentPage, totalPages } = usePdfPages();
   const [items, setItems] = useState<PageItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [originalFile, setOriginalFile] = useState<File | null>(null);
@@ -112,6 +115,7 @@ export function OrganizarPdfClient() {
     outputName,
     processedSize,
     process,
+    retryLast,
     reset,
     secondsLeft,
     progress,
@@ -120,6 +124,8 @@ export function OrganizarPdfClient() {
     toolName: "organizar-pdf",
     outputFilename: (name) => name.replace(".pdf", "-organizado.pdf"),
   });
+  const activeItems = useMemo(() => items.filter((i) => !i.removed), [items]);
+  const activeOrder = useMemo(() => activeItems.map((i) => i.index).join(","), [activeItems]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
@@ -158,23 +164,35 @@ export function OrganizarPdfClient() {
 
   const handleProcess = useCallback(() => {
     if (!originalFile) return;
-    const order = items
-      .filter((i) => !i.removed)
-      .map((i) => i.index)
-      .join(",");
-    process(originalFile, { order });
-  }, [process, items, originalFile]);
+    process(originalFile, { order: activeOrder });
+  }, [activeOrder, process, originalFile]);
 
   const handleReset = useCallback(() => {
     reset();
     setItems([]);
     setOriginalFile(null);
   }, [reset]);
+  const handleDownload = useDownloadTracking("organizar-pdf", outputName);
+
+  const handleToggleRemove = useCallback((id: string) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === id
+          ? { ...i, removed: !i.removed }
+          : i,
+      ),
+    );
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
       {status === "idle" && items.length === 0 && !loading && (
         <div className="max-w-2xl mx-auto w-full">
+          {pagesError && (
+            <div className="mb-4 bg-[#ff4d4d] text-white border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-4 font-black uppercase tracking-widest text-sm">
+              {pagesError}
+            </div>
+          )}
           <DropZone
             accept={{ "application/pdf": [".pdf"] }}
             onDrop={handleDrop}
@@ -183,14 +201,25 @@ export function OrganizarPdfClient() {
       )}
       {loading && (
         <div className="max-w-2xl mx-auto w-full">
-          <ProcessingStatus status="processing" />
+          <div className="border-4 border-slate-950 bg-white shadow-[8px_8px_0px_#000] p-8 flex flex-col gap-4">
+            <p className="font-black uppercase tracking-widest text-sm text-slate-950">GERANDO MINIATURAS...</p>
+            <div className="w-full border-2 border-slate-950 h-4 overflow-hidden">
+              <div
+                className="h-full bg-slate-950 transition-all"
+                style={{ width: `${Math.max(0.08, pageProgress) * 100}%` }}
+              />
+            </div>
+            <p className="text-xs font-mono uppercase tracking-widest text-slate-500">
+              {currentPage} / {totalPages || "?"} páginas carregadas
+            </p>
+          </div>
         </div>
       )}
       {items.length > 0 && status === "idle" && (
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <p className="text-xs font-black uppercase tracking-widest text-slate-500">
-              {items.filter((i) => !i.removed).length} PÁGINAS ATIVAS
+              {activeItems.length} PÁGINAS ATIVAS
             </p>
             <button
               onClick={handleProcess}
@@ -211,18 +240,10 @@ export function OrganizarPdfClient() {
             >
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {items.map((item) => (
-                  <SortablePage
+                  <MemoizedSortablePage
                     key={item.id}
                     item={item}
-                    onRemove={() =>
-                      setItems((prev) =>
-                        prev.map((i) =>
-                          i.id === item.id
-                            ? { ...i, removed: !i.removed }
-                            : i,
-                        ),
-                      )
-                    }
+                    onRemove={handleToggleRemove}
                   />
                 ))}
               </div>
@@ -254,7 +275,7 @@ export function OrganizarPdfClient() {
           <RetryCountdown
             secondsLeft={secondsLeft}
             progress={progress}
-            onRetry={handleReset}
+            onRetry={retryLast}
           />
         </div>
       )}
@@ -276,7 +297,7 @@ export function OrganizarPdfClient() {
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
-            toolName="organizar-pdf"
+            onDownload={handleDownload}
             fileSize={processedSize}
             onReset={handleReset}
           />

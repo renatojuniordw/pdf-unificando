@@ -1,23 +1,18 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import '@/styles/index.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ConsoleBranding } from '@/components/layout/ConsoleBranding'
-import { CommandPalette } from '@/components/layout/CommandPalette'
-import { PWARegistration } from '@/components/pwa/PWARegistration'
-import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner'
+import { ClientChrome } from '@/components/layout/ClientChrome'
 import Script from 'next/script'
 import type { Viewport } from 'next'
+import { SITE_URL } from '@/lib/site'
 
-const inter = Inter({ subsets: ['latin'] })
-
-const BASE_URL = 'https://pdf.unificando.com.br'
 const ADSENSE_CLIENT_ID =
   process.env.NEXT_PUBLIC_ADSENSE_ID ?? 'ca-pub-6897422992813570'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(SITE_URL),
   applicationName: 'Unificando PDF',
   appleWebApp: {
     capable: true,
@@ -26,7 +21,7 @@ export const metadata: Metadata = {
   },
   title: {
     default: 'Unificando PDF — Ferramentas PDF Gratuitas Online',
-    template: '%s | Unificando PDF'
+    template: '%s | Unificando PDF',
   },
   description: 'Comprima, junte, divida e converta PDFs online grátis. Sem cadastro, sem limites e com segurança máxima. Seus arquivos não são armazenados.',
   keywords: ['unificar pdf', 'juntar pdf', 'comprimir pdf', 'converter pdf', 'pdf para word', 'pdf para jpg', 'dividir pdf', 'rodar pdf'],
@@ -44,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Unificando PDF — Ferramentas PDF Gratuitas Online',
     description: 'A maneira mais rápida e segura de gerenciar seus arquivos PDF online e totalmente grátis.',
-    url: BASE_URL,
+    url: SITE_URL,
     siteName: 'Unificando PDF',
     locale: 'pt_BR',
     type: 'website',
@@ -88,7 +83,16 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={inter.className}>
+    <html lang="pt-BR">
+      <head>
+        {ADSENSE_CLIENT_ID ? (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
+      </head>
       <body>
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5FJHKG2C" height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
         <a
@@ -101,32 +105,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main id="main-content">{children}</main>
         <Footer />
-        <CommandPalette />
-        <PWARegistration />
-        <PWAInstallBanner />
-        {ADSENSE_CLIENT_ID ? (
-          <Script
-            id="google-adsense"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
-            strategy="beforeInteractive"
-            crossOrigin="anonymous"
-          />
-        ) : null}
+        <ClientChrome />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-WDL8Q73DPM"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="ga4-init" strategy="afterInteractive">
+        <Script id="ga4-init" strategy="lazyOnload">
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WDL8Q73DPM');`}
         </Script>
-        <Script id="gtm-script" strategy="afterInteractive">
+        <Script id="gtm-script" strategy="lazyOnload">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
             })(window,document,'script','dataLayer','GTM-5FJHKG2C');`}
         </Script>
-        <Script id="meta-pixel" strategy="afterInteractive">
+        <Script id="meta-pixel" strategy="lazyOnload">
           {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1491713342606274');fbq('track','PageView');`}
         </Script>
         <noscript>

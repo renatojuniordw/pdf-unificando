@@ -1,60 +1,32 @@
-'use client'
-
-import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { TutorialDefinition } from '@/config/tutorials'
 import { getTool } from '@/config/tools'
 
 interface TutorialsListProps {
   tutorials: TutorialDefinition[]
+  query: string
 }
 
-export function TutorialsList({ tutorials }: TutorialsListProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-
-  const filteredTutorials = useMemo(() => {
-    const query = searchQuery.toLowerCase().trim()
-    if (!query) return tutorials
-
-    return tutorials.filter((t) => 
-      t.title.toLowerCase().includes(query) || 
-      t.description.toLowerCase().includes(query) ||
-      t.searchIntent.toLowerCase().includes(query)
-    )
-  }, [searchQuery, tutorials])
+export function TutorialsList({ tutorials, query }: TutorialsListProps) {
+  const normalizedQuery = query.toLowerCase().trim()
+  const filteredTutorials = normalizedQuery
+    ? tutorials.filter((tutorial) =>
+        tutorial.title.toLowerCase().includes(normalizedQuery) ||
+        tutorial.description.toLowerCase().includes(normalizedQuery) ||
+        tutorial.searchIntent.toLowerCase().includes(normalizedQuery),
+      )
+    : tutorials
 
   return (
     <>
-      <section className="bg-white py-12 border-b-4 border-slate-100">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="relative group">
-            <input
-              type="text"
-              placeholder="PESQUISAR TUTORIAL (EX: JUNTAR, COMPRIMIR...)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border-4 border-slate-950 p-6 font-black uppercase text-sm tracking-widest focus:outline-none focus:shadow-[8px_8px_0px_#ccff00] transition-all placeholder:text-slate-300 shadow-[8px_8px_0px_#000]"
-            />
-            <div className="absolute right-6 top-1/2 -translate-y-1/2">
-              <svg 
-                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" 
-                className={`transition-colors ${searchQuery ? 'text-[#ccff00]' : 'text-slate-950'}`}
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-            </div>
-          </div>
-          {searchQuery && (
-            <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
-              Mostrando {filteredTutorials.length} resultados para &quot;{searchQuery}&quot;
-            </p>
-          )}
-        </div>
-      </section>
-
       <section className="bg-white py-20">
         <div className="max-w-4xl mx-auto px-6">
+          {query ? (
+            <p className="mb-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
+              Mostrando {filteredTutorials.length} resultados para &quot;{query}&quot;
+            </p>
+          ) : null}
+
           {filteredTutorials.length > 0 ? (
             <div className="flex flex-col gap-12">
               {filteredTutorials.map((tutorial) => {
@@ -88,10 +60,10 @@ export function TutorialsList({ tutorials }: TutorialsListProps) {
 
                         <div className="flex flex-wrap gap-x-6 gap-y-2 mt-8 border-t-2 border-slate-100 pt-6">
                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-700">
-                            Ferramenta: <span className="text-slate-400 underline">{tool.name}</span>
+                            Ferramenta: <span className="text-slate-600 underline">{tool.name}</span>
                           </p>
                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-700">
-                            Dificuldade: <span className="text-slate-400">Iniciante</span>
+                            Dificuldade: <span className="text-slate-600">Iniciante</span>
                           </p>
                         </div>
                       </div>
@@ -120,12 +92,12 @@ export function TutorialsList({ tutorials }: TutorialsListProps) {
               <p className="text-sm font-black uppercase tracking-widest text-slate-400">
                 Nenhum tutorial encontrado para sua busca.
               </p>
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="mt-6 text-xs font-black uppercase underline decoration-2 underline-offset-4 hover:text-[#ccff00] transition-colors"
+              <Link
+                href="/tutoriais"
+                className="mt-6 inline-flex text-xs font-black uppercase underline decoration-2 underline-offset-4 hover:text-[#ccff00] transition-colors"
               >
                 Limpar pesquisa
-              </button>
+              </Link>
             </div>
           )}
         </div>

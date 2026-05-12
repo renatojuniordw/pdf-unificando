@@ -1,9 +1,11 @@
 import { Metadata } from "next";
 import { getTool } from "@/config/tools";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { PdfParaTxtClient } from "./PdfParaTxtClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
 import { EcosystemSection } from "@/components/layout/EcosystemSection";
 import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
+import { siteUrl } from "@/lib/site";
 
 const tool = getTool("pdf-para-txt");
 
@@ -16,7 +18,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: `${tool.name} Online e Grátis`,
     description: tool.seoDescription,
+    url: siteUrl(`/ferramentas/${tool.slug}`),
     type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: `${tool.name} Online e Grátis`,
+    description: tool.seoDescription,
   },
 };
 
@@ -29,6 +37,13 @@ export default function PdfParaTxtPage() {
 
       <section className="bg-[#ccff00] border-b-4 border-slate-950 py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <Breadcrumbs
+            className="mb-6"
+            items={[
+              { label: "Início", href: "/" },
+              { label: tool.name },
+            ]}
+          />
           <span className="inline-block bg-slate-950 text-[#ccff00] font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000] mb-4">
             FERRAMENTA GRATUITA
           </span>

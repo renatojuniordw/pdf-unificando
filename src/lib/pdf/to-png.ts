@@ -16,6 +16,10 @@ const STANDARD_FONTS_URL = 'file://' + path.join(PDFJS_LEGACY, '../../standard_f
 const WORKER_SRC = 'file://' + path.join(PDFJS_LEGACY, 'pdf.worker.mjs')
 
 export async function pdfToPng(buffer: Buffer, dpi: PngDpi = '150'): Promise<Buffer> {
+  if (dpi !== '72' && dpi !== '150' && dpi !== '300') {
+    throw new Error('DPI inválido.')
+  }
+
   const { Canvas, ImageData, Path2D, DOMMatrix } = await import('@napi-rs/canvas')
 
   ;(globalThis as Record<string, unknown>).ImageData ??= ImageData

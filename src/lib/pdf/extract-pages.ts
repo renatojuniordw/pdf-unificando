@@ -2,6 +2,7 @@ import { Writable } from 'stream'
 import archiver from 'archiver'
 import { PDFDocument } from 'pdf-lib'
 import { parsePageRange } from '@/lib/utils/file'
+import { createApiError } from '@/lib/utils/http'
 
 export async function extractPdfPages(buffer: Buffer, rangeInput: string): Promise<Buffer> {
   const source = await PDFDocument.load(buffer)
@@ -9,7 +10,10 @@ export async function extractPdfPages(buffer: Buffer, rangeInput: string): Promi
   const indices = parsePageRange(rangeInput, totalPages)
 
   if (!indices.length) {
-    throw new Error('Nenhuma página válida no intervalo informado.')
+    throw createApiError(400, 'VALIDATION_ERROR', 'Nenhuma página válida no intervalo informado.', {
+      field: 'range',
+      reason: 'invalid_range',
+    })
   }
 
   const pageBuffers = await Promise.all(

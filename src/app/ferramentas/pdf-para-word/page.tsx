@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Metadata } from "next";
 import { getTool } from "@/config/tools";
 import { PdfParaWordClient } from "./PdfParaWordClient";

@@ -16,6 +16,10 @@ const STANDARD_FONTS_URL = 'file://' + path.join(PDFJS_LEGACY, '../../standard_f
 const WORKER_SRC = 'file://' + path.join(PDFJS_LEGACY, 'pdf.worker.mjs')
 
 export async function pdfToJpg(buffer: Buffer, dpi: JpgDpi = '150'): Promise<Buffer> {
+  if (dpi !== '72' && dpi !== '150' && dpi !== '300') {
+    throw new Error('DPI inválido.')
+  }
+
   // @napi-rs/canvas is an optional dep of pdfjs-dist; we use it as the canvas backend.
   const { Canvas, ImageData, Path2D, DOMMatrix } = await import('@napi-rs/canvas')
 

@@ -6,6 +6,7 @@ interface SearchState {
   query: string
   isSearching: boolean
   resultCount: number | null
+  errorMessage?: string | null
 }
 
 interface Props {
@@ -41,7 +42,7 @@ export function EditorToolbar({
   onApply, onCancel,
 }: Props) {
   return (
-    <div className="border-b-4 border-slate-950 bg-white p-2 md:p-3 flex flex-col gap-2 md:gap-3">
+    <div className="border-b-4 border-slate-950 bg-white p-2 md:p-3 flex flex-col gap-2 md:gap-3" aria-label="Ferramentas do editor">
  
        {/* Row 1: tools */}
        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0">
@@ -92,33 +93,45 @@ export function EditorToolbar({
        <div className="flex items-center gap-2">
  
          {/* Search */}
-         <div className="flex flex-1 min-w-0 border-2 border-slate-950">
-           <input
-             type="text"
-             value={search.query}
-             onChange={(e) => onSearchQueryChange(e.target.value)}
-             onKeyDown={(e) => { if (e.key === "Enter" && !isProcessing) onSearchSubmit() }}
-             placeholder="Buscar e censurar..."
-             disabled={isProcessing}
-             className="flex-1 min-w-0 px-2 py-1.5 text-[10px] font-mono bg-white placeholder-slate-400 outline-none disabled:opacity-40"
-           />
-           <button
-             onClick={onSearchSubmit}
-             disabled={!search.query.trim() || search.isSearching || isProcessing}
-             className="px-2 border-l-2 border-slate-950 text-[10px] font-black uppercase tracking-widest bg-slate-950 text-[#ccff00] hover:bg-slate-800 transition-colors disabled:opacity-40 flex items-center gap-1 whitespace-nowrap"
-           >
-             {search.isSearching ? (
-               <span className="w-3 h-3 border-2 border-[#ccff00] border-t-transparent rounded-full animate-spin" />
-             ) : (
-               <SearchIcon />
-             )}
-             <span className="hidden sm:inline">Marcar tudo</span>
-           </button>
-         </div>
+        <div className="flex flex-1 min-w-0 border-2 border-slate-950">
+          <div className="flex-1 min-w-0 flex flex-col">
+            <div className="flex">
+              <input
+                type="text"
+                value={search.query}
+                onChange={(e) => onSearchQueryChange(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !isProcessing) onSearchSubmit() }}
+                placeholder="Buscar e censurar..."
+                disabled={isProcessing}
+                className="flex-1 min-w-0 px-2 py-1.5 text-[10px] font-mono bg-white placeholder-slate-400 outline-none disabled:opacity-40"
+              />
+              <button
+                type="button"
+                onClick={onSearchSubmit}
+                disabled={!search.query.trim() || search.isSearching || isProcessing}
+                className="px-2 border-l-2 border-slate-950 text-[10px] font-black uppercase tracking-widest bg-slate-950 text-[#ccff00] hover:bg-slate-800 transition-colors disabled:opacity-40 flex items-center gap-1 whitespace-nowrap"
+                aria-label="Marcar todas as ocorrências"
+              >
+                {search.isSearching ? (
+                  <span className="w-3 h-3 border-2 border-[#ccff00] border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <SearchIcon />
+                )}
+                <span className="hidden sm:inline">Marcar tudo</span>
+              </button>
+            </div>
+            {search.errorMessage && (
+              <p className="px-2 py-1 text-[10px] font-black uppercase tracking-widest text-[#ff4d4d] border-t border-slate-950 bg-red-50">
+                {search.errorMessage}
+              </p>
+            )}
+          </div>
+        </div>
  
          {/* Primary actions */}
          <div className="flex gap-1.5 ml-auto flex-shrink-0">
            <button
+             type="button"
              onClick={onCancel}
              disabled={isProcessing}
              className="border-2 border-slate-950 px-2 py-1.5 font-black uppercase text-[10px] tracking-widest hover:bg-slate-100 transition-colors disabled:opacity-40"
@@ -128,6 +141,7 @@ export function EditorToolbar({
              <span className="sm:hidden">Sair</span>
            </button>
            <button
+             type="button"
              onClick={onApply}
              disabled={rectCount === 0 || isProcessing}
              className="border-2 border-slate-950 bg-slate-950 text-[#ccff00] px-2 py-1.5 font-black uppercase text-[10px] tracking-widest shadow-[2px_2px_0px_#ccff00] hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:shadow-none flex items-center gap-1"
@@ -149,9 +163,10 @@ function ToolButton({ onClick, disabled, title, children }: {
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
-      title={title}
+      aria-label={title}
       className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
     >
       {children}
@@ -201,4 +216,3 @@ function SearchIcon() {
     </svg>
   )
 }
-

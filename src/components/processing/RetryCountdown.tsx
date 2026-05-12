@@ -1,3 +1,5 @@
+import { BrutalistCard } from "@/components/layout/BrutalistCard"
+
 interface RetryCountdownProps {
   secondsLeft: number
   progress: number
@@ -11,7 +13,7 @@ export function RetryCountdown({ secondsLeft, progress, onRetry }: RetryCountdow
   const isDone = secondsLeft === 0
 
   return (
-    <div className="bg-slate-950 border-4 border-[#ccff00] shadow-[8px_8px_0px_#ccff00] p-8 flex flex-col items-center gap-6">
+    <BrutalistCard tone="accent" className="bg-slate-950 border-[#ccff00] p-8 flex flex-col items-center gap-6">
       <div className="flex items-center gap-3">
         <div className="bg-[#ccff00] text-slate-950 border-2 border-slate-950 p-2 shadow-[2px_2px_0px_#000]">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
@@ -49,12 +51,13 @@ export function RetryCountdown({ secondsLeft, progress, onRetry }: RetryCountdow
 
       {isDone && (
         <button
+          type="button"
           onClick={onRetry}
           className="bg-[#ccff00] text-slate-950 border-4 border-slate-950 shadow-[4px_4px_0px_#000] font-black uppercase tracking-[0.2em] px-8 py-4 hover:bg-[#b3ff00] hover:-translate-y-1 transition-all"
         >
           TENTAR NOVAMENTE
         </button>
       )}
-    </div>
+    </BrutalistCard>
   )
 }

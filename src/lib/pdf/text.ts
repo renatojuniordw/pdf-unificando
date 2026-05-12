@@ -1,4 +1,5 @@
 import path from 'path'
+import { createApiError } from '@/lib/utils/http'
 
 const PDFJS_LEGACY = path.join(process.cwd(), 'node_modules/pdfjs-dist/legacy/build')
 const STANDARD_FONTS_URL = 'file://' + path.join(PDFJS_LEGACY, '../../standard_fonts') + '/'
@@ -42,9 +43,11 @@ export function ensurePdfHasExtractableText(pages: string[][]): void {
   const hasText = pages.some((lines) => lines.some((line) => line.trim().length > 0))
 
   if (!hasText) {
-    throw Object.assign(
-      new Error('Não foi possível extrair texto do PDF. PDFs escaneados ou compostos apenas por imagem exigem OCR.'),
-      { status: 422 },
+    throw createApiError(
+      422,
+      'VALIDATION_ERROR',
+      'Não foi possível extrair texto do PDF. PDFs escaneados ou compostos apenas por imagem exigem OCR.',
+      { field: 'file', reason: 'no_extractable_text' },
     )
   }
 }

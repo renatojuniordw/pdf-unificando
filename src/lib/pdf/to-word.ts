@@ -1,10 +1,18 @@
 import { Writable } from 'stream'
 import archiver from 'archiver'
 import { ensurePdfHasExtractableText, extractPdfTextLines } from '@/lib/pdf/text'
+import { createApiError } from '@/lib/utils/http'
 
 export async function pdfToWord(buffer: Buffer): Promise<Buffer> {
   const pages = await extractPdfTextLines(buffer)
-  ensurePdfHasExtractableText(pages)
+  try {
+    ensurePdfHasExtractableText(pages)
+  } catch (err) {
+    if (err instanceof Error) {
+      throw err
+    }
+    throw createApiError(500, 'INTERNAL_ERROR', 'Falha ao validar o conteúdo do PDF.')
+  }
 
   return buildDocx(pages)
 }

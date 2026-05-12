@@ -1,34 +1,14 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { DropZone } from "@/components/upload/DropZone";
 import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
 import { RetryCountdown } from "@/components/processing/RetryCountdown";
 import { DownloadButton } from "@/components/processing/DownloadButton";
 import { PromotionBanner } from "@/components/tools/PromotionBanner";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
-
-function wordCount(text: string): number {
-  return text.trim().split(/\s+/).filter(Boolean).length
-}
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false)
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <button
-      onClick={handleCopy}
-      className="border-2 border-slate-950 px-4 py-2 font-black uppercase text-xs shadow-[3px_3px_0px_#000] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all bg-white"
-    >
-      {copied ? "COPIADO ✓" : "COPIAR"}
-    </button>
-  )
-}
+import { StateBanner } from "@/components/shared/StateBanner";
+import { TextPreviewPanel } from "@/components/shared/TextPreviewPanel";
+import { useDownloadTracking } from "@/hooks/useDownloadTracking";
 
 export function PdfParaMarkdownClient() {
   const {
@@ -39,6 +19,7 @@ export function PdfParaMarkdownClient() {
     processedSize,
     textContent,
     process,
+    retryLast,
     reset,
     secondsLeft,
     progress,
@@ -53,6 +34,7 @@ export function PdfParaMarkdownClient() {
     (files: File[]) => process(files[0]),
     [process],
   );
+  const handleDownload = useDownloadTracking("pdf-para-markdown", outputName);
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-6">
@@ -77,45 +59,26 @@ export function PdfParaMarkdownClient() {
         <RetryCountdown
           secondsLeft={secondsLeft}
           progress={progress}
-          onRetry={reset}
+          onRetry={retryLast}
         />
       )}
       {status === "error" && (
-        <div className="bg-[#ff4d4d] text-white border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-6 flex items-center gap-4">
-          <p className="font-black uppercase tracking-widest text-sm">
-            ERRO: {error}
-          </p>
-          <button
-            onClick={reset}
-            className="ml-auto border-2 border-white px-4 py-2 font-black uppercase text-xs"
-          >
-            TENTAR NOVAMENTE
-          </button>
-        </div>
+        <StateBanner
+          tone="error"
+          title="ERRO"
+          message={error ?? "Falha ao processar o arquivo."}
+          actionLabel="Tentar novamente"
+          onAction={reset}
+        />
       )}
       {status === "done" && downloadUrl && textContent && (
         <>
-          <div className="border-4 border-slate-950 shadow-[8px_8px_0px_#ccff00]">
-            <div className="flex items-center justify-between bg-slate-950 px-4 py-3 gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-[#ccff00] font-black uppercase text-xs tracking-widest">
-                  MARKDOWN GERADO
-                </span>
-                <span className="text-slate-400 font-mono text-xs">
-                  {wordCount(textContent).toLocaleString("pt-BR")} palavras · {textContent.length.toLocaleString("pt-BR")} caracteres
-                </span>
-              </div>
-              <CopyButton text={textContent} />
-            </div>
-            <pre className="p-4 text-xs font-mono text-slate-800 bg-white overflow-auto max-h-80 leading-relaxed whitespace-pre-wrap break-words">
-              {textContent}
-            </pre>
-          </div>
+          <TextPreviewPanel title="MARKDOWN GERADO" text={textContent} />
 
           <DownloadButton
             url={downloadUrl}
             filename={outputName!}
-            toolName="pdf-para-markdown"
+            onDownload={handleDownload}
             fileSize={processedSize}
             onReset={reset}
           />

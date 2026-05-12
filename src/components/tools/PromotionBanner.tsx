@@ -1,12 +1,14 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 export function PromotionBanner() {
+  const shouldReduceMotion = useReducedMotion()
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.25 }}
       className="border-4 border-slate-950 bg-white p-8 shadow-[8px_8px_0px_#ccff00] mt-12 relative overflow-hidden"
     >
       {/* Decorative background element */}
@@ -32,7 +34,7 @@ export function PromotionBanner() {
             href="https://unificando.com.br/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="bg-[#ccff00] text-slate-950 border-2 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest hover:bg-slate-950 hover:text-white transition-all shadow-[4px_4px_0px_#000]"
+            className="bg-[#ccff00] text-slate-950 border-2 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest hover:bg-slate-950 hover:text-white transition-all shadow-[4px_4px_0px_#000] motion-reduce:transition-none motion-reduce:hover:bg-[#ccff00] motion-reduce:hover:text-slate-950"
           >
             Conheça Nossos Serviços
           </a>
@@ -40,7 +42,7 @@ export function PromotionBanner() {
             href="https://unificando.com.br/servicos/ia" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="border-2 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest hover:bg-slate-100 transition-all"
+            className="border-2 border-slate-950 px-6 py-3 font-black uppercase text-xs tracking-widest hover:bg-slate-100 transition-all motion-reduce:transition-none"
           >
             Atendimento com IA
           </a>

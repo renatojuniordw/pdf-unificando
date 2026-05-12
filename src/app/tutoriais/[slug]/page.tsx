@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTutorial, tutorials } from '@/config/tutorials'
 import { getTool } from '@/config/tools'
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
+import { siteUrl } from '@/lib/site'
 import {
   JsonLd,
   generateArticleSchema,
@@ -18,6 +20,8 @@ type TutorialPageProps = {
 export async function generateStaticParams() {
   return tutorials.map((tutorial) => ({ slug: tutorial.slug }))
 }
+
+export const dynamicParams = false
 
 export async function generateMetadata({ params }: TutorialPageProps): Promise<Metadata> {
   const { slug } = await params
@@ -38,7 +42,13 @@ export async function generateMetadata({ params }: TutorialPageProps): Promise<M
     openGraph: {
       title: `${tutorial.title} | Unificando PDF`,
       description: tutorial.description,
+      url: siteUrl(`/tutoriais/${tutorial.slug}`),
       type: 'article',
+    },
+    twitter: {
+      card: 'summary',
+      title: `${tutorial.title} | Unificando PDF`,
+      description: tutorial.description,
     },
   }
 }
@@ -81,11 +91,11 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
 
   const faqSchema = generateFAQSchema(fullTutorial.faqs)
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Início', url: 'https://pdf.unificando.com.br/' },
-    { name: 'Tutoriais', url: 'https://pdf.unificando.com.br/tutoriais' },
+    { name: 'Início', url: siteUrl('/') },
+    { name: 'Tutoriais', url: siteUrl('/tutoriais') },
     {
       name: fullTutorial.title,
-      url: `https://pdf.unificando.com.br/tutoriais/${fullTutorial.slug}`,
+      url: siteUrl(`/tutoriais/${fullTutorial.slug}`),
     },
   ])
 
@@ -96,8 +106,17 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
       <JsonLd data={faqSchema} />
       <JsonLd data={breadcrumbSchema} />
 
+      <main>
       <section className="bg-[#ccff00] border-b-4 border-slate-950 py-16">
         <div className="max-w-5xl mx-auto px-6 lg:px-12">
+          <Breadcrumbs
+            className="mb-6"
+            items={[
+              { label: 'Início', href: '/' },
+              { label: 'Tutoriais', href: '/tutoriais' },
+              { label: fullTutorial.title },
+            ]}
+          />
           <div className="flex flex-wrap items-center gap-3 mb-5">
             <span className="inline-block bg-slate-950 text-[#ccff00] font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000]">
               TUTORIAL
@@ -304,6 +323,7 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
           </section>
         </div>
       </section>
+      </main>
     </>
   )
 }

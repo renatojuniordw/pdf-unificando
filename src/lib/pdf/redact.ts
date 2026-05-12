@@ -9,6 +9,27 @@ export interface RedactRegion {
   height: number  // relative height (0–1)
 }
 
+function isValidRegion(region: RedactRegion): boolean {
+  return (
+    Number.isInteger(region.page) &&
+    region.page >= 0 &&
+    Number.isFinite(region.x) &&
+    Number.isFinite(region.y) &&
+    Number.isFinite(region.width) &&
+    Number.isFinite(region.height) &&
+    region.x >= 0 &&
+    region.y >= 0 &&
+    region.width > 0 &&
+    region.height > 0 &&
+    region.x <= 1 &&
+    region.y <= 1 &&
+    region.width <= 1 &&
+    region.height <= 1 &&
+    region.x + region.width <= 1 &&
+    region.y + region.height <= 1
+  )
+}
+
 const PDFJS_LEGACY = path.join(process.cwd(), 'node_modules/pdfjs-dist/legacy/build')
 const STANDARD_FONTS_URL = 'file://' + path.join(PDFJS_LEGACY, '../../standard_fonts') + '/'
 const WORKER_SRC = 'file://' + path.join(PDFJS_LEGACY, 'pdf.worker.mjs')
@@ -20,6 +41,11 @@ export async function redactPdf(
   regions: RedactRegion[],
   resolution: 72 | 144 | 216 = 144,
 ): Promise<Buffer> {
+  const invalidRegion = regions.find((region) => !isValidRegion(region))
+  if (invalidRegion) {
+    throw Object.assign(new Error('Uma ou mais regiões de redação são inválidas.'), { status: 400 })
+  }
+
   const redactedPageIndices = new Set(regions.map((r) => r.page))
 
   // Pages without redactions are copied directly from the source

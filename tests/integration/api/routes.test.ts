@@ -7,6 +7,7 @@ import { POST as splitRoute } from "@/app/api/pdf/split/route";
 import { POST as toTxtRoute } from "@/app/api/pdf/to-txt/route";
 import { POST as pageNumbersRoute } from "@/app/api/pdf/page-numbers/route";
 import { POST as extractPagesRoute } from "@/app/api/pdf/extract-pages/route";
+import { GET as healthRoute } from "@/app/api/health/route";
 
 const pdfBlob = (file: Buffer) => new Blob([Uint8Array.from(file)], { type: "application/pdf" });
 const buildRequest = (url: string, formData: FormData, ip: string) =>
@@ -33,6 +34,9 @@ describe("API Routes - PDF Operations", () => {
 
       const res = await mergeRoute(req);
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.success).toBe(false);
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("deve retornar 400 se apenas um arquivo enviado", async () => {
@@ -78,6 +82,8 @@ describe("API Routes - PDF Operations", () => {
 
       const res = await splitRoute(req);
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("deve retornar 200 com intervalo válido", async () => {
@@ -102,6 +108,8 @@ describe("API Routes - PDF Operations", () => {
 
       const res = await toTxtRoute(req);
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.success).toBe(false);
     });
 
     it("deve retornar 200 com txt valido", async () => {
@@ -166,6 +174,23 @@ describe("API Routes - PDF Operations", () => {
       expect(res.status).toBe(200);
       expect(res.headers.get("content-type")).toContain("application/zip");
       expect(res.headers.get("content-disposition")).toContain('filename="test_unificando.zip"');
+    });
+  });
+
+  describe("GET /api/health", () => {
+    it("deve retornar status ok com informações básicas de runtime", async () => {
+      const res = await healthRoute();
+      expect(res.status).toBe(200);
+
+      const body = await res.json();
+      expect(body.status).toBe("ok");
+      expect(body.timestamp).toBeTruthy();
+      expect(body.uptimeSeconds).toBeGreaterThanOrEqual(0);
+      expect(body.queue).toMatchObject({
+        active: expect.any(Number),
+        pending: expect.any(Number),
+        overloaded: expect.any(Boolean),
+      });
     });
   });
 });

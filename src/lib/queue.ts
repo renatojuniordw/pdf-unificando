@@ -1,6 +1,8 @@
 import pLimit from 'p-limit'
 import { type NextRequest } from 'next/server'
 import { rateLimit } from './utils/rate-limit'
+import { createApiError } from './utils/http'
+import { logWarn } from './utils/logger'
 
 const MAX_CONCURRENT = Number(process.env.MAX_CONCURRENT_JOBS ?? 2)
 const MAX_QUEUE = Number(process.env.MAX_QUEUE_SIZE ?? 5)
@@ -22,19 +24,30 @@ export function validateRateLimit(req: NextRequest, limit = 5, windowMs = 60_000
   const isAllowed = rateLimit(ip, { limit, windowMs })
   
   if (!isAllowed) {
-    console.warn(`[RateLimit] IP bloqueado: ${ip}`)
-    throw Object.assign(new Error('Muitas requisições. Tente novamente em 1 minuto.'), {
-      status: 429,
-      headers: { 'Retry-After': String(Math.ceil(windowMs / 1000)) },
-    })
+    logWarn('RateLimit', 'IP bloqueado', { ip })
+    throw createApiError(
+      429,
+      'RATE_LIMITED',
+      'Muitas requisições. Tente novamente em 1 minuto.',
+      { reason: 'ip_rate_limited' },
+      true,
+      { 'Retry-After': String(Math.ceil(windowMs / 1000)) },
+    )
   }
 
   // 2. Server Load Limit (Global)
   if (isOverloaded()) {
-    console.warn(`[RateLimit] Servidor sobrecarregado — active: ${binaryLimit.activeCount}, pending: ${binaryLimit.pendingCount}`)
-    throw Object.assign(new Error('Servidor ocupado. Tente novamente em instantes.'), {
-      status: 429,
-      headers: { 'Retry-After': String(RETRY_AFTER) }
+    logWarn('RateLimit', 'Servidor sobrecarregado', {
+      active: binaryLimit.activeCount,
+      pending: binaryLimit.pendingCount,
     })
+    throw createApiError(
+      429,
+      'RATE_LIMITED',
+      'Servidor ocupado. Tente novamente em instantes.',
+      { reason: 'server_overloaded' },
+      true,
+      { 'Retry-After': String(RETRY_AFTER) },
+    )
   }
 }
