@@ -214,6 +214,27 @@ describe('hooks/useFileProcessor', () => {
     expect(trackToolError).toHaveBeenCalled()
   })
 
+  it('deve classificar TypeError como erro de rede', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValueOnce(new TypeError('Failed to fetch')))
+
+    const file = new File(['arquivo'], 'entrada.pdf', { type: 'application/pdf' })
+    const { result } = renderHook(() =>
+      useFileProcessor({
+        endpoint: '/api/pdf/txt',
+        toolName: 'extrair-texto',
+        maxRetries: 0,
+      }),
+    )
+
+    await act(async () => {
+      await result.current.process(file)
+    })
+
+    expect(result.current.status).toBe('error')
+    expect(result.current.errorCode).toBe('NETWORK_ERROR')
+    expect(result.current.retryable).toBe(true)
+  })
+
   it('deve bloquear honeypot e permitir retry/reset', async () => {
     vi.stubGlobal(
       'fetch',

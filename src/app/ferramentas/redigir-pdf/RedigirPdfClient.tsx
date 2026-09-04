@@ -2,148 +2,18 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import type { MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from "react"
-import { DropZone } from "@/components/upload/DropZone"
-import { DownloadButton } from "@/components/processing/DownloadButton"
 import { useHistory } from "./hooks/useHistory"
 import { getNormalized, clamp } from "./utils"
 import { PageCanvas } from "./components/PageCanvas"
 import { ThumbnailSidebar } from "./components/ThumbnailSidebar"
 import { EditorToolbar } from "./components/EditorToolbar"
-import { normalizeApiError } from "@/lib/utils/api-error"
+import { RedactStatusScreens } from "./components/RedactStatusScreens"
 import { logError } from "@/lib/utils/logger"
-import type { Rect, PageInfo, DrawingRect, Resolution } from "./types"
-
-type Phase =
-  | { phase: "idle" }
-  | { phase: "loading"; file: File }
-  | { phase: "editing"; file: File; pages: PageInfo[] }
-  | { phase: "processing"; file: File; pages: PageInfo[] }
-  | { phase: "done"; url: string; filename: string; size: number }
-  | { phase: "error"; message: string }
+import { friendlyMessage, requestBlobWithRetry, requestJsonWithRetry } from "./request"
+import type { Rect, PageInfo, DrawingRect, Resolution, Phase } from "./types"
 
 const ZOOM_STEPS = [75, 100, 125, 150, 175, 200]
 const EMPTY_RECTS: Rect[] = []
-const REQUEST_TIMEOUT_MS = 60_000
-const REQUEST_MAX_RETRIES = 2
-const REQUEST_BASE_DELAY_MS = 350
-
-class RetryableRequestError extends Error {
-  readonly status?: number
-
-  constructor(message: string, status?: number) {
-    super(message)
-    this.name = "RetryableRequestError"
-    this.status = status
-  }
-}
-
-function isRetryableTransportError(error: unknown) {
-  return (
-    error instanceof DOMException && error.name === "AbortError"
-  ) || (error instanceof Error && error.name === "TypeError")
-}
-
-function isRetryableResponseStatus(status: number) {
-  return status === 408 || status === 429 || status >= 500
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms))
-}
-
-async function requestJsonWithRetry<T>(input: RequestInfo | URL, init: RequestInit) {
-  let lastError: unknown
-
-  for (let attempt = 0; attempt <= REQUEST_MAX_RETRIES; attempt++) {
-    const controller = new AbortController()
-    const timeoutHandle = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
-
-    try {
-      const res = await fetch(input, {
-        ...init,
-        signal: controller.signal,
-      })
-      const data = await res.json().catch(() => null)
-
-      if (!res.ok) {
-        const normalized = normalizeApiError(data, res.status)
-        if (isRetryableResponseStatus(res.status)) {
-          throw new RetryableRequestError(normalized.message, res.status)
-        }
-        throw new Error(normalized.message)
-      }
-
-      return data as T
-    } catch (error) {
-      lastError = error
-
-      if (
-        attempt < REQUEST_MAX_RETRIES &&
-        (error instanceof RetryableRequestError || isRetryableTransportError(error))
-      ) {
-        await delay(REQUEST_BASE_DELAY_MS * 2 ** attempt)
-        continue
-      }
-
-      throw error
-    } finally {
-      window.clearTimeout(timeoutHandle)
-    }
-  }
-
-  throw lastError instanceof Error ? lastError : new Error("Falha inesperada.")
-}
-
-async function requestBlobWithRetry(input: RequestInfo | URL, init: RequestInit) {
-  let lastError: unknown
-
-  for (let attempt = 0; attempt <= REQUEST_MAX_RETRIES; attempt++) {
-    const controller = new AbortController()
-    const timeoutHandle = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
-
-    try {
-      const res = await fetch(input, {
-        ...init,
-        signal: controller.signal,
-      })
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => null)
-        const normalized = normalizeApiError(data, res.status)
-        if (isRetryableResponseStatus(res.status)) {
-          throw new RetryableRequestError(normalized.message, res.status)
-        }
-        throw new Error(normalized.message)
-      }
-
-      return await res.blob()
-    } catch (error) {
-      lastError = error
-
-      if (
-        attempt < REQUEST_MAX_RETRIES &&
-        (error instanceof RetryableRequestError || isRetryableTransportError(error))
-      ) {
-        await delay(REQUEST_BASE_DELAY_MS * 2 ** attempt)
-        continue
-      }
-
-      throw error
-    } finally {
-      window.clearTimeout(timeoutHandle)
-    }
-  }
-
-  throw lastError instanceof Error ? lastError : new Error("Falha inesperada.")
-}
-
-function friendlyMessage(error: unknown, fallback: string) {
-  if (error instanceof Error && error.message.trim()) {
-    return error.message
-  }
-
-  return fallback
-}
 
 export function RedigirPdfClient() {
   const [state, setState] = useState<Phase>({ phase: "idle" })
@@ -390,60 +260,13 @@ export function RedigirPdfClient() {
 
   // ── Phases ──────────────────────────────────────────────────────────────────
 
-  if (state.phase === "idle") {
-    return (
-      <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div className="border-4 border-slate-950 bg-white shadow-[8px_8px_0px_#000] p-6">
-          <p className="text-xs font-black uppercase tracking-widest mb-2">COMO FUNCIONA</p>
-          <ol className="text-xs font-mono text-slate-600 space-y-1 list-decimal list-inside uppercase tracking-widest">
-            <li>Faça upload do PDF</li>
-            <li>Desenhe retângulos ou use a busca para marcar o que deseja ocultar</li>
-            <li>Clique em &quot;Aplicar Alterações&quot; para gerar o PDF final</li>
-          </ol>
-        </div>
-        <DropZone accept={{ "application/pdf": [".pdf"] }} onDrop={handleDrop} />
-      </div>
-    )
-  }
-
-  if (state.phase === "loading") {
-    return (
-      <div className="max-w-2xl mx-auto border-4 border-slate-950 bg-white shadow-[8px_8px_0px_#000] p-12 flex flex-col items-center gap-4">
-        <div className="w-8 h-8 border-4 border-slate-950 border-t-[#ccff00] rounded-full animate-spin" />
-        <p className="font-black uppercase tracking-widest text-sm">CARREGANDO PÁGINAS...</p>
-      </div>
-    )
-  }
-
-  if (state.phase === "done") {
-    return (
-      <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div className="bg-[#00ff66] text-slate-950 border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-4 flex items-center gap-3">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter">
-            <path d="M4 10l4 4 8-8" />
-          </svg>
-          <p className="font-black uppercase tracking-widest text-sm">
-            ALTERAÇÕES APLICADAS
-            <span className="font-mono text-xs ml-2">{(state.size / 1024 / 1024).toFixed(1)} MB</span>
-          </p>
-        </div>
-        <DownloadButton url={state.url} filename={state.filename} fileSize={state.size} onReset={reset} />
-      </div>
-    )
-  }
-
-  if (state.phase === "error") {
-    return (
-      <div className="max-w-2xl mx-auto bg-[#ff4d4d] text-white border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-6 flex items-center gap-4">
-        <div>
-          <p className="font-black uppercase tracking-widest text-sm">ERRO</p>
-          <p className="font-mono text-xs uppercase mt-1">{state.message}</p>
-        </div>
-        <button onClick={reset} className="ml-auto border-2 border-white px-4 py-2 font-black uppercase text-xs tracking-widest hover:bg-white hover:text-[#ff4d4d] transition-colors">
-          TENTAR NOVAMENTE
-        </button>
-      </div>
-    )
+  if (
+    state.phase === "idle" ||
+    state.phase === "loading" ||
+    state.phase === "done" ||
+    state.phase === "error"
+  ) {
+    return <RedactStatusScreens state={state} onDrop={handleDrop} onReset={reset} />
   }
 
   // editing or processing

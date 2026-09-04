@@ -1,7 +1,7 @@
 import path from 'path'
 import { type NextRequest } from 'next/server'
 import { binaryLimit, validateRateLimit } from '@/lib/queue'
-import { apiErrorResponse, assertMaxFileSize, errorResponse, isFileEntry, isPdf, validateHoneypot } from '@/lib/utils/http'
+import { errorResponse, parseSinglePdfUpload } from '@/lib/utils/http'
 
 const PDFJS_LEGACY = path.join(process.cwd(), 'node_modules/pdfjs-dist/legacy/build')
 const STANDARD_FONTS_URL = 'file://' + path.join(PDFJS_LEGACY, '../../standard_fonts') + '/'
@@ -10,15 +10,7 @@ const WORKER_SRC = 'file://' + path.join(PDFJS_LEGACY, 'pdf.worker.mjs')
 export async function POST(req: NextRequest) {
   try {
     validateRateLimit(req)
-    const formData = await req.formData()
-    if (!validateHoneypot(formData)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Acesso negado.', { field: '_hp', reason: 'honeypot_triggered' })
-    const fileEntry = formData.get('file')
-    if (!isFileEntry(fileEntry)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Arquivo não enviado.', { field: 'file', reason: 'missing_file' })
-    const file = fileEntry
-
-    assertMaxFileSize(file)
-    const buffer = Buffer.from(await file.arrayBuffer())
-    if (!isPdf(buffer)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'O arquivo não é um PDF válido.', { field: 'file', reason: 'invalid_pdf' })
+    const { buffer } = await parseSinglePdfUpload(req)
 
     const pages = await binaryLimit(() => renderPages(buffer))
     return Response.json({ pages }, { headers: { 'Cache-Control': 'no-store' } })

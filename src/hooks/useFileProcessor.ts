@@ -4,7 +4,6 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import type {
   ApiErrorDetails,
   ApiErrorCode,
-  NormalizedApiError,
 } from "@/lib/utils/api-error";
 import { normalizeApiError } from "@/lib/utils/api-error";
 import type { ProcessingStatus } from "@/types/pdf";
@@ -14,6 +13,7 @@ import {
   trackToolError,
 } from "@/lib/analytics";
 import { useRetryCountdown } from "./useRetryCountdown";
+import { normalizeFetchError, safeReadErrorBody } from "@/lib/utils/fetch-error";
 
 interface UseFileProcessorOptions {
   endpoint: string;
@@ -49,51 +49,6 @@ interface UseFileProcessorReturn {
 const DEFAULT_MAX_RETRIES = 3;
 const DEFAULT_TIMEOUT_MS = 60_000;
 const RETRY_MAX_DELAY_MS = 60_000;
-
-function isAbortError(err: unknown): boolean {
-  return err instanceof DOMException && err.name === "AbortError";
-}
-
-function normalizeFetchError(err: unknown): NormalizedApiError {
-  if (isAbortError(err)) {
-    return {
-      code: "TIMEOUT_ERROR",
-      message: "A requisição demorou demais. Tente novamente.",
-      retryable: true,
-    };
-  }
-
-  if (err instanceof Error && err.name === "TypeError") {
-    return {
-      code: "NETWORK_ERROR",
-      message: "Erro de conexão. Verifique sua internet.",
-      retryable: true,
-    };
-  }
-
-  return {
-    code: "INTERNAL_ERROR",
-    message: "Erro inesperado ao processar o arquivo.",
-    retryable: false,
-  };
-}
-
-async function safeReadErrorBody(res: Response): Promise<unknown> {
-  const contentType = res.headers.get("content-type") ?? "";
-  if (!contentType.includes("application/json")) {
-    try {
-      return { error: await res.text() };
-    } catch {
-      return null;
-    }
-  }
-
-  try {
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
 
 export function useFileProcessor({
   endpoint,

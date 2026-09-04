@@ -2,11 +2,9 @@
 
 import { useId, useState, useCallback } from "react";
 import { DropZone } from "@/components/upload/DropZone";
-import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
-import { RetryCountdown } from "@/components/processing/RetryCountdown";
-import { DownloadButton } from "@/components/processing/DownloadButton";
+import { ProcessingStatePanel } from "@/components/processing/ProcessingStatePanel";
+import { SuccessDownload } from "@/components/processing/SuccessDownload";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
-import { StateBanner } from "@/components/shared/StateBanner";
 import { useDownloadTracking } from "@/hooks/useDownloadTracking";
 
 export function ProtegerPdfClient() {
@@ -125,52 +123,24 @@ export function ProtegerPdfClient() {
         </div>
       )}
 
-      {(status === "uploading" || status === "processing") && (
-        <ProcessingStatus status={status} />
-      )}
-
-      {status === "rate_limited" && (
-      <RetryCountdown
+      <ProcessingStatePanel
+        status={status}
         secondsLeft={secondsLeft}
         progress={progress}
         onRetry={retryLast}
+        error={error}
+        onReset={reset}
       />
-      )}
-
-      {status === "error" && (
-        <StateBanner
-          tone="error"
-          title="ERRO"
-          message={error ?? "Falha ao processar o arquivo."}
-          actionLabel="Tentar novamente"
-          onAction={reset}
-        />
-      )}
 
       {status === "done" && downloadUrl && (
-        <div className="flex flex-col gap-6">
-          <StateBanner
-            tone="success"
-            title="PDF PROTEGIDO"
-            message={
-              processedSize
-                ? `${(processedSize / 1024 / 1024).toFixed(1)}MB`
-                : "Arquivo pronto para download."
-            }
-            icon={
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter">
-                <path d="M4 10l4 4 8-8" />
-              </svg>
-            }
-          />
-          <DownloadButton
-            url={downloadUrl}
-            filename={outputName!}
-            onDownload={handleDownload}
-            fileSize={processedSize}
-            onReset={reset}
-          />
-        </div>
+        <SuccessDownload
+          url={downloadUrl}
+          filename={outputName!}
+          onDownload={handleDownload}
+          fileSize={processedSize}
+          onReset={reset}
+          title="PDF PROTEGIDO"
+        />
       )}
     </div>
   );

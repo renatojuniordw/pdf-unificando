@@ -18,9 +18,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { DropZone } from "@/components/upload/DropZone";
-import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
-import { RetryCountdown } from "@/components/processing/RetryCountdown";
-import { DownloadButton } from "@/components/processing/DownloadButton";
+import { ProcessingStatePanel } from "@/components/processing/ProcessingStatePanel";
+import { SuccessDownload } from "@/components/processing/SuccessDownload";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { usePdfPages } from "@/hooks/usePdfPages";
 import { useDownloadTracking } from "@/hooks/useDownloadTracking";
@@ -264,43 +263,37 @@ export function OrganizarPdfClient() {
           </DndContext>
         </div>
       )}
-      {(status === "uploading" || status === "processing") && (
-        <div className="max-w-2xl mx-auto w-full">
-          <ProcessingStatus status={status} />
-        </div>
-      )}
-      {status === "rate_limited" && (
-        <div className="max-w-2xl mx-auto w-full">
-          <RetryCountdown
-            secondsLeft={secondsLeft}
-            progress={progress}
-            onRetry={retryLast}
-          />
-        </div>
-      )}
-      {status === "error" && (
-        <div className="max-w-2xl mx-auto w-full bg-[#ff4d4d] text-white border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-6 flex items-center gap-4">
-          <p className="font-black uppercase tracking-widest text-sm">
-            ERRO: {error}
-          </p>
-          <button
-            onClick={handleReset}
-            className="ml-auto border-2 border-white px-4 py-2 font-black uppercase text-xs"
-          >
-            TENTAR NOVAMENTE
-          </button>
-        </div>
-      )}
+      <ProcessingStatePanel
+        className="max-w-2xl mx-auto w-full"
+        status={status}
+        secondsLeft={secondsLeft}
+        progress={progress}
+        onRetry={retryLast}
+        error={error}
+        onReset={handleReset}
+        renderError={({ error }) => (
+          <div className="max-w-2xl mx-auto w-full bg-[#ff4d4d] text-white border-4 border-slate-950 shadow-[4px_4px_0px_#000] p-6 flex items-center gap-4">
+            <p className="font-black uppercase tracking-widest text-sm">
+              ERRO: {error}
+            </p>
+            <button
+              onClick={handleReset}
+              className="ml-auto border-2 border-white px-4 py-2 font-black uppercase text-xs"
+            >
+              TENTAR NOVAMENTE
+            </button>
+          </div>
+        )}
+      />
       {status === "done" && downloadUrl && (
-        <div className="max-w-2xl mx-auto w-full flex flex-col gap-6">
-          <DownloadButton
-            url={downloadUrl}
-            filename={outputName!}
-            onDownload={handleDownload}
-            fileSize={processedSize}
-            onReset={handleReset}
-          />
-        </div>
+        <SuccessDownload
+          className="max-w-2xl mx-auto w-full flex flex-col gap-6"
+          url={downloadUrl}
+          filename={outputName!}
+          onDownload={handleDownload}
+          fileSize={processedSize}
+          onReset={handleReset}
+        />
       )}
     </div>
   );

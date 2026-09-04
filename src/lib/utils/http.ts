@@ -7,8 +7,8 @@ import {
 } from './api-error'
 import { logError } from './logger'
 
-export const MAX_FILE_SIZE = Number(process.env.MAX_FILE_SIZE ?? 52_428_800) // 50MB
-export const MAX_UPLOAD_FILES = Number(process.env.MAX_UPLOAD_FILES ?? 20)
+const MAX_FILE_SIZE = Number(process.env.MAX_FILE_SIZE ?? 52_428_800) // 50MB
+const MAX_UPLOAD_FILES = Number(process.env.MAX_UPLOAD_FILES ?? 20)
 
 type UploadLike = Pick<File, 'name' | 'size'>
 
@@ -245,4 +245,141 @@ export function isPng(buffer: Buffer): boolean {
 export function validateHoneypot(formData: FormData): boolean {
   const hp = formData.get('_hp')
   return hp === null || hp === ''
+}
+
+/** Lê o FormData e rejeita requisições que dispararam o honeypot. */
+export async function parseFormData(req: Request): Promise<FormData> {
+  const formData = await req.formData()
+  if (!validateHoneypot(formData)) {
+    throw createApiError(400, 'VALIDATION_ERROR', 'Acesso negado.', {
+      field: '_hp',
+      reason: 'honeypot_triggered',
+    })
+  }
+  return formData
+}
+
+/**
+ * Parse de upload de PDF único (campo `file`): honeypot, presença, tamanho e
+ * magic bytes. Retorna o FormData (para ler parâmetros adicionais), o buffer
+ * e o nome original do arquivo. Lança ApiError em cada falha.
+ */
+export async function parseSinglePdfUpload(
+  req: Request,
+): Promise<{ formData: FormData; buffer: Buffer; fileName: string }> {
+  const formData = await parseFormData(req)
+  const fileEntry = formData.get('file')
+  if (!isFileEntry(fileEntry)) {
+    throw createApiError(400, 'VALIDATION_ERROR', 'Arquivo não enviado.', {
+      field: 'file',
+      reason: 'missing_file',
+    })
+  }
+
+  assertMaxFileSize(fileEntry)
+  const buffer = Buffer.from(await fileEntry.arrayBuffer())
+  if (!isPdf(buffer)) {
+    throw createApiError(400, 'VALIDATION_ERROR', 'O arquivo não é um PDF válido.', {
+      field: 'file',
+      reason: 'invalid_pdf',
+    })
+  }
+
+  return { formData, buffer, fileName: fileEntry.name }
+}
+
+/** Parse de múltiplos uploads de PDF (campo `file` repetido), validando PDF. */
+export async function parsePdfUploads(
+  req: Request,
+  min = 1,
+): Promise<{ formData: FormData; buffers: Buffer[]; fileNames: string[] }> {
+  const formData = await parseFormData(req)
+  const files = formData.getAll('file').filter(isFileEntry)
+
+  if (files.length < min) {
+    throw createApiError(
+      400,
+      'VALIDATION_ERROR',
+      min > 1 ? `Envie pelo menos ${min} arquivos.` : 'Nenhum arquivo enviado.',
+      { field: 'file', reason: min > 1 ? 'minimum_files' : 'missing_file', ...(min > 1 ? { min } : {}) },
+    )
+  }
+  assertMaxFileCount(files.length)
+
+  const buffers = await Promise.all(
+    files.map(async (f) => {
+      assertMaxFileSize(f)
+      const buf = Buffer.from(await f.arrayBuffer())
+      if (!isPdf(buf)) {
+        throw createApiError(400, 'VALIDATION_ERROR', `"${f.name}" não é um PDF válido.`, {
+          field: 'file',
+          reason: 'invalid_pdf',
+          fileName: f.name,
+        })
+      }
+      return buf
+    }),
+  )
+
+  return { formData, buffers, fileNames: files.map((f) => f.name) }
+}
+
+/** Parse de múltiplos uploads de imagem (campo `file` repetido), validando JPG/PNG. */
+export async function parseImageUploads(
+  req: Request,
+): Promise<{ formData: FormData; buffers: Buffer[]; fileNames: string[] }> {
+  const formData = await parseFormData(req)
+  const files = formData.getAll('file').filter(isFileEntry)
+
+  if (!files.length) {
+    throw createApiError(400, 'VALIDATION_ERROR', 'Nenhuma imagem enviada.', {
+      field: 'file',
+      reason: 'missing_file',
+    })
+  }
+  assertMaxFileCount(files.length)
+
+  const buffers = await Promise.all(
+    files.map(async (f) => {
+      assertMaxFileSize(f)
+      const buf = Buffer.from(await f.arrayBuffer())
+      if (!isJpg(buf) && !isPng(buf)) {
+        throw createApiError(400, 'VALIDATION_ERROR', `"${f.name}" não é uma imagem JPG ou PNG válida.`, {
+          field: 'file',
+          reason: 'invalid_image',
+          fileName: f.name,
+        })
+      }
+      return buf
+    }),
+  )
+
+  return { formData, buffers, fileNames: files.map((f) => f.name) }
+}
+
+/**
+ * Lê um campo obrigatório do FormData e lança ApiError se ausente ou vazio.
+ * Opcionalmente faz trim e valida comprimento máximo.
+ */
+export function requireFormField(
+  formData: FormData,
+  name: string,
+  message: string,
+  reason: string,
+  opts: { trim?: boolean; maxLength?: number; maxMessage?: string } = {},
+): string {
+  const raw = formData.get(name)
+  const value = typeof raw === 'string' ? (opts.trim ? raw.trim() : raw) : ''
+  if (!value) {
+    throw createApiError(400, 'VALIDATION_ERROR', message, { field: name, reason })
+  }
+  if (opts.maxLength && value.length > opts.maxLength) {
+    throw createApiError(
+      400,
+      'VALIDATION_ERROR',
+      opts.maxMessage ?? `Valor muito longo. Máximo: ${opts.maxLength} caracteres.`,
+      { field: name, reason: 'too_long', maxLength: opts.maxLength },
+    )
+  }
+  return value
 }

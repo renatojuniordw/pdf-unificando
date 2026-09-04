@@ -1,11 +1,9 @@
 "use client";
 import { useCallback } from "react";
 import { DropZone } from "@/components/upload/DropZone";
-import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
-import { RetryCountdown } from "@/components/processing/RetryCountdown";
-import { DownloadButton } from "@/components/processing/DownloadButton";
+import { ProcessingStatePanel } from "@/components/processing/ProcessingStatePanel";
+import { SuccessDownload } from "@/components/processing/SuccessDownload";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
-import { StateBanner } from "@/components/shared/StateBanner";
 import { TextPreviewPanel } from "@/components/shared/TextPreviewPanel";
 import { useDownloadTracking } from "@/hooks/useDownloadTracking";
 
@@ -51,37 +49,24 @@ export function PdfParaMarkdownClient() {
           />
         </>
       )}
-      {(status === "uploading" || status === "processing") && (
-        <ProcessingStatus status={status} />
-      )}
-      {status === "rate_limited" && (
-        <RetryCountdown
-          secondsLeft={secondsLeft}
-          progress={progress}
-          onRetry={retryLast}
-        />
-      )}
-      {status === "error" && (
-        <StateBanner
-          tone="error"
-          title="ERRO"
-          message={error ?? "Falha ao processar o arquivo."}
-          actionLabel="Tentar novamente"
-          onAction={reset}
-        />
-      )}
+      <ProcessingStatePanel
+        status={status}
+        secondsLeft={secondsLeft}
+        progress={progress}
+        onRetry={retryLast}
+        error={error}
+        onReset={reset}
+      />
       {status === "done" && downloadUrl && textContent && (
-        <>
+        <SuccessDownload
+          url={downloadUrl}
+          filename={outputName!}
+          onDownload={handleDownload}
+          fileSize={processedSize}
+          onReset={reset}
+        >
           <TextPreviewPanel title="MARKDOWN GERADO" text={textContent} />
-
-          <DownloadButton
-            url={downloadUrl}
-            filename={outputName!}
-            onDownload={handleDownload}
-            fileSize={processedSize}
-            onReset={reset}
-          />
-        </>
+        </SuccessDownload>
       )}
     </div>
   );

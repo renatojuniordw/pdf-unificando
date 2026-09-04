@@ -13,7 +13,7 @@ export interface ApiErrorDetails {
   [key: string]: unknown
 }
 
-export interface ApiErrorEnvelope {
+interface ApiErrorEnvelope {
   success: false
   error: {
     code: ApiErrorCode

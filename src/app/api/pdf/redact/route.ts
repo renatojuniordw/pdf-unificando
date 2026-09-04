@@ -1,23 +1,14 @@
 import { type NextRequest } from 'next/server'
 import { redactPdf, type RedactRegion } from '@/lib/pdf/redact'
 import { validateRateLimit } from '@/lib/queue'
-import { apiErrorResponse, assertMaxFileSize, buildOutputFilename, errorResponse, isFileEntry, isPdf, streamResponse, validateHoneypot } from '@/lib/utils/http'
+import { apiErrorResponse, buildOutputFilename, errorResponse, parseSinglePdfUpload, requireFormField, streamResponse } from '@/lib/utils/http'
 
 export async function POST(req: NextRequest) {
   try {
     validateRateLimit(req)
-    const formData = await req.formData()
-    if (!validateHoneypot(formData)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Acesso negado.', { field: '_hp', reason: 'honeypot_triggered' })
-    const fileEntry = formData.get('file')
-    if (!isFileEntry(fileEntry)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Arquivo não enviado.', { field: 'file', reason: 'missing_file' })
-    const file = fileEntry
+    const { formData, buffer, fileName } = await parseSinglePdfUpload(req)
 
-    assertMaxFileSize(file)
-    const buffer = Buffer.from(await file.arrayBuffer())
-    if (!isPdf(buffer)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'O arquivo não é um PDF válido.', { field: 'file', reason: 'invalid_pdf' })
-
-    const regionsRaw = formData.get('regions') as string
-    if (!regionsRaw) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Nenhuma área de redação informada.', { field: 'regions', reason: 'missing_regions' })
+    const regionsRaw = requireFormField(formData, 'regions', 'Nenhuma área de redação informada.', 'missing_regions')
 
     let regions: RedactRegion[]
     try {
@@ -51,7 +42,7 @@ export async function POST(req: NextRequest) {
       : 144
 
     const result = await redactPdf(buffer, regions, resolution)
-    return streamResponse(result, buildOutputFilename(file.name, 'pdf'), 'application/pdf')
+    return streamResponse(result, buildOutputFilename(fileName, 'pdf'), 'application/pdf')
   } catch (err) {
     return errorResponse(err)
   }

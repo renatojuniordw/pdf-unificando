@@ -1,12 +1,10 @@
 "use client";
 import { useState, useCallback } from "react";
 import { DropZone } from "@/components/upload/DropZone";
-import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
-import { RetryCountdown } from "@/components/processing/RetryCountdown";
-import { DownloadButton } from "@/components/processing/DownloadButton";
+import { ProcessingStatePanel } from "@/components/processing/ProcessingStatePanel";
+import { SuccessDownload } from "@/components/processing/SuccessDownload";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { ChoiceGroup } from "@/components/shared/ChoiceGroup";
-import { StateBanner } from "@/components/shared/StateBanner";
 import { useDownloadTracking } from "@/hooks/useDownloadTracking";
 
 const ANGLES = ["90", "180", "270"].map((value) => ({
@@ -55,35 +53,22 @@ export function RodarPdfClient() {
           />
         </>
       )}
-      {(status === "uploading" || status === "processing") && (
-        <ProcessingStatus status={status} />
-      )}
-      {status === "rate_limited" && (
-      <RetryCountdown
+      <ProcessingStatePanel
+        status={status}
         secondsLeft={secondsLeft}
         progress={progress}
         onRetry={retryLast}
+        error={error}
+        onReset={reset}
       />
-      )}
-      {status === "error" && (
-        <StateBanner
-          tone="error"
-          title="ERRO"
-          message={error ?? "Falha ao processar o arquivo."}
-          actionLabel="Tentar novamente"
-          onAction={reset}
-        />
-      )}
       {status === "done" && downloadUrl && (
-        <>
-          <DownloadButton
-            url={downloadUrl}
-            filename={outputName!}
-            onDownload={handleDownload}
-            fileSize={processedSize}
-            onReset={reset}
-          />
-        </>
+        <SuccessDownload
+          url={downloadUrl}
+          filename={outputName!}
+          onDownload={handleDownload}
+          fileSize={processedSize}
+          onReset={reset}
+        />
       )}
     </div>
   );

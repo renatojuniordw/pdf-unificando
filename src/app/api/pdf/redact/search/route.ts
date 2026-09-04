@@ -1,7 +1,7 @@
 import path from 'path'
 import { type NextRequest } from 'next/server'
 import { validateRateLimit } from '@/lib/queue'
-import { apiErrorResponse, assertMaxFileSize, errorResponse, isFileEntry, isPdf, validateHoneypot } from '@/lib/utils/http'
+import { errorResponse, parseSinglePdfUpload, requireFormField } from '@/lib/utils/http'
 import type { RedactRegion } from '@/lib/pdf/redact'
 
 const PDFJS_LEGACY = path.join(process.cwd(), 'node_modules/pdfjs-dist/legacy/build')
@@ -11,20 +11,12 @@ const WORKER_SRC = 'file://' + path.join(PDFJS_LEGACY, 'pdf.worker.mjs')
 export async function POST(req: NextRequest) {
   try {
     validateRateLimit(req)
-    const formData = await req.formData()
-    if (!validateHoneypot(formData)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Acesso negado.', { field: '_hp', reason: 'honeypot_triggered' })
-
-    const fileEntry = formData.get('file')
-    if (!isFileEntry(fileEntry)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Arquivo não enviado.', { field: 'file', reason: 'missing_file' })
-    const file = fileEntry
-
-    const query = (formData.get('query') as string | null)?.trim()
-    if (!query) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Termo de busca não informado.', { field: 'query', reason: 'missing_query' })
-    if (query.length > 100) return apiErrorResponse(400, 'VALIDATION_ERROR', 'Termo de busca muito longo.', { field: 'query', reason: 'too_long', maxLength: 100 })
-
-    assertMaxFileSize(file)
-    const buffer = Buffer.from(await file.arrayBuffer())
-    if (!isPdf(buffer)) return apiErrorResponse(400, 'VALIDATION_ERROR', 'O arquivo não é um PDF válido.', { field: 'file', reason: 'invalid_pdf' })
+    const { formData, buffer } = await parseSinglePdfUpload(req)
+    const query = requireFormField(formData, 'query', 'Termo de busca não informado.', 'missing_query', {
+      trim: true,
+      maxLength: 100,
+      maxMessage: 'Termo de busca muito longo.',
+    })
 
     const regions = await searchText(buffer, query)
     return Response.json({ regions }, { headers: { 'Cache-Control': 'no-store' } })
