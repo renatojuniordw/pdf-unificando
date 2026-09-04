@@ -298,27 +298,16 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
                 Este projeto é uma iniciativa da <span className="text-[#ccff00]">Unificando</span>.
               </h2>
               <p className="text-slate-400 font-mono text-sm uppercase tracking-wider leading-relaxed max-w-3xl mb-8">
-                Somos especialistas em transformar processos complexos em ferramentas digitais de alta performance. 
-                Se a sua empresa precisa de automação, inteligência artificial ou sistemas robustos como este, nós somos o parceiro ideal.
+                Laboratório de projetos autorais e inteligência artificial que transforma processos complexos em ferramentas digitais de alta performance.
               </p>
-              <div className="flex flex-wrap gap-4">
-                <a 
-                  href="https://unificando.com.br/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-[#ccff00] text-slate-950 border-4 border-[#ccff00] px-8 py-4 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#fff] hover:translate-y-[-4px] hover:shadow-[8px_8px_0px_#fff] transition-all"
-                >
-                  Conheça a Unificando
-                </a>
-                <a 
-                  href="https://unificando.com.br/servicos/ia" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-transparent text-white border-4 border-white px-8 py-4 font-black uppercase text-xs tracking-widest hover:bg-white hover:text-slate-950 transition-all"
-                >
-                  Consultoria em IA
-                </a>
-              </div>
+              <a
+                href="https://unificando.com.br/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-[#ccff00] font-black uppercase text-xs tracking-widest underline decoration-2 underline-offset-4 hover:text-white transition-colors"
+              >
+                unificando.com.br
+              </a>
             </div>
           </section>
         </div>

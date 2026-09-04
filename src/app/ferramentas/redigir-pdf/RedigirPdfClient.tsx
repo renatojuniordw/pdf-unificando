@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import type { MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from "react"
 import { DropZone } from "@/components/upload/DropZone"
-import { PromotionBanner } from "@/components/tools/PromotionBanner"
 import { DownloadButton } from "@/components/processing/DownloadButton"
 import { useHistory } from "./hooks/useHistory"
 import { getNormalized, clamp } from "./utils"
@@ -429,7 +428,6 @@ export function RedigirPdfClient() {
           </p>
         </div>
         <DownloadButton url={state.url} filename={state.filename} fileSize={state.size} onReset={reset} />
-        <PromotionBanner />
       </div>
     )
   }

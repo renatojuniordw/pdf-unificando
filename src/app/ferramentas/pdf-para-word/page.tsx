@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { getTool } from "@/config/tools";
 import { PdfParaWordClient } from "./PdfParaWordClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
-import { EcosystemSection } from "@/components/layout/EcosystemSection";
 import { ToolRichContent } from "@/components/tools/ToolRichContent";
 import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
 
@@ -50,7 +49,6 @@ export default function PdfParaWordPage() {
         <PdfParaWordClient />
       </div>
 
-      <EcosystemSection />
 
       <ToolRichContent 
         toolName="PDF para Word"

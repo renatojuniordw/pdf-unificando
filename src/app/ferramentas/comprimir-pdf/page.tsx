@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { getTool } from "@/config/tools";
 import { ComprimirPdfClient } from "./ComprimirPdfClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
-import { EcosystemSection } from "@/components/layout/EcosystemSection";
 import { ToolRichContent } from "@/components/tools/ToolRichContent";
 import { JsonLd, generateWebApplicationSchema, generateFAQSchema } from "@/components/seo/JsonLd";
 
@@ -61,7 +60,6 @@ export default function ComprimirPdfPage() {
         <ComprimirPdfClient />
       </div>
 
-      <EcosystemSection />
 
       <ToolRichContent 
         toolName="Comprimir PDF"

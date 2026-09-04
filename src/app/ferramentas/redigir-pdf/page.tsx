@@ -4,7 +4,6 @@ import { getTool } from "@/config/tools";
 import { RedigirPdfClient } from "./RedigirPdfClient";
 import { LocalErrorBoundary } from "@/components/errors/LocalErrorBoundary";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
-import { EcosystemSection } from "@/components/layout/EcosystemSection";
 import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
 
 const tool = getTool("redigir-pdf");
@@ -56,7 +55,6 @@ export default function RedigirPdfPage() {
         </LocalErrorBoundary>
       </div>
 
-      <EcosystemSection />
 
       <section className="max-w-4xl mx-auto px-6 py-24">
         <div className="prose prose-slate max-w-none">

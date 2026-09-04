@@ -81,7 +81,7 @@ describe('componentes de layout e status', () => {
 
     const mobileMenu = screen.getByRole('dialog', { name: /Menu móvel/i })
     const firstFocusable = mobileMenu.querySelector('button') as HTMLButtonElement
-    const lastFocusable = screen.getAllByRole('link', { name: /Unificando.com.br/i })[1] as HTMLAnchorElement
+    const lastFocusable = screen.getAllByRole('link', { name: /^Privacidade$/i })[1] as HTMLAnchorElement
     expect(screen.getByRole('link', { name: /Juntar PDF/i })).toBeTruthy()
     firstFocusable.focus()
     fireEvent.keyDown(mobileMenu, { key: 'Tab', shiftKey: true })

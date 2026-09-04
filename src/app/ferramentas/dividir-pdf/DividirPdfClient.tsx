@@ -5,7 +5,6 @@ import { DropZone } from "@/components/upload/DropZone";
 import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
 import { RetryCountdown } from "@/components/processing/RetryCountdown";
 import { DownloadButton } from "@/components/processing/DownloadButton";
-import { PromotionBanner } from "@/components/tools/PromotionBanner";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { PageRangeField } from "@/components/shared/PageRangeField";
 import { StateBanner } from "@/components/shared/StateBanner";
@@ -126,7 +125,6 @@ export function DividirPdfClient() {
             fileSize={processedSize}
             onReset={reset}
           />
-          <PromotionBanner />
         </div>
       )}
     </ToolFlowShell>

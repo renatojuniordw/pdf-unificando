@@ -6,7 +6,6 @@ import { FileQueue } from "@/components/upload/FileQueue";
 import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
 import { RetryCountdown } from "@/components/processing/RetryCountdown";
 import { DownloadButton } from "@/components/processing/DownloadButton";
-import { PromotionBanner } from "@/components/tools/PromotionBanner";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { StateBanner } from "@/components/shared/StateBanner";
 import { useDownloadTracking } from "@/hooks/useDownloadTracking";
@@ -140,7 +139,6 @@ export function JuntarPdfClient() {
             fileSize={processedSize}
             onReset={handleReset}
           />
-          <PromotionBanner />
         </div>
       )}
     </div>

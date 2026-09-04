@@ -21,7 +21,6 @@ import { DropZone } from "@/components/upload/DropZone";
 import { ProcessingStatus } from "@/components/processing/ProcessingStatus";
 import { RetryCountdown } from "@/components/processing/RetryCountdown";
 import { DownloadButton } from "@/components/processing/DownloadButton";
-import { PromotionBanner } from "@/components/tools/PromotionBanner";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { usePdfPages } from "@/hooks/usePdfPages";
 import { useDownloadTracking } from "@/hooks/useDownloadTracking";
@@ -301,7 +300,6 @@ export function OrganizarPdfClient() {
             fileSize={processedSize}
             onReset={handleReset}
           />
-          <PromotionBanner />
         </div>
       )}
     </div>

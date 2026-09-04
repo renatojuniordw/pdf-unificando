@@ -3,7 +3,6 @@ import { getTool } from "@/config/tools";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { JuntarPdfClient } from "./JuntarPdfClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
-import { EcosystemSection } from "@/components/layout/EcosystemSection";
 import { ToolRichContent } from "@/components/tools/ToolRichContent";
 import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
 import { siteUrl } from "@/lib/site";
@@ -66,7 +65,6 @@ export default function JuntarPdfPage() {
         <JuntarPdfClient />
       </div>
 
-      <EcosystemSection />
 
       <ToolRichContent 
         toolName="Juntar PDF"

@@ -7,7 +7,6 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { ClientChrome } from '@/components/layout/ClientChrome'
 import { CommandPalette } from '@/components/layout/CommandPalette'
 import { ConsoleBranding } from '@/components/layout/ConsoleBranding'
-import { EcosystemSection } from '@/components/layout/EcosystemSection'
 import { ToolFlowShell } from '@/components/layout/ToolFlowShell'
 import { ToolPageShell } from '@/components/layout/ToolPageShell'
 import { Header } from '@/components/layout/Header'
@@ -15,7 +14,6 @@ import { LocalErrorBoundary } from '@/components/errors/LocalErrorBoundary'
 import { JsonLd, generateFAQSchema, generateHowToSchema, generateOrganizationSchema, generateWebApplicationSchema, generateWebSiteSchema, generateArticleSchema, generateBreadcrumbSchema } from '@/components/seo/JsonLd'
 import { OfflineBanner } from '@/components/network/OfflineBanner'
 import { WebVitalsReporter } from '@/components/observability/WebVitalsReporter'
-import { PromotionBanner } from '@/components/tools/PromotionBanner'
 import { ToolCard } from '@/components/tools/ToolCard'
 import { ToolGrid } from '@/components/tools/ToolGrid'
 import { ToolRichContent } from '@/components/tools/ToolRichContent'
@@ -312,14 +310,12 @@ describe('componentes e schemas extras', () => {
   it('deve renderizar seções estáticas e cards de ferramentas', () => {
     render(
       <>
-        <EcosystemSection />
         <ToolFlowShell>
           <div>Conteúdo</div>
         </ToolFlowShell>
         <ToolPageShell title="Título" description="Descrição" topTrust={<span>Topo</span>} bottomTrust={<span>Base</span>}>
           <span>Corpo</span>
         </ToolPageShell>
-        <PromotionBanner />
         <ToolCard tool={tools[0]} />
         <ToolGrid />
         <ToolRichContent
@@ -334,10 +330,8 @@ describe('componentes e schemas extras', () => {
       </>,
     )
 
-    expect(screen.getByText(/O ECOSSISTEMA/i)).toBeTruthy()
     expect(screen.getByText('Conteúdo')).toBeTruthy()
     expect(screen.getByText('Título')).toBeTruthy()
-    expect(screen.getByText(/PRECISA DE SOFTWARE/i)).toBeTruthy()
     expect(screen.getAllByRole('link').length).toBeGreaterThan(0)
     expect(screen.getByText(/Tudo sobre Juntar PDF Online/i)).toBeTruthy()
     expect(screen.getByRole('link', { name: /Ver Tutorial Passo a Passo/i }).getAttribute('href')).toBe('/tutoriais/como-juntar-pdf')

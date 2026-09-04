@@ -1,6 +1,5 @@
 import { ToolGrid } from '@/components/tools/ToolGrid'
 import { PrivacyBanner } from '@/components/tools/PrivacyBanner'
-import { EcosystemSection } from '@/components/layout/EcosystemSection'
 import type { Metadata } from 'next'
 import { JsonLd, generateOrganizationSchema, generateWebSiteSchema, generateFAQSchema } from '@/components/seo/JsonLd'
 
@@ -59,8 +58,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <EcosystemSection />
-
       <section className="bg-slate-50 border-t-8 border-slate-950 py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="grid lg:grid-cols-2 gap-16">
@@ -95,8 +92,7 @@ export default function HomePage() {
                     <span className="group-open:rotate-180 transition-transform">↓</span>
                   </summary>
                   <p className="mt-4 text-sm font-mono text-slate-700">
-                    O Unificando PDF é uma iniciativa da <span className="font-black">Unificando</span>, uma empresa especializada em software de elite e IA. 
-                    Oferecemos esta ferramenta gratuitamente para demonstrar nossa excelência técnica e como forma de contribuir com soluções de alta performance para a comunidade digital.
+                    O Unificando PDF é uma iniciativa da <span className="font-black">Unificando</span> — laboratório de projetos autorais e inteligência artificial — oferecida gratuitamente para a comunidade digital. Ferramentas rápidas, seguras e fáceis de usar.
                   </p>
                 </details>
                 <details className="group border-4 border-slate-950 bg-white p-6 open:bg-[#ccff00] transition-colors cursor-pointer">

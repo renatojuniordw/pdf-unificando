@@ -93,7 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         ) : null}
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5FJHKG2C" height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
         <a
           href="#main-content" 

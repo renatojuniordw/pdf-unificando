@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { getTool } from "@/config/tools";
 import { NumerarPaginasClient } from "./NumerarPaginasClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
-import { EcosystemSection } from "@/components/layout/EcosystemSection";
 import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
 
 const tool = getTool("numerar-paginas");
@@ -49,7 +48,6 @@ export default function NumerarPaginasPage() {
         <NumerarPaginasClient />
       </div>
 
-      <EcosystemSection />
 
       <section className="max-w-4xl mx-auto px-6 py-24">
         <div className="prose prose-slate max-w-none">

@@ -58,7 +58,7 @@ export async function compressPdf(
       console.error('[Ghostscript Error]:', msg)
       throw createApiError(500, 'INTERNAL_ERROR', `Falha na compressão do PDF: ${msg}`, {
         reason: 'ghostscript_failed',
-      }, true)
+      })
     }
   })
 
