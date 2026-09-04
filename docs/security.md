@@ -10,7 +10,7 @@ Implementada em `src/lib/utils/http.ts` (helpers usados por todas as rotas) e `s
 |---|---|---|
 | **Honeypot `_hp`** | `parseFormData` | Formulário escondido; bots que preenchem → `400 honeypot_triggered`. Clientes legítimos nunca enviam o campo |
 | **Magic bytes** | `isPdf` / `isJpg` / `isPng` | Arquivo é validado pelo conteúdo, não pela extensão: `%PDF-`, `FF D8`, `89 50 4E 47` |
-| **Tamanho por arquivo** | `assertMaxFileSize` | 50MB (`MAX_FILE_SIZE`) → `400 file_too_large` |
+| **Tamanho por arquivo** | `assertMaxFileSize` | 50MB (`MAX_FILE_SIZE`) → `413 file_too_large` |
 | **Quantidade** | `assertMaxFileCount` | 20 arquivos (`MAX_UPLOAD_FILES`) → `413 too_many_files` |
 | **Tamanho total** | `assertMaxTotalSize` | 50MB soma (`MAX_TOTAL_UPLOAD_BYTES`) → `413 total_too_large` |
 
@@ -42,7 +42,7 @@ Nenhum upload é salvo em disco de forma persistente; só buffers temporários (
 
 `next.config.ts` (headers globais):
 
-- `Content-Security-Policy` restritiva: `default-src 'self'`, `script-src` com nonce/self + domínios de terceiros específicos (GA, GTM, AdSense, FB), `frame-src` restrito, etc.
+- `Content-Security-Policy` restritiva: `default-src 'self'`; `script-src 'self' 'unsafe-inline' 'unsafe-eval'` + domínios de terceiros específicos (GA, GTM, AdSense, FB); `style-src 'self' 'unsafe-inline'`; `frame-src` restrito a terceiros (AdSense/FB/GTM); `connect-src` com os endpoints de analytics/ads. Nota: não usa nonce — depende de `'unsafe-inline'`/`'unsafe-eval'` para scripts embutidos do GA/Ads.
 - `Strict-Transport-Security` (HSTS 2 anos)
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
