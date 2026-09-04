@@ -3,6 +3,7 @@ import {
   apiErrorResponse,
   assertMaxFileCount,
   assertMaxFileSize,
+  assertMaxTotalSize,
   buildOutputFilename,
   createApiError,
   isJpg,
@@ -230,5 +231,52 @@ describe('requireFormField', () => {
         maxMessage: 'Texto muito longo.',
       }),
     ).toThrow('Texto muito longo.')
+  })
+})
+
+describe('assertMaxTotalSize', () => {
+  it('deve lançar 413 quando a soma excede o limite', () => {
+    expect(() =>
+      assertMaxTotalSize([{ size: 30_000_000 }, { size: 30_000_000 }], 50_000_000),
+    ).toThrowError(
+      expect.objectContaining({
+        status: 413,
+        code: 'VALIDATION_ERROR',
+        details: expect.objectContaining({ reason: 'total_too_large' }),
+        message: expect.stringMatching(/Tamanho total/i),
+      }),
+    )
+  })
+
+  it('deve passar quando a soma está dentro do limite', () => {
+    expect(() =>
+      assertMaxTotalSize([{ size: 40_000_000 }], 50_000_000),
+    ).not.toThrow()
+  })
+})
+
+describe('parsePdfUploads - limite total', () => {
+  const makeReq = (fd: FormData) =>
+    new Request('http://localhost/api/test', { method: 'POST', body: fd })
+  const pdfBytes = () => Uint8Array.from([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31])
+
+  it('deve rejeitar com total_too_large quando a soma excede', async () => {
+    const fd = new FormData()
+    fd.append('file', new File([pdfBytes()], 'a.pdf'))
+    fd.append('file', new File([pdfBytes()], 'b.pdf'))
+    await expect(parsePdfUploads(makeReq(fd), 2, 10)).rejects.toMatchObject({
+      status: 413,
+      code: 'VALIDATION_ERROR',
+      details: { reason: 'total_too_large' },
+    })
+  })
+
+  it('deve aceitar quando a soma está dentro do limite', async () => {
+    const fd = new FormData()
+    fd.append('file', new File([pdfBytes()], 'a.pdf'))
+    fd.append('file', new File([pdfBytes()], 'b.pdf'))
+    await expect(parsePdfUploads(makeReq(fd), 2, 100_000)).resolves.toMatchObject({
+      buffers: [expect.any(Buffer), expect.any(Buffer)],
+    })
   })
 })

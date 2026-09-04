@@ -7,6 +7,7 @@ import { ProcessingStatePanel } from "@/components/processing/ProcessingStatePan
 import { SuccessDownload } from "@/components/processing/SuccessDownload";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { useDownloadTracking } from "@/hooks/useDownloadTracking";
+import { MAX_TOTAL_UPLOAD_BYTES, MAX_UPLOAD_FILES, checkUploadBatch } from "@/lib/limits";
 
 interface FileItem {
   id: string;
@@ -15,6 +16,7 @@ interface FileItem {
 
 export function JuntarPdfClient() {
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [listError, setListError] = useState<string | null>(null);
   const {
     status,
     error,
@@ -30,17 +32,38 @@ export function JuntarPdfClient() {
     endpoint: "/api/pdf/merge",
     toolName: "juntar-pdf",
     outputFilename: "unificado.pdf",
+    timeoutMs: 120_000,
   });
 
-  const handleDrop = useCallback((dropped: File[]) => {
-    setFiles((prev) => [
-      ...prev,
-      ...dropped.map((f) => ({
-        id: `${f.name}-${Date.now()}-${Math.random()}`,
-        file: f,
-      })),
-    ]);
-  }, []);
+  const handleDrop = useCallback(
+    (dropped: File[]) => {
+      const check = checkUploadBatch(
+        files.map((f) => f.file),
+        dropped,
+        MAX_UPLOAD_FILES,
+        MAX_TOTAL_UPLOAD_BYTES,
+      )
+
+      if (!check.ok) {
+        setListError(
+          check.exceedsCount
+            ? `Muitos arquivos. Limite: ${MAX_UPLOAD_FILES}.`
+            : `Tamanho total excede ${Math.round(MAX_TOTAL_UPLOAD_BYTES / 1024 / 1024)}MB. Remova alguns arquivos.`,
+        )
+        return
+      }
+
+      setListError(null)
+      setFiles((prev) => [
+        ...prev,
+        ...dropped.map((f) => ({
+          id: `${f.name}-${Date.now()}-${Math.random()}`,
+          file: f,
+        })),
+      ]);
+    },
+    [files],
+  );
 
   const handleProcess = useCallback(() => {
     process(files.map((f) => f.file));
@@ -49,6 +72,7 @@ export function JuntarPdfClient() {
   const handleReset = useCallback(() => {
     reset();
     setFiles([]);
+    setListError(null);
   }, [reset]);
   const handleDownload = useDownloadTracking("juntar-pdf", outputName);
 
@@ -66,10 +90,20 @@ export function JuntarPdfClient() {
               <FileQueue
                 files={files}
                 onReorder={setFiles}
-                onRemove={(id) =>
+                onRemove={(id) => {
+                  setListError(null)
                   setFiles((prev) => prev.filter((f) => f.id !== id))
-                }
+                }}
               />
+              {listError && (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="text-xs font-black uppercase tracking-widest text-[#b91c1c] border-2 border-[#b91c1c] px-3 py-2"
+                >
+                  {listError}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={handleProcess}

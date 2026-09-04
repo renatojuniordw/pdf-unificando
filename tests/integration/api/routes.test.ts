@@ -61,6 +61,26 @@ describe("API Routes - PDF Operations", () => {
       expect(res.headers.get("content-type")).toContain("application/pdf");
       expect(res.headers.get("content-disposition")).toContain('filename="test1_unificando.pdf"');
     });
+
+    it("deve retornar 413 quando o tamanho total excede o limite", async () => {
+      const bigBytes = (size: number) => {
+        const bytes = new Uint8Array(size);
+        bytes.set([0x25, 0x50, 0x44, 0x46, 0x2d]); // prefixo %PDF-
+        return bytes;
+      };
+
+      const formData = new FormData();
+      formData.append("file", new File([bigBytes(26 * 1024 * 1024)], "big1.pdf"), "big1.pdf");
+      formData.append("file", new File([bigBytes(26 * 1024 * 1024)], "big2.pdf"), "big2.pdf");
+
+      const req = buildRequest("http://localhost/api/pdf/merge", formData, "127.0.0.3");
+
+      const res = await mergeRoute(req);
+      expect(res.status).toBe(413);
+      const body = await res.json();
+      expect(body.error.code).toBe("VALIDATION_ERROR");
+      expect(body.error.details.reason).toBe("total_too_large");
+    });
   });
 
   describe("POST /api/pdf/split", () => {

@@ -3,6 +3,13 @@ import type { NextConfig } from 'next'
 const config: NextConfig = {
   output: 'standalone',
   serverExternalPackages: ['sharp', 'pdf-lib', '@napi-rs/canvas', 'pdfjs-dist'],
+  experimental: {
+    // O proxy (src/proxy.ts) clona/bufferiza o body; o default de 10MB
+    // truncava uploads >10MB (ex.: juntar 10 PDFs), quebrando o formData().
+    // 55mb alinha com o client_max_body_size do nginx; o app rejeita >50MB
+    // com JSON 413 antes de atingir esse teto.
+    proxyClientMaxBodySize: '55mb',
+  },
   async headers() {
     return [
       {

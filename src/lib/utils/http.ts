@@ -6,9 +6,13 @@ import {
   type ApiErrorDetails,
 } from './api-error'
 import { logError } from './logger'
+import {
+  MAX_FILE_SIZE,
+  MAX_TOTAL_UPLOAD_BYTES,
+  MAX_UPLOAD_FILES,
+} from '../limits'
 
-const MAX_FILE_SIZE = Number(process.env.MAX_FILE_SIZE ?? 52_428_800) // 50MB
-const MAX_UPLOAD_FILES = Number(process.env.MAX_UPLOAD_FILES ?? 20)
+export { MAX_FILE_SIZE, MAX_TOTAL_UPLOAD_BYTES, MAX_UPLOAD_FILES } from '../limits'
 
 type UploadLike = Pick<File, 'name' | 'size'>
 
@@ -76,6 +80,21 @@ export function assertMaxFileSize(file: UploadLike, maxSize = MAX_FILE_SIZE): vo
       'VALIDATION_ERROR',
       `Arquivo "${file.name}" muito grande. Limite: ${Math.round(maxSize / 1024 / 1024)}MB.`,
       { field: 'file', reason: 'file_too_large', maxSize, fileName: file.name },
+    )
+  }
+}
+
+export function assertMaxTotalSize(
+  files: readonly { size: number }[],
+  maxTotal = MAX_TOTAL_UPLOAD_BYTES,
+): void {
+  const totalSize = files.reduce((acc, f) => acc + f.size, 0)
+  if (totalSize > maxTotal) {
+    throw createApiError(
+      413,
+      'VALIDATION_ERROR',
+      `Tamanho total dos arquivos excede o limite. Limite: ${Math.round(maxTotal / 1024 / 1024)}MB.`,
+      { field: 'file', reason: 'total_too_large', maxTotalSize: maxTotal, totalSize },
     )
   }
 }
@@ -292,6 +311,7 @@ export async function parseSinglePdfUpload(
 export async function parsePdfUploads(
   req: Request,
   min = 1,
+  maxTotalSize = MAX_TOTAL_UPLOAD_BYTES,
 ): Promise<{ formData: FormData; buffers: Buffer[]; fileNames: string[] }> {
   const formData = await parseFormData(req)
   const files = formData.getAll('file').filter(isFileEntry)
@@ -305,6 +325,7 @@ export async function parsePdfUploads(
     )
   }
   assertMaxFileCount(files.length)
+  assertMaxTotalSize(files, maxTotalSize)
 
   const buffers = await Promise.all(
     files.map(async (f) => {
@@ -327,6 +348,7 @@ export async function parsePdfUploads(
 /** Parse de múltiplos uploads de imagem (campo `file` repetido), validando JPG/PNG. */
 export async function parseImageUploads(
   req: Request,
+  maxTotalSize = MAX_TOTAL_UPLOAD_BYTES,
 ): Promise<{ formData: FormData; buffers: Buffer[]; fileNames: string[] }> {
   const formData = await parseFormData(req)
   const files = formData.getAll('file').filter(isFileEntry)
@@ -338,6 +360,7 @@ export async function parseImageUploads(
     })
   }
   assertMaxFileCount(files.length)
+  assertMaxTotalSize(files, maxTotalSize)
 
   const buffers = await Promise.all(
     files.map(async (f) => {

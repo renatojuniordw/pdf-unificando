@@ -6,6 +6,7 @@ import { ProcessingStatePanel } from "@/components/processing/ProcessingStatePan
 import { SuccessDownload } from "@/components/processing/SuccessDownload";
 import { useFileProcessor } from "@/hooks/useFileProcessor";
 import { useDownloadTracking } from "@/hooks/useDownloadTracking";
+import { MAX_TOTAL_UPLOAD_BYTES, MAX_UPLOAD_FILES, checkUploadBatch } from "@/lib/limits";
 
 interface FileItem {
   id: string;
@@ -14,6 +15,7 @@ interface FileItem {
 
 export function JpgParaPdfClient() {
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [listError, setListError] = useState<string | null>(null);
   const {
     status,
     error,
@@ -29,17 +31,38 @@ export function JpgParaPdfClient() {
     endpoint: "/api/pdf/from-jpg",
     toolName: "jpg-para-pdf",
     outputFilename: "imagens.pdf",
+    timeoutMs: 120_000,
   });
 
-  const handleDrop = useCallback((dropped: File[]) => {
-    setFiles((prev) => [
-      ...prev,
-      ...dropped.map((f) => ({
-        id: `${f.name}-${Date.now()}-${Math.random()}`,
-        file: f,
-      })),
-    ]);
-  }, []);
+  const handleDrop = useCallback(
+    (dropped: File[]) => {
+      const check = checkUploadBatch(
+        files.map((f) => f.file),
+        dropped,
+        MAX_UPLOAD_FILES,
+        MAX_TOTAL_UPLOAD_BYTES,
+      )
+
+      if (!check.ok) {
+        setListError(
+          check.exceedsCount
+            ? `Muitos arquivos. Limite: ${MAX_UPLOAD_FILES}.`
+            : `Tamanho total excede ${Math.round(MAX_TOTAL_UPLOAD_BYTES / 1024 / 1024)}MB. Remova alguns arquivos.`,
+        )
+        return
+      }
+
+      setListError(null)
+      setFiles((prev) => [
+        ...prev,
+        ...dropped.map((f) => ({
+          id: `${f.name}-${Date.now()}-${Math.random()}`,
+          file: f,
+        })),
+      ]);
+    },
+    [files],
+  );
 
   const handleProcess = useCallback(
     () => process(files.map((f) => f.file)),
@@ -49,6 +72,7 @@ export function JpgParaPdfClient() {
   const handleReset = useCallback(() => {
     reset();
     setFiles([]);
+    setListError(null);
   }, [reset]);
   const handleDownload = useDownloadTracking("jpg-para-pdf", outputName);
 
@@ -69,10 +93,20 @@ export function JpgParaPdfClient() {
               <FileQueue
                 files={files}
                 onReorder={setFiles}
-                onRemove={(id) =>
+                onRemove={(id) => {
+                  setListError(null)
                   setFiles((prev) => prev.filter((f) => f.id !== id))
-                }
+                }}
               />
+              {listError && (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="text-xs font-black uppercase tracking-widest text-[#b91c1c] border-2 border-[#b91c1c] px-3 py-2"
+                >
+                  {listError}
+                </p>
+              )}
               <button
                 onClick={handleProcess}
                 className="w-full bg-slate-950 text-[#ccff00] border-4 border-slate-950 shadow-[8px_8px_0px_#ccff00] px-8 py-5 font-black uppercase tracking-[0.2em] hover:bg-slate-800 hover:-translate-y-1 transition-all"
