@@ -79,7 +79,8 @@ export function generateWebSiteSchema() {
     url: siteUrl('/'),
     potentialAction: {
       '@type': 'SearchAction',
-      target: `${siteUrl('/')}?q={search_term_string}`,
+      // Busca real do site: /tutoriais?q=
+      target: `${siteUrl('/tutoriais')}?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
   }
@@ -104,6 +105,8 @@ export function generateArticleSchema(article: {
   title: string
   description: string
   slug: string
+  publishedAt: string
+  updatedAt?: string
 }) {
   return {
     '@context': 'https://schema.org',
@@ -111,6 +114,8 @@ export function generateArticleSchema(article: {
     headline: article.title,
     description: article.description,
     mainEntityOfPage: siteUrl(`/tutoriais/${article.slug}`),
+    datePublished: article.publishedAt,
+    dateModified: article.updatedAt ?? article.publishedAt,
     author: {
       '@type': 'Organization',
       name: 'Unificando',

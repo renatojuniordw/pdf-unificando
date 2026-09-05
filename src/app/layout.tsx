@@ -44,11 +44,20 @@ export const metadata: Metadata = {
     siteName: 'Unificando PDF',
     locale: 'pt_BR',
     type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: 'Unificando PDF — Ferramentas PDF Gratuitas Online',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Unificando PDF — Ferramentas PDF Gratuitas Online',
     description: 'Comprima, junte, divida e converta PDFs online grátis sem cadastro.',
+    images: [`${SITE_URL}/og-image.png`],
   },
   robots: {
     index: true,

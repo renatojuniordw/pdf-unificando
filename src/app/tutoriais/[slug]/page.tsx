@@ -33,21 +33,22 @@ export async function generateMetadata({ params }: TutorialPageProps): Promise<M
     }
   }
 
+  // O layout já aplica o template "%s | Unificando PDF" — NÃO repetir a marca aqui.
   return {
-    title: `${tutorial.title} | Unificando PDF`,
+    title: tutorial.title,
     description: tutorial.description,
     alternates: {
       canonical: `/tutoriais/${tutorial.slug}`,
     },
     openGraph: {
-      title: `${tutorial.title} | Unificando PDF`,
+      title: tutorial.title,
       description: tutorial.description,
       url: siteUrl(`/tutoriais/${tutorial.slug}`),
       type: 'article',
     },
     twitter: {
       card: 'summary',
-      title: `${tutorial.title} | Unificando PDF`,
+      title: tutorial.title,
       description: tutorial.description,
     },
   }
@@ -79,7 +80,13 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
     title: fullTutorial.title,
     description: fullTutorial.description,
     slug: fullTutorial.slug,
+    publishedAt: fullTutorial.publishedAt,
+    updatedAt: fullTutorial.updatedAt,
   })
+
+  const published = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(
+    new Date(`${fullTutorial.updatedAt ?? fullTutorial.publishedAt}T00:00:00Z`),
+  )
   
   const howToSchema = generateHowToSchema({
     title: fullTutorial.title,
@@ -126,6 +133,9 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
             </span>
             <span className="inline-block bg-slate-950 text-white font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000]">
               📊 {fullTutorial.difficulty}
+            </span>
+            <span data-testid="tutorial-date" className="inline-block bg-white text-slate-950 font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000]">
+              🗓️ Atualizado em {published}
             </span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase leading-[0.95] text-slate-950">

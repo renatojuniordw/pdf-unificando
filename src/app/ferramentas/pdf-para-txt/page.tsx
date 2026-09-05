@@ -3,13 +3,13 @@ import { getTool } from "@/config/tools";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { PdfParaTxtClient } from "./PdfParaTxtClient";
 import { PrivacyBanner } from "@/components/tools/PrivacyBanner";
-import { JsonLd, generateWebApplicationSchema } from "@/components/seo/JsonLd";
+import { JsonLd, generateWebApplicationSchema, generateBreadcrumbSchema } from "@/components/seo/JsonLd";
 import { siteUrl } from "@/lib/site";
 
 const tool = getTool("pdf-para-txt");
 
 export const metadata: Metadata = {
-  title: tool.name,
+  title: tool.seoTitle ?? tool.name,
   description: tool.seoDescription,
   alternates: {
     canonical: `/ferramentas/${tool.slug}`,
@@ -29,10 +29,16 @@ export const metadata: Metadata = {
 
 export default function PdfParaTxtPage() {
   const jsonLd = generateWebApplicationSchema(tool);
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Início", url: siteUrl("/") },
+    { name: "Ferramentas", url: siteUrl("/") },
+    { name: tool.name, url: siteUrl(`/ferramentas/${tool.slug}`) },
+  ]);
 
   return (
     <>
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbSchema} />
 
       <section className="bg-[#ccff00] border-b-4 border-slate-950 py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">

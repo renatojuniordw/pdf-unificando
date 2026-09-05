@@ -129,7 +129,9 @@ describe('componentes e schemas extras', () => {
     expect(generateOrganizationSchema().logo).toContain('/icon.png')
     expect(generateWebSiteSchema().potentialAction.target).toContain('?q=')
     expect(generateFAQSchema([{ question: 'Q', answer: 'A' }]).mainEntity).toHaveLength(1)
-    expect(generateArticleSchema({ title: 'T', description: 'D', slug: 's' }).headline).toBe('T')
+    expect(
+      generateArticleSchema({ title: 'T', description: 'D', slug: 's', publishedAt: '2026-01-01' }).headline,
+    ).toBe('T')
     expect(generateHowToSchema({
       title: 'Guia',
       description: 'Passo a passo',

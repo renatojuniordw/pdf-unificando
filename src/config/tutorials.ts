@@ -21,6 +21,10 @@ export interface TutorialDefinition {
   targetToolSlug: string
   estimatedTime: string
   difficulty: 'Fácil' | 'Médio' | 'Difícil'
+  /** Data de publicação (ISO) — usada no schema Article e na UI. */
+  publishedAt: string
+  /** Data de atualização (ISO); se omitida, assume publishedAt. */
+  updatedAt?: string
 }
 
 export const tutorials: TutorialDefinition[] = [
@@ -79,6 +83,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'jpg-para-pdf',
     estimatedTime: '2 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-07-10',
+    updatedAt: '2026-07-10',
   },
   {
     slug: 'como-juntar-pdf',
@@ -135,6 +141,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'juntar-pdf',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-07-14',
+    updatedAt: '2026-07-14',
   },
   {
     slug: 'como-dividir-pdf',
@@ -190,6 +198,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'dividir-pdf',
     estimatedTime: '2 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-07-18',
+    updatedAt: '2026-07-18',
   },
   {
     slug: 'como-converter-pdf-em-word',
@@ -240,6 +250,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'pdf-para-word',
     estimatedTime: '3 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-07-22',
+    updatedAt: '2026-07-22',
   },
   {
     slug: 'como-proteger-pdf-com-senha',
@@ -290,6 +302,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'proteger-pdf',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-07-28',
+    updatedAt: '2026-07-28',
   },
   {
     slug: 'como-redigir-pdf-censurar-conteudo',
@@ -339,6 +353,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'redigir-pdf',
     estimatedTime: '2 min',
     difficulty: 'Médio',
+      publishedAt: '2026-08-02',
+    updatedAt: '2026-08-02',
   },
   {
     slug: 'como-adicionar-marca-dagua-em-pdf',
@@ -389,6 +405,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'marca-dagua',
     estimatedTime: '2 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-08-06',
+    updatedAt: '2026-08-06',
   },
   {
     slug: 'como-comprimir-pdf',
@@ -445,6 +463,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'comprimir-pdf',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-08-10',
+    updatedAt: '2026-08-10',
   },
   {
     slug: 'como-converter-pdf-em-jpg',
@@ -494,6 +514,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'pdf-para-jpg',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-08-14',
+    updatedAt: '2026-08-14',
   },
   {
     slug: 'como-rotacionar-pdf',
@@ -543,6 +565,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'rodar-pdf',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-08-18',
+    updatedAt: '2026-08-18',
   },
   {
     slug: 'como-organizar-paginas-pdf',
@@ -592,6 +616,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'organizar-pdf',
     estimatedTime: '2 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-08-22',
+    updatedAt: '2026-08-22',
   },
   {
     slug: 'como-converter-pdf-em-markdown',
@@ -654,6 +680,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'pdf-para-markdown',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-08-26',
+    updatedAt: '2026-08-26',
   },
   {
     slug: 'como-converter-pdf-em-txt',
@@ -716,6 +744,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'pdf-para-txt',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-08-28',
+    updatedAt: '2026-08-28',
   },
   {
     slug: 'como-numerar-paginas-de-um-pdf',
@@ -778,6 +808,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'numerar-paginas',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-08-30',
+    updatedAt: '2026-08-30',
   },
   {
     slug: 'como-extrair-paginas-do-pdf',
@@ -840,6 +872,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'extrair-paginas',
     estimatedTime: '2 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-09-01',
+    updatedAt: '2026-09-01',
   },
   {
     slug: 'como-converter-pdf-em-png',
@@ -889,6 +923,8 @@ export const tutorials: TutorialDefinition[] = [
     targetToolSlug: 'pdf-para-png',
     estimatedTime: '1 min',
     difficulty: 'Fácil',
+      publishedAt: '2026-09-03',
+    updatedAt: '2026-09-03',
   },
 ]
 
