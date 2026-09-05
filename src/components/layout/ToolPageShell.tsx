@@ -22,7 +22,7 @@ export function ToolPageShell({
           <span className="inline-block bg-slate-950 text-[#ccff00] font-black uppercase tracking-widest text-[10px] px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_#000] mb-4">
             FERRAMENTA GRATUITA
           </span>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase leading-[0.9] text-slate-950">
+          <h1 data-testid="tool-page-title" className="text-5xl md:text-7xl font-bold tracking-tighter uppercase leading-[0.9] text-slate-950">
             {title}
           </h1>
           <p className="text-sm font-mono font-bold uppercase text-slate-700 mt-4 max-w-xl">

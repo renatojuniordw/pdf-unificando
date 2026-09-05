@@ -54,7 +54,7 @@ export function SuccessDownload({
     : "Arquivo pronto para download.";
 
   return (
-    <div className={className}>
+    <div data-testid="success-download" className={className}>
       {title ? (
         <StateBanner
           tone="success"

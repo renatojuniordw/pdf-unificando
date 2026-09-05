@@ -66,6 +66,7 @@ export function MarcaDaguaClient() {
               </p>
               <input
                 type="text"
+                data-testid="watermark-text-input"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Ex: CONFIDENCIAL, RASCUNHO..."

@@ -30,11 +30,12 @@ export function Footer() {
             © {new Date().getFullYear()} Unificando PDF — As melhores
             ferramentas para PDF Unificando arquivos e documentos online.
           </p>
-          <nav aria-label="Rodapé">
+          <nav aria-label="Rodapé" data-testid="footer-nav">
             <ul className="flex flex-wrap gap-6 list-none">
               <li>
                 <Link
                   href="/tutoriais"
+                  data-testid="footer-tutorials-link"
                   className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
                 >
                   Tutoriais
@@ -43,6 +44,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/privacidade"
+                  data-testid="footer-privacy-link"
                   className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
                 >
                   Privacidade
@@ -53,6 +55,7 @@ export function Footer() {
                   href="https://unificando.com.br/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-testid="footer-site-link"
                   className="text-slate-400 hover:text-[#ccff00] text-[9px] font-black uppercase tracking-widest transition-colors"
                 >
                   Site Oficial

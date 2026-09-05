@@ -33,6 +33,7 @@ export function StateBanner({
 
   return (
     <BrutalistCard
+      data-testid={`state-banner-${tone}`}
       role={ariaRole}
       aria-live={ariaLive}
       aria-atomic="true"
@@ -48,6 +49,7 @@ export function StateBanner({
       {actionLabel && onAction ? (
         <button
           type="button"
+          data-testid="state-banner-action"
           onClick={onAction}
           className="ml-auto border-2 border-current px-4 py-2 font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-colors"
         >

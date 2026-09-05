@@ -11,7 +11,7 @@ interface ErrorScreenProps {
 
 export function ErrorScreen({ title, message, onRetry }: ErrorScreenProps) {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
+    <div data-testid="error-screen" className="min-h-[60vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-xl w-full">
         <StateBanner
           tone="error"
@@ -27,6 +27,7 @@ export function ErrorScreen({ title, message, onRetry }: ErrorScreenProps) {
         />
         <Link
           href="/"
+          data-testid="error-home-link"
           className="mt-3 inline-flex bg-white text-slate-950 border-4 border-slate-950 px-5 py-3 font-black uppercase tracking-widest text-xs text-center hover:bg-slate-100 transition-colors"
         >
           Voltar para o início

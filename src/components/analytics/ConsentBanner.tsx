@@ -39,6 +39,7 @@ export function ConsentBanner() {
     <div
       role="region"
       aria-label="Consentimento de cookies"
+      data-testid="consent-banner"
       className="fixed bottom-0 inset-x-0 z-50 border-t-4 border-slate-950 bg-slate-950 text-slate-100 shadow-[0_-4px_0_#ccff00]"
     >
       <div className="max-w-5xl mx-auto px-6 py-5 flex flex-col md:flex-row md:items-center gap-4">
@@ -50,12 +51,14 @@ export function ConsentBanner() {
         <div className="flex items-center gap-3 shrink-0">
           <Link
             href="/privacidade"
+            data-testid="consent-privacy-link"
             className="text-xs font-black uppercase tracking-widest text-[#ccff00] underline underline-offset-4 hover:text-white transition-colors"
           >
             Política de Privacidade
           </Link>
           <button
             type="button"
+            data-testid="consent-reject"
             onClick={() => decide('rejected')}
             className="text-xs font-black uppercase tracking-widest text-slate-300 border-2 border-slate-600 px-4 py-2 hover:border-slate-400 hover:text-white transition-colors"
           >
@@ -63,6 +66,7 @@ export function ConsentBanner() {
           </button>
           <button
             type="button"
+            data-testid="consent-accept"
             onClick={() => decide('accepted')}
             className="text-xs font-black uppercase tracking-widest text-slate-950 bg-[#ccff00] border-2 border-[#ccff00] px-4 py-2 hover:bg-[#b3ff00] transition-colors"
           >

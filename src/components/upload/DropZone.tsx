@@ -168,6 +168,7 @@ export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false,
   return (
     <div
       role="button"
+      data-testid="upload-zone-drop"
       tabIndex={disabled ? -1 : 0}
       aria-disabled={disabled}
       aria-describedby={`${hintId}${feedback ? ` ${feedbackId}` : ''}`}
@@ -188,6 +189,7 @@ export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false,
     >
       <input
         ref={inputRef}
+        data-testid="upload-zone-input"
         type="file"
         className="sr-only"
         accept={acceptStr}
@@ -224,7 +226,7 @@ export function DropZone({ accept, maxSize = 50 * 1024 * 1024, multiple = false,
       )}
 
       {feedback && (
-        <p id={feedbackId} role="status" aria-live="polite" className="mt-4 text-xs font-black uppercase tracking-widest text-[#b91c1c] text-center">
+        <p id={feedbackId} data-testid="upload-zone-feedback" role="status" aria-live="polite" className="mt-4 text-xs font-black uppercase tracking-widest text-[#b91c1c] text-center">
           {feedback}
         </p>
       )}

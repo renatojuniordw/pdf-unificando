@@ -46,7 +46,7 @@ export class LocalErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="max-w-2xl mx-auto">
+        <div data-testid="local-error-boundary" className="max-w-2xl mx-auto">
           <StateBanner
             tone="error"
             title={this.props.title ?? "ERRO NA FERRAMENTA"}

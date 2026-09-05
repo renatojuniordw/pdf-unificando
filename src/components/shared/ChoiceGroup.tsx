@@ -67,6 +67,7 @@ const ChoiceOptionButton = memo(function ChoiceOptionButton({
   return (
     <button
       type="button"
+      data-testid={`choice-option-${option.value}`}
       role="radio"
       aria-checked={selected}
       onClick={handleClick}

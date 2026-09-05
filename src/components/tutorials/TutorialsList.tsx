@@ -35,6 +35,7 @@ export function TutorialsList({ tutorials, query }: TutorialsListProps) {
                 return (
                   <article
                     key={tutorial.slug}
+                    data-testid={`tutorial-card-${tutorial.slug}`}
                     className="group border-4 border-slate-950 bg-white shadow-[12px_12px_0px_#000] p-8 md:p-10 transition-all hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[16px_16px_0px_#ccff00]"
                   >
                     <div className="flex flex-col md:flex-row md:items-start md:gap-10">
@@ -48,7 +49,7 @@ export function TutorialsList({ tutorials, query }: TutorialsListProps) {
                           </span>
                         </div>
                         
-                        <Link href={`/tutoriais/${tutorial.slug}`}>
+                        <Link href={`/tutoriais/${tutorial.slug}`} data-testid={`tutorial-title-link-${tutorial.slug}`}>
                           <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-slate-950 mt-6 leading-none hover:text-[#ccff00] transition-colors cursor-pointer decoration-4 underline-offset-4 hover:underline">
                             {tutorial.title}
                           </h2>
@@ -71,12 +72,14 @@ export function TutorialsList({ tutorials, query }: TutorialsListProps) {
                       <div className="mt-8 md:mt-0 flex flex-col gap-3 min-w-[200px]">
                         <Link
                           href={`/tutoriais/${tutorial.slug}`}
+                          data-testid={`tutorial-read-${tutorial.slug}`}
                           className="bg-[#ccff00] text-slate-950 border-4 border-slate-950 px-6 py-4 text-center font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#000] hover:translate-y-[-2px] transition-transform"
                         >
                           Ler tutorial completo
                         </Link>
                         <Link
                           href={`/ferramentas/${tool.slug}`}
+                          data-testid={`tutorial-use-tool-${tool.slug}`}
                           className="bg-white text-slate-950 border-4 border-slate-950 px-6 py-4 text-center font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_#000] hover:bg-slate-100 transition-colors"
                         >
                           Usar ferramenta
@@ -88,12 +91,13 @@ export function TutorialsList({ tutorials, query }: TutorialsListProps) {
               })}
             </div>
           ) : (
-            <div className="border-4 border-dashed border-slate-200 p-20 text-center">
+            <div data-testid="tutorials-empty" className="border-4 border-dashed border-slate-200 p-20 text-center">
               <p className="text-sm font-black uppercase tracking-widest text-slate-400">
                 Nenhum tutorial encontrado para sua busca.
               </p>
               <Link
                 href="/tutoriais"
+                data-testid="tutorials-clear-search"
                 className="mt-6 inline-flex text-xs font-black uppercase underline decoration-2 underline-offset-4 hover:text-[#ccff00] transition-colors"
               >
                 Limpar pesquisa

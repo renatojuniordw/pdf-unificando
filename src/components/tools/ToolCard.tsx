@@ -11,6 +11,7 @@ export function ToolCard({ tool }: ToolCardProps) {
   return (
     <Link
       href={`/ferramentas/${tool.slug}`}
+      data-testid={`tool-card-${tool.slug}`}
       aria-label={tool.name}
     >
       <article className="border-4 border-slate-950 bg-white shadow-[8px_8px_0px_#000] p-6 hover:-translate-y-2 hover:bg-[#ccff00] transition-all duration-200 cursor-pointer h-full flex flex-col">

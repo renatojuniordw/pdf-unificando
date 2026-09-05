@@ -98,6 +98,7 @@ export function EditorToolbar({
             <div className="flex">
               <input
                 type="text"
+                data-testid="redact-search-input"
                 value={search.query}
                 onChange={(e) => onSearchQueryChange(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !isProcessing) onSearchSubmit() }}
@@ -107,6 +108,7 @@ export function EditorToolbar({
               />
               <button
                 type="button"
+                data-testid="redact-search-submit"
                 onClick={onSearchSubmit}
                 disabled={!search.query.trim() || search.isSearching || isProcessing}
                 className="px-2 border-l-2 border-slate-950 text-[10px] font-black uppercase tracking-widest bg-slate-950 text-[#ccff00] hover:bg-slate-800 transition-colors disabled:opacity-40 flex items-center gap-1 whitespace-nowrap"

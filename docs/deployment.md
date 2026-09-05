@@ -20,7 +20,7 @@ Três artefatos do deploy:
 
 ```dockerfile
 # Estágio 1: builder
-FROM node:20-alpine ...
+FROM node:22-alpine ...
 npm ci && npm run build
 
 # Estágio 2: runner (enxuto)

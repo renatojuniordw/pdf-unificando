@@ -50,6 +50,7 @@ function SortableFileRow({ item, onRemove }: { item: FileItem; onRemove: (id: st
     >
       <button
         type="button"
+        data-testid="file-queue-drag"
         {...attributes}
         {...listeners}
         className="cursor-grab text-slate-500 hover:text-slate-950 transition-colors flex-shrink-0"
@@ -73,6 +74,7 @@ function SortableFileRow({ item, onRemove }: { item: FileItem; onRemove: (id: st
       </span>
       <button
         type="button"
+        data-testid="file-queue-item-remove"
         onClick={() => onRemove(item.id)}
         className="bg-[#b91c1c] text-white border-2 border-slate-950 shadow-[2px_2px_0px_#000] p-1 font-black text-xs hover:-translate-y-0.5 transition-transform flex-shrink-0"
         aria-label={`Remover ${item.file.name}`}
@@ -142,11 +144,12 @@ export function FileQueue({ files, onReorder, onRemove }: FileQueueProps) {
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <SortableContext items={files.map(f => f.id)} strategy={verticalListSortingStrategy}>
           {files.map((item, index) => (
-            <div key={item.id} className="flex items-center gap-2">
+            <div key={item.id} data-testid="file-queue-item" className="flex items-center gap-2">
               <SortableFileRow item={item} onRemove={handleRemove} />
               <div className="flex shrink-0 flex-col gap-1 pr-2">
                 <button
                   type="button"
+                  data-testid="file-queue-move-up"
                   onClick={() => moveItem(index, -1)}
                   disabled={index === 0}
                   className="border-2 border-slate-950 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-950 hover:bg-slate-100 transition-colors disabled:opacity-30"
@@ -156,6 +159,7 @@ export function FileQueue({ files, onReorder, onRemove }: FileQueueProps) {
                 </button>
                 <button
                   type="button"
+                  data-testid="file-queue-move-down"
                   onClick={() => moveItem(index, 1)}
                   disabled={index === files.length - 1}
                   className="border-2 border-slate-950 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-950 hover:bg-slate-100 transition-colors disabled:opacity-30"
@@ -176,12 +180,13 @@ export function FileQueue({ files, onReorder, onRemove }: FileQueueProps) {
         </DragOverlay>
       </DndContext>
       {pendingRemoval && (
-        <div role="status" aria-live="polite" className="border-t-4 border-slate-950 bg-slate-950 text-[#ccff00] px-4 py-3 flex items-center gap-4">
+        <div data-testid="file-queue-removed-status" role="status" aria-live="polite" className="border-t-4 border-slate-950 bg-slate-950 text-[#ccff00] px-4 py-3 flex items-center gap-4">
           <p className="text-[10px] font-black uppercase tracking-widest">
             {pendingRemoval.item.file.name} removido
           </p>
           <button
             type="button"
+            data-testid="file-queue-undo"
             onClick={handleUndo}
             className="ml-auto border-2 border-[#ccff00] px-3 py-1 text-[10px] font-black uppercase tracking-widest hover:bg-[#ccff00] hover:text-slate-950 transition-colors"
           >

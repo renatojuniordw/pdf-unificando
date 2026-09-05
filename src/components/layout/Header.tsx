@@ -64,7 +64,7 @@ export function Header() {
     <header className="sticky top-0 z-50 h-16 bg-slate-950 border-b-4 border-[#ccff00] flex items-center">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between w-full">
         <div className="flex items-center gap-3">
-          <Link href="/" className="group flex items-center gap-3">
+          <Link href="/" data-testid="header-logo-home" className="group flex items-center gap-3">
             <div className="bg-[#ccff00] p-2 border-2 border-slate-950 shadow-[4px_4px_0px_#fff] group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0px_#fff] transition-all">
               <span className="font-black text-slate-950 text-sm uppercase tracking-tighter leading-none">
                 PDF
@@ -88,6 +88,7 @@ export function Header() {
           >
             <button
               ref={toolsButtonRef}
+              data-testid="header-tools-toggle"
               onClick={() => setToolsOpen(!toolsOpen)}
               aria-expanded={toolsOpen}
               aria-controls="tools-dropdown"
@@ -119,6 +120,7 @@ export function Header() {
 
             <div
               id="tools-dropdown"
+              data-testid="header-tools-dropdown"
               hidden={!toolsOpen}
               className={`absolute top-full left-0 w-[450px] bg-white border-4 border-slate-950 shadow-[8px_8px_0px_#ccff00] p-4 z-50 grid grid-cols-2 gap-2 transition-all duration-150 ${
                 toolsOpen
@@ -131,6 +133,7 @@ export function Header() {
                   <li key={tool.slug}>
                     <Link
                       href={`/ferramentas/${tool.slug}`}
+                      data-testid={`header-tools-link-${tool.slug}`}
                       onClick={() => setToolsOpen(false)}
                       className="flex items-center gap-3 p-2 hover:bg-[#ccff00] border-2 border-transparent hover:border-slate-950 transition-all group"
                     >
@@ -173,6 +176,7 @@ export function Header() {
 
           <Link
             href="/tutoriais"
+            data-testid="header-tutorials-link"
             className="text-xs font-black uppercase tracking-widest text-white hover:bg-[#ccff00] hover:text-slate-950 px-3 py-2 transition-colors"
           >
             Tutoriais
@@ -180,6 +184,7 @@ export function Header() {
 
           <Link
             href="/privacidade"
+            data-testid="header-privacy-link"
             className="text-xs font-black uppercase tracking-widest text-white hover:bg-[#ccff00] hover:text-slate-950 px-3 py-2 transition-colors"
           >
             Privacidade
@@ -188,6 +193,7 @@ export function Header() {
 
         <button
           ref={mobileButtonRef}
+          data-testid="header-mobile-menu-toggle"
           className="md:hidden text-white border-2 border-white p-1.5 hover:bg-[#ccff00] hover:text-slate-950 hover:border-slate-950 transition-colors"
           onClick={() => setMobileOpen((o) => !o)}
           aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
@@ -223,6 +229,7 @@ export function Header() {
       <div
         ref={mobileMenuRef}
         id="mobile-menu"
+        data-testid="header-mobile-menu"
         hidden={!mobileOpen}
         className={`fixed top-16 right-0 h-[calc(100vh-4rem)] w-72 bg-slate-950 border-l-4 border-[#ccff00] z-40 flex flex-col p-6 overflow-y-auto transition-transform duration-200 ${
           mobileOpen ? "translate-x-0" : "translate-x-full pointer-events-none"
@@ -237,6 +244,7 @@ export function Header() {
       >
         <div className="flex flex-col gap-2">
           <button
+            data-testid="header-mobile-tools-toggle"
             onClick={() => setMobileToolsOpen(!mobileToolsOpen)}
             type="button"
             className="text-xs font-black uppercase tracking-widest text-white hover:bg-[#ccff00] hover:text-slate-950 px-3 py-4 transition-colors border-b border-slate-800 flex items-center justify-between"
@@ -283,6 +291,7 @@ export function Header() {
 
           <Link
             href="/tutoriais"
+            data-testid="header-mobile-tutorials-link"
             onClick={closeMobileMenu}
             className="text-xs font-black uppercase tracking-widest text-white hover:bg-[#ccff00] hover:text-slate-950 px-3 py-4 transition-colors border-b border-slate-800"
           >
@@ -291,6 +300,7 @@ export function Header() {
 
           <Link
             href="/privacidade"
+            data-testid="header-mobile-privacy-link"
             onClick={closeMobileMenu}
             className="text-xs font-black uppercase tracking-widest text-white hover:bg-[#ccff00] hover:text-slate-950 px-3 py-4 transition-colors border-b border-slate-800"
           >

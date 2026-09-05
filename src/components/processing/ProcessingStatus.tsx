@@ -6,7 +6,7 @@ interface ProcessingStatusProps {
 
 export function ProcessingStatus({ status }: ProcessingStatusProps) {
   return (
-    <BrutalistCard role="status" aria-live="polite" aria-atomic="true" className="p-8 flex flex-col gap-4">
+    <BrutalistCard data-testid="processing-status" role="status" aria-live="polite" aria-atomic="true" className="p-8 flex flex-col gap-4">
       {status === 'uploading' ? (
         <>
           <div className="w-full h-4 bg-slate-200 animate-pulse motion-reduce:animate-none border-4 border-slate-950" />

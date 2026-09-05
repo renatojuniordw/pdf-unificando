@@ -63,6 +63,7 @@ export function ProtegerPdfClient() {
             <div className="relative">
               <input
                 id={passwordId}
+                data-testid="protect-password-input"
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -72,6 +73,7 @@ export function ProtegerPdfClient() {
               />
               <button
                 type="button"
+                data-testid="protect-password-toggle"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-950"
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
@@ -96,6 +98,7 @@ export function ProtegerPdfClient() {
               </label>
               <input
                 id={passwordConfirmId}
+                data-testid="protect-password-confirm-input"
                 type={showPassword ? "text" : "password"}
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
@@ -105,7 +108,7 @@ export function ProtegerPdfClient() {
               />
             </div>
             {passwordValidationError && (
-              <p id="password-error" role="alert" aria-live="assertive" className="mt-2 text-xs font-black uppercase tracking-widest text-[#b91c1c]">
+              <p id="password-error" data-testid="protect-password-error" role="alert" aria-live="assertive" className="mt-2 text-xs font-black uppercase tracking-widest text-[#b91c1c]">
                 {passwordValidationError}
               </p>
             )}

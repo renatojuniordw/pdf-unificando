@@ -90,6 +90,7 @@ function SortablePage({
         </svg>
       </button>
       <button
+        data-testid="organize-page-remove"
         onClick={() => onRemove(item.id)}
         className="absolute top-1 right-1 bg-[#ff4d4d] text-white border-2 border-slate-950 p-0.5 font-black text-[10px]"
       >

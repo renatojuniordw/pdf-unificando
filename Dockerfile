@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -21,7 +21,7 @@ ENV NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID} \
 RUN npm run build
 
 # Stage 2: Runner
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 # Binários nativos

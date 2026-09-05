@@ -45,6 +45,7 @@ export function TutorialsSearchBar({ initialQuery }: TutorialsSearchBarProps) {
         <div className="relative group">
           <input
             id={inputId}
+            data-testid="tutorials-search-input"
             type="text"
             placeholder="PESQUISAR TUTORIAL (EX: JUNTAR, COMPRIMIR...)"
             value={value}

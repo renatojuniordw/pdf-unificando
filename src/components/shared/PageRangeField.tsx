@@ -34,6 +34,7 @@ export function PageRangeField({
       </label>
       <input
         id={inputId}
+        data-testid="page-range-input"
         type="text"
         value={value}
         onChange={handleChange}
@@ -46,7 +47,7 @@ export function PageRangeField({
         {hint}
       </p>
       {error ? (
-        <p id={errorId} role="alert" aria-live="assertive" className="mt-2 text-xs font-black uppercase tracking-widest text-[#ff4d4d]">
+        <p id={errorId} data-testid="page-range-error" role="alert" aria-live="assertive" className="mt-2 text-xs font-black uppercase tracking-widest text-[#ff4d4d]">
           {error}
         </p>
       ) : null}

@@ -110,9 +110,10 @@ export function PWAInstallBanner() {
           exit={shouldReduceMotion ? { opacity: 0 } : { y: 100, opacity: 0 }}
           className="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 md:w-96 z-40"
         >
-          <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-5 relative">
+          <div data-testid="pwa-install-banner" className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-5 relative">
             <button
               type="button"
+              data-testid="pwa-install-dismiss"
               onClick={dismiss}
               className="absolute -top-4 -right-4 bg-[#b91c1c] text-white border-4 border-black w-10 h-10 flex items-center justify-center font-black hover:scale-110 transition-transform cursor-pointer"
               aria-label="Fechar aviso de instalação"
@@ -149,6 +150,7 @@ export function PWAInstallBanner() {
                 ) : (
                     <button
                       type="button"
+                      data-testid="pwa-install-now"
                       onClick={handleInstall}
                       disabled={isInstalling}
                       aria-busy={isInstalling}
@@ -158,7 +160,7 @@ export function PWAInstallBanner() {
                     </button>
                   )}
                   {installError ? (
-                  <p role="alert" aria-live="assertive" className="mt-3 text-xs font-black uppercase tracking-widest text-[#b91c1c]">
+                  <p data-testid="pwa-install-error" role="alert" aria-live="assertive" className="mt-3 text-xs font-black uppercase tracking-widest text-[#b91c1c]">
                     {installError}
                   </p>
                 ) : null}

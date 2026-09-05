@@ -16,7 +16,7 @@ export function TextPreviewPanel({ title, text }: TextPreviewPanelProps) {
   const handleCopy = useCallback(() => copy(text), [copy, text]);
 
   return (
-    <BrutalistCard tone="accent">
+    <BrutalistCard data-testid="text-preview-panel" tone="accent">
       <div className="flex items-center justify-between bg-slate-950 px-4 py-3 gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <span className="text-[#ccff00] font-black uppercase text-xs tracking-widest">
@@ -29,6 +29,7 @@ export function TextPreviewPanel({ title, text }: TextPreviewPanelProps) {
         </div>
         <button
           type="button"
+          data-testid="text-preview-copy"
           onClick={handleCopy}
           disabled={isCopying}
           aria-busy={isCopying}

@@ -13,7 +13,7 @@ export function RetryCountdown({ secondsLeft, progress, onRetry }: RetryCountdow
   const isDone = secondsLeft === 0
 
   return (
-    <BrutalistCard tone="accent" className="bg-slate-950 border-[#ccff00] p-8 flex flex-col items-center gap-6">
+    <BrutalistCard data-testid="retry-countdown" tone="accent" className="bg-slate-950 border-[#ccff00] p-8 flex flex-col items-center gap-6">
       <div className="flex items-center gap-3">
         <div className="bg-[#ccff00] text-slate-950 border-2 border-slate-950 p-2 shadow-[2px_2px_0px_#000]">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
@@ -41,7 +41,7 @@ export function RetryCountdown({ secondsLeft, progress, onRetry }: RetryCountdow
           transform="rotate(-90 48 48)"
           style={{ transition: 'stroke-dashoffset 0.9s linear' }}
         />
-        <text x="48" y="48" textAnchor="middle" dominantBaseline="central" fill={isDone ? '#00ff66' : '#ccff00'} className="font-black tabular-nums text-2xl" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 900, fontSize: '22px' }}>
+        <text x="48" y="48" data-testid="retry-countdown-timer" textAnchor="middle" dominantBaseline="central" fill={isDone ? '#00ff66' : '#ccff00'} className="font-black tabular-nums text-2xl" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 900, fontSize: '22px' }}>
           {secondsLeft}
         </text>
         <text x="48" y="64" textAnchor="middle" fill="#94a3b8" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 900, fontSize: '9px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
@@ -52,6 +52,7 @@ export function RetryCountdown({ secondsLeft, progress, onRetry }: RetryCountdow
       {isDone && (
         <button
           type="button"
+          data-testid="retry-countdown-button"
           onClick={onRetry}
           className="bg-[#ccff00] text-slate-950 border-4 border-slate-950 shadow-[4px_4px_0px_#000] font-black uppercase tracking-[0.2em] px-8 py-4 hover:bg-[#b3ff00] hover:-translate-y-1 transition-all"
         >

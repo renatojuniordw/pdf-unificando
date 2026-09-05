@@ -87,6 +87,7 @@ export function NumerarPaginasClient() {
               </label>
               <input
                 id={startAtId}
+                data-testid="page-numbers-start"
                 type="number"
                 min={1}
                 max={9999}

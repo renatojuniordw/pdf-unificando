@@ -30,16 +30,18 @@ export function DownloadButton({ url, filename, toolName, onDownload, fileSize, 
       <a
         href={url}
         download={filename}
+        data-testid="download-button-link"
         onClick={handleDownload}
         className="bg-[#ccff00] text-slate-950 border-4 border-slate-950 shadow-[8px_8px_0px_#000] px-8 py-5 font-black uppercase tracking-[0.2em] hover:bg-[#b3ff00] hover:-translate-y-1 transition-all inline-block text-center"
       >
         BAIXAR ARQUIVO
       </a>
       {fileSize != null && (
-        <p className="text-xs font-mono uppercase tracking-widest text-slate-500">{formatBytes(fileSize)}</p>
+        <p data-testid="download-button-size" className="text-xs font-mono uppercase tracking-widest text-slate-500">{formatBytes(fileSize)}</p>
       )}
       <button
         type="button"
+        data-testid="download-reset"
         onClick={onReset}
         className="text-xs font-black uppercase tracking-widest text-slate-950 border-b-2 border-current hover:text-slate-600 transition-colors"
       >

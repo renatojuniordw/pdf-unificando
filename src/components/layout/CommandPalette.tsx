@@ -123,6 +123,7 @@ export function CommandPalette() {
     <>
       <button
         ref={triggerRef}
+        data-testid="command-palette-trigger"
         onClick={toggle}
         type="button"
         className="group fixed bottom-6 right-6 z-40 cursor-pointer border-4 border-black bg-neon-yellow p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
@@ -157,6 +158,7 @@ export function CommandPalette() {
 
             <motion.div
               ref={dialogRef}
+              data-testid="command-palette-dialog"
               initial={{ scale: 0.95, opacity: 0, y: -20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: -20 }}
@@ -169,6 +171,7 @@ export function CommandPalette() {
                 <h2 id="command-palette-title" className="sr-only">Busca de Ferramentas PDF</h2>
                 <button
                   type="button"
+                  data-testid="command-palette-close"
                   onClick={close}
                   className="ml-auto border-2 border-black px-3 py-1 text-xs font-black uppercase tracking-widest hover:bg-gray-100 transition-colors"
                   aria-label="Fechar busca"
@@ -193,6 +196,7 @@ export function CommandPalette() {
                 </svg>
                 <input
                   ref={inputRef}
+                  data-testid="command-palette-input"
                   type="text"
                   placeholder="Pesquisar ferramentas... (Ex: Juntar, Comprimir)"
                   className="flex-1 border-none bg-transparent outline-none text-xl font-bold uppercase placeholder:text-gray-400"
@@ -217,6 +221,7 @@ export function CommandPalette() {
 
               <div
                 id="command-palette-results"
+                data-testid="command-palette-results"
                 role="listbox"
                 className="max-h-[60vh] overflow-y-auto bg-white"
               >
@@ -285,6 +290,7 @@ const CommandPaletteResult = memo(function CommandPaletteResult({
     <button
       type="button"
       id={`tool-${tool.slug}`}
+      data-testid={`command-palette-option-${tool.slug}`}
       role="option"
       aria-selected={selected}
       onClick={handleClick}

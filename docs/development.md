@@ -4,7 +4,7 @@ Guia para desenvolver localmente o **Unificando PDF**.
 
 ## Requisitos
 
-- Node.js 20+ (testado com v24 no dev; Docker usa node:20-alpine)
+- Node.js 22+ (pdfjs-dist v6 exige >=22.13; testado com v24 no dev; Docker usa node:22-alpine)
 - npm (lockfile `package-lock.json` presente)
 - Linux/macOS com **binários opcionais** para certas ferramentas: Ghostscript (compress), LibreOffice (to-word), poppler-utils/pdftoppm (to-jpg/to-png). No Docker eles já vêm instalados.
 

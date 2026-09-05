@@ -48,3 +48,4 @@ FASE-2-BACKEND.md
 .agent/
 
 /playwright-report
+/test-results

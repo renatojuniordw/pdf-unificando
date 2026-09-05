@@ -129,7 +129,7 @@ docker compose up --build   # build e sobe com nginx
 docker compose up           # sobe com imagem existente
 ```
 
-- Build multi-stage: `builder` → `runner` (node:20-alpine)
+- Build multi-stage: `builder` → `runner` (node:22-alpine)
 - `/tmp` montado como `tmpfs: 512m`
 - Usuário não-root (`appuser`)
 - Requer rede externa `nginx-proxy`: `docker network create nginx-proxy`
