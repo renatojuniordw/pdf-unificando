@@ -1,0 +1,29 @@
+# Pilha OPCIONAL de observabilidade (Loki + Promtail) — não sobe com o app.
+#
+# Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+#
+# Coleta os logs JSON do container `unificando-pdf` (stdout) e os envia ao Loki.
+# Consultas: http://localhost:3100 (Loki) — ex.: {container="unificando-pdf"}
+
+services:
+  loki:
+    image: grafana/loki:3.4.2
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - loki-data:/loki
+
+  promtail:
+    image: grafana/promtail:3.4.2
+    command: -config.file=/etc/promtail/promtail.yaml
+    depends_on:
+      - loki
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./observability/promtail.yaml:/etc/promtail/promtail.yaml:ro
+
+volumes:
+  loki-data:

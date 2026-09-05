@@ -97,7 +97,7 @@ cp .env.example .env.local
 | `MAX_QUEUE_SIZE` | Tamanho máximo da fila | `5` |
 | `RETRY_AFTER_SECONDS` | Tempo de espera quando a fila está cheia | `30` |
 | `ALLOWED_ORIGIN` | Origem permitida para requisições CORS | `https://pdf.unificando.com.br` |
-| `GA_API_SECRET` | Secret do Google Analytics Measurement Protocol | — |
+| `API_SECRET_KEY` | Proteção opcional da API (/api/pdf/* exige Bearer) | — (auth desativada) |
 
 ### Variáveis públicas
 

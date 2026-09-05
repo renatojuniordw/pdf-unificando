@@ -4,6 +4,20 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+
+# NEXT_PUBLIC_* são embutidos no bundle do cliente em tempo de build.
+# Vêm do docker-compose (build args) ou ficam vazios e caem no fallback do código.
+ARG NEXT_PUBLIC_GA_ID
+ARG NEXT_PUBLIC_GTM_ID
+ARG NEXT_PUBLIC_META_PIXEL_ID
+ARG NEXT_PUBLIC_ADSENSE_ID
+ARG NEXT_PUBLIC_PRIVACY_EMAIL
+ENV NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID} \
+    NEXT_PUBLIC_GTM_ID=${NEXT_PUBLIC_GTM_ID} \
+    NEXT_PUBLIC_META_PIXEL_ID=${NEXT_PUBLIC_META_PIXEL_ID} \
+    NEXT_PUBLIC_ADSENSE_ID=${NEXT_PUBLIC_ADSENSE_ID} \
+    NEXT_PUBLIC_PRIVACY_EMAIL=${NEXT_PUBLIC_PRIVACY_EMAIL}
+
 RUN npm run build
 
 # Stage 2: Runner

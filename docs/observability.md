@@ -44,6 +44,8 @@ Eventos disponíveis:
 
 `analytics.ts` é excluído da cobertura de testes (client-only).
 
+> **Consentimento (LGPD):** eventos de analytics/Web Vitals só são enviados após o consentimento do usuário (ver `src/lib/analytics.ts` + `ConsentBanner`/`TrackingScripts`). Antes da decisão, `trackEvent` é no-op.
+
 ## 3. Web Vitals (Core Web Vitals)
 
 `src/components/observability/WebVitalsReporter.tsx` reporta métricas de performance para GA4 (as do Next.js `experimental/useReportWebVitals`/`web-vitals`). Cobrem LCP, INP/FID, CLS, TTFB, FCP.
@@ -82,3 +84,13 @@ Resposta:
 
 - Proxy injeta `x-request-id` em toda request `/api/pdf/*`; use-o para correlacionar logs do nginx (access log) com os logs do Node (mesmo id no acesso? verificar se o acesso passa o header — hoje o nginx proxypass repassa headers padrão; o `x-request-id` gerado no proxy Next é visível no log do route handler).
 - Erros de API já incluem `scope`, `status`, `code` e `details` — agrupáveis por `code`.
+
+## 7. Agregador de logs (opcional)
+
+O repositório inclui `docker-compose.observability.yml` (Loki + Promtail) que coleta o stdout do container `unificando-pdf` e o envia ao Loki local (config em `observability/promtail.yaml`):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+```
+
+Consulta rápida: `curl 'http://localhost:3100/loki/api/v1/query_range?query={container="unificando-pdf"}'` ou Grafana apontando para `http://localhost:3100`. Esta pilha é **opcional** — o app funciona sem ela; os logs continuam no driver json-file do Docker.

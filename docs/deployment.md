@@ -46,7 +46,8 @@ Serviço único `pdf-tools`:
 | Container | `unificando-pdf` |
 | Porta | `127.0.0.1:11005:11005` (exposta só no host; nginx acessa) |
 | Repetição | `restart: unless-stopped` |
-| Env | `NODE_ENV`, `PORT` (11005), `MAX_FILE_SIZE`, `MAX_CONCURRENT_JOBS`, `MAX_QUEUE_SIZE`, `RETRY_AFTER_SECONDS`, `ALLOWED_ORIGIN`, `NEXT_PUBLIC_ADSENSE_ID`, `NEXT_PUBLIC_GA_ID`, `GA_API_SECRET` (as duas últimas são passadas pelo compose, mas o GA id está hardcoded no `layout.tsx` e `GA_API_SECRET` não é usada em `src/`) |
+| Env (runtime) | `NODE_ENV`, `PORT` (11005), `MAX_FILE_SIZE`, `MAX_CONCURRENT_JOBS`, `MAX_QUEUE_SIZE`, `RETRY_AFTER_SECONDS`, `ALLOWED_ORIGIN`, `API_SECRET_KEY` |
+| Env (build — `build.args`) | `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_ADSENSE_ID`, `NEXT_PUBLIC_PRIVACY_EMAIL` (embutidos no cliente no build; fallback no código quando vazios) |
 | Recursos | `cpus: '1.0'`, `memory: 1024M` |
 | Hardening | `read_only: true`, `no-new-privileges: true`, `cap_drop: ALL` |
 | Volumes tmpfs | `/tmp` (512m), `.next/cache`, caches de fontes |
@@ -68,15 +69,29 @@ Duas configs:
   - `location /api/pdf/`: `limit_req zone=pdf_upload burst=3 nodelay`, proxy para `http://unificando-pdf:11005` com timeouts `proxy_connect_timeout 10s`, `proxy_read_timeout 120s`, `proxy_send_timeout 120s`
   - Demais rotas: proxy simples
 
+## CI/CD
+
+Pipeline em `.github/workflows/ci.yml` (GitHub Actions): lint → `tsc --noEmit` → `vitest` → `npm audit --omit=dev` → `next build`. Roda em push/PR; dá suporte ao deploy manual (a etapa de build já valida a imagem).
+
+## Observabilidade (opcional)
+
+Pilha opcional em `docker-compose.observability.yml` (Loki + Promtail) coleta os logs JSON do container para um agregador:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+```
+
+Consulta: `http://localhost:3100` (ex.: `{container="unificando-pdf"}`). Ver `docs/observability.md`.
+
 ## Passo a passo de deploy
 
-1. **Build da imagem**: `docker compose build` (ou CI/CD se adicionado)
+1. **Build da imagem**: `docker compose build` (NEXT_PUBLIC_* vêm do `.env` via build args)
 2. **Subir**: `docker compose up -d`
 3. **Validar**: `curl http://localhost:11005/api/health` no host; depois o domínio público via HTTPS
 4. **Atualização**: `git pull` → `docker compose build` → `docker compose up -d`
 5. **Rollback**: imagem anterior (ex.: `docker compose up -d --no-build` após `docker image tag` do build anterior)
 
-> Não há CI configurado (`.github/` ausente). O deploy é manual via docker compose na máquina de produção.
+> CI está configurado em `.github/workflows/ci.yml`; o deploy em si permanece manual via docker compose na máquina de produção.
 
 ## Limites de upload — consistência obrigatória
 
@@ -95,3 +110,10 @@ Três mecanismos precisam permanecer alinhados. Se alterar um, altere os outros:
 | Healthcheck falhando | Container sem tmpfs de `/tmp`? CPU/mem > limite? binários ausentes no runner? |
 | Conversão Word/JPG falhando | LibreOffice/poppler não instalados no runner |
 | 429 em rajada | Rate limit nginx (5r/m) — veja `Retry-After` e o limite interno do app |
+| 401 nas rotas `/api/pdf/*` | `API_SECRET_KEY` definida no ambiente mas sem `Authorization: Bearer` na request (proteção opcional ativada) |
+
+## Backup recomendado (fora do repo)
+
+- Certificados Let's Encrypt: `/etc/letsencrypt` no host (renovação automática + backup periódico).
+- `docker-compose.yml` e `.env` da máquina de produção (versione `.env.example`, nunca o `.env`).
+- Não há dados de usuário para backup (processamento em memória — ver `docs/data.md`).

@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'crypto'
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiErrorResponse } from '@/lib/utils/http'
 import { logWarn } from '@/lib/utils/logger'
@@ -53,7 +54,8 @@ export function proxy(req: NextRequest) {
   if (apiKey) {
     const auth = req.headers.get('authorization')
     const token = auth?.startsWith('Bearer ') ? auth.slice(7) : null
-    if (token !== apiKey) {
+    // Comparação timing-safe para reduzir risco de timing attack na chave.
+    if (!token || !safeTimingEqual(token, apiKey)) {
       return apiErrorResponse(
         401,
         'UNAUTHORIZED',
@@ -75,6 +77,16 @@ export function proxy(req: NextRequest) {
   })
   response.headers.set('X-Request-Id', requestId)
   return response
+}
+
+function safeTimingEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a)
+  const bufB = Buffer.from(b)
+  // timingSafeEqual exige buffers de mesmo tamanho; normaliza por hash SHA-256
+  // para comparar em tempo constante independente do comprimento real.
+  const digestA = createHash('sha256').update(bufA).digest()
+  const digestB = createHash('sha256').update(bufB).digest()
+  return timingSafeEqual(digestA, digestB)
 }
 
 export const config = {

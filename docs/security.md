@@ -25,7 +25,7 @@ Nenhum upload é salvo em disco de forma persistente; só buffers temporários (
 ## 3. Proxy — origem e autenticação (`src/proxy.ts`)
 
 - **Origem**: valida `Origin`/`Referer` contra `ALLOWED_ORIGIN` (ou o `Host` da request); divergência → `403 origin_not_allowed`. `localhost` é sempre permitido (debug).
-- **Bearer token opcional**: se `API_SECRET_KEY` estiver definida, exige `Authorization: Bearer <chave>` → `401`.
+- **Bearer token opcional**: se `API_SECRET_KEY` estiver definida, exige `Authorization: Bearer <chave>` → `401`. Comparação **timing-safe** (SHA-256 + `crypto.timingSafeEqual`). A variável está wired no `docker-compose.yml`.
 - Injeta `x-request-id` para correlação de logs.
 
 > A origem real em produção é o nginx (proxy do browser). `ALLOWED_ORIGIN` protege cenários de deploy alternativos (ex.: ferramentas de teste, integrações).
@@ -42,12 +42,20 @@ Nenhum upload é salvo em disco de forma persistente; só buffers temporários (
 
 `next.config.ts` (headers globais):
 
-- `Content-Security-Policy` restritiva: `default-src 'self'`; `script-src 'self' 'unsafe-inline' 'unsafe-eval'` + domínios de terceiros específicos (GA, GTM, AdSense, FB); `style-src 'self' 'unsafe-inline'`; `frame-src` restrito a terceiros (AdSense/FB/GTM); `connect-src` com os endpoints de analytics/ads. Nota: não usa nonce — depende de `'unsafe-inline'`/`'unsafe-eval'` para scripts embutidos do GA/Ads.
+- `Content-Security-Policy` restritiva: `default-src 'self'`; `script-src 'self' 'unsafe-inline' 'unsafe-eval'` + domínios de terceiros específicos (GA, GTM, AdSense, FB); `style-src 'self' 'unsafe-inline'`; `frame-src` restrito a terceiros (AdSense/FB/GTM); `connect-src` com os endpoints de analytics/ads; `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`. Nota: não usa nonce — depende de `'unsafe-inline'`/`'unsafe-eval'` para scripts embutidos do GA/Ads (evolução futura: migrar para nonce).
 - `Strict-Transport-Security` (HSTS 2 anos)
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: origin-when-cross-origin`
 - `/api/pdf/:path*` → `Cache-Control: no-store` (nunca cachear uploads/respostas de processamento)
+
+## 5.1 Consentimento de rastreamento (LGPD)
+
+- Scripts de terceiros (GA4, GTM, Meta Pixel, AdSense) **não** são mais carregados no layout de forma incondicional.
+- `src/components/analytics/ConsentBanner.tsx` exibe o banner; a preferência fica em `localStorage` (`unificando-consent`, first-party).
+- `src/components/analytics/TrackingScripts.tsx` injeta os scripts **somente após o consentimento**.
+- `src/lib/analytics.ts` (`trackEvent`) é no-op sem consentimento — inclui Web Vitals.
+- Política de privacidade (`/privacidade`) lista processadores, base legal, direitos do titular, retenção e transferência internacional.
 
 ## 6. Hardening de container (Docker)
 
@@ -78,3 +86,5 @@ Ghostscript, LibreOffice e pdftoppm processam conteúdo do usuário. Mitigaçõe
 - [ ] Respostas de processamento com `Cache-Control: no-store`
 - [ ] Se aumentar limites, alinhar nginx ↔ proxy ↔ `limits.ts` (ver `deployment.md`)
 - [ ] Testes cobrem os caminhos de erro (honeypot, arquivo inválido, limites) — ver `tests/unit/api/routes-validation.test.ts`
+- [ ] Nenhum script de terceiro carrega antes do consentimento (ver `ConsentBanner`/`TrackingScripts`)
+- [ ] `npm audit --omit=dev --audit-level=high` sem acusações (rodado no CI)

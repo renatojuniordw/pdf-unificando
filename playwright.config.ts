@@ -10,6 +10,16 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:11005',
     trace: 'on-first-retry',
+    // Consentimento pré-aceito nos testes E2E para o banner não interceptar ações
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: 'http://localhost:11005',
+          localStorage: [{ name: 'unificando-consent', value: 'accepted' }],
+        },
+      ],
+    },
   },
 
   projects: [

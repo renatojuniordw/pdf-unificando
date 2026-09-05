@@ -1,7 +1,14 @@
 
 services:
   pdf-tools:
-    build: .
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_GA_ID: "${NEXT_PUBLIC_GA_ID}"
+        NEXT_PUBLIC_GTM_ID: "${NEXT_PUBLIC_GTM_ID}"
+        NEXT_PUBLIC_META_PIXEL_ID: "${NEXT_PUBLIC_META_PIXEL_ID}"
+        NEXT_PUBLIC_ADSENSE_ID: "${NEXT_PUBLIC_ADSENSE_ID}"
+        NEXT_PUBLIC_PRIVACY_EMAIL: "${NEXT_PUBLIC_PRIVACY_EMAIL}"
     container_name: unificando-pdf
     restart: unless-stopped
     environment:
@@ -10,10 +17,8 @@ services:
       MAX_CONCURRENT_JOBS: "2"
       MAX_QUEUE_SIZE: "5"
       RETRY_AFTER_SECONDS: "30"
-      NEXT_PUBLIC_GA_ID: "${NEXT_PUBLIC_GA_ID}"
-      GA_API_SECRET: "${GA_API_SECRET}"
-      NEXT_PUBLIC_ADSENSE_ID: "${NEXT_PUBLIC_ADSENSE_ID}"
       ALLOWED_ORIGIN: "${ALLOWED_ORIGIN}"
+      API_SECRET_KEY: "${API_SECRET_KEY}"
       PORT: "11005"
     ports:
       - "127.0.0.1:11005:11005"

@@ -48,7 +48,8 @@ export async function renderPdfThumbnails(
   pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs"
 
   const arrayBuffer = await file.arrayBuffer()
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer })
+  const pdf = await loadingTask.promise
 
   try {
     const thumbs: PageThumbnail[] = []
@@ -73,7 +74,7 @@ export async function renderPdfThumbnails(
     return thumbs
   } finally {
     try {
-      await Promise.resolve(pdf.destroy())
+      await loadingTask.destroy()
     } catch {
       // Ignora falha de limpeza para não esconder o erro original.
     }

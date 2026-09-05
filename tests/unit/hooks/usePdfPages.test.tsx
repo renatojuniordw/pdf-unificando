@@ -32,8 +32,9 @@ function mockPdfjsDocument({
       promise: Promise.resolve({
         numPages,
         getPage,
-        destroy,
       }),
+      // v6 expõe a limpeza na PDFDocumentLoadingTask (destruição), não no proxy
+      destroy,
     } as never)
 
     return { destroy, getPage, getDocumentMock }

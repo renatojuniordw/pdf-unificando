@@ -1,6 +1,9 @@
 'use client'
 
-export const GA_ID = 'G-WDL8Q73DPM'
+import { hasConsent } from './consent'
+
+// ID do GA4 configurável por env (NEXT_PUBLIC_GA_ID), com fallback atual.
+export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-WDL8Q73DPM'
 
 type GAEvent = {
   action: string
@@ -17,7 +20,8 @@ declare global {
 }
 
 export const trackEvent = ({ action, category, label, value }: GAEvent) => {
-  if (typeof window === 'undefined' || !window.gtag) return
+  // Eventos de analytics/ads só disparados após consentimento (LGPD).
+  if (typeof window === 'undefined' || !window.gtag || !hasConsent()) return
   window.gtag('event', action, {
     event_category: category,
     event_label: label,

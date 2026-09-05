@@ -41,7 +41,9 @@ Copie `.env.example` e ajuste:
 | `RETRY_AFTER_SECONDS` | `30` | Não |
 | `NEXT_PUBLIC_GA_ID` | — | Não |
 | `NEXT_PUBLIC_ADSENSE_ID` | — | Não |
-| `GA_API_SECRET` | — | Não |
+| `NEXT_PUBLIC_GTM_ID` | — | Não |
+| `NEXT_PUBLIC_META_PIXEL_ID` | — | Não |
+| `NEXT_PUBLIC_PRIVACY_EMAIL` | `privacidade@unificando.com.br` | Não |
 
 Analytics e AdSense são completamente opcionais — o app funciona sem eles.
 
