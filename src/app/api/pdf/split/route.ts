@@ -22,6 +22,6 @@ export async function POST(req: NextRequest) {
       "application/pdf",
     );
   } catch (err) {
-    return errorResponse(err);
+    return errorResponse(err, req);
   }
 }

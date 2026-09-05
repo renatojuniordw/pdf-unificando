@@ -32,6 +32,6 @@ export async function POST(req: NextRequest) {
     res.headers.set('X-Compressed-Size', String(compressedSize))
     return res
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     const pages = await binaryLimit(() => renderPages(buffer))
     return Response.json({ pages }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }
 

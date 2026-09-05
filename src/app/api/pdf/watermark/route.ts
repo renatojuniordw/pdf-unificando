@@ -27,6 +27,6 @@ export async function POST(req: NextRequest) {
 
     return streamResponse(result, buildOutputFilename(fileName, 'pdf'), 'application/pdf')
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

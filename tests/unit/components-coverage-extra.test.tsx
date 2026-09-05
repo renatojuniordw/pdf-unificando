@@ -259,7 +259,7 @@ describe('componentes e schemas extras', () => {
     const onError = vi.fn()
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-    function Explode() {
+    function Explode(): React.JSX.Element {
       throw new Error('explode')
     }
 

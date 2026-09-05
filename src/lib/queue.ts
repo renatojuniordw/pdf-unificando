@@ -17,14 +17,19 @@ export function isOverloaded(): boolean {
 }
 
 export function validateRateLimit(req: NextRequest, limit = 5, windowMs = 60_000) {
+  const requestId = req.headers.get('x-request-id') ?? undefined
+
   // 1. IP Rate Limit
-  // x-real-ip é setado pelo nginx com $remote_addr (não forjável pelo cliente)
-  // x-forwarded-for pode conter IPs forjados no início da cadeia — evitado aqui
-  const ip = req.headers.get('x-real-ip') ?? 'unknown'
+  // x-real-ip é setado pelo nginx com $remote_addr (não forjável pelo cliente).
+  // Em dev/standalone sem nginx, cai no x-forwarded-for (primeiro hop) como fallback.
+  const ip =
+    req.headers.get('x-real-ip') ??
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    'unknown'
   const isAllowed = rateLimit(ip, { limit, windowMs })
-  
+
   if (!isAllowed) {
-    logWarn('RateLimit', 'IP bloqueado', { ip })
+    logWarn('RateLimit', 'IP bloqueado', { ip, requestId })
     throw createApiError(
       429,
       'RATE_LIMITED',
@@ -40,6 +45,7 @@ export function validateRateLimit(req: NextRequest, limit = 5, windowMs = 60_000
     logWarn('RateLimit', 'Servidor sobrecarregado', {
       active: binaryLimit.activeCount,
       pending: binaryLimit.pendingCount,
+      requestId,
     })
     throw createApiError(
       429,

@@ -26,6 +26,6 @@ export async function POST(req: NextRequest) {
     const result = await addPageNumbers(buffer, { placement, alignment, startAt })
     return streamResponse(result, buildOutputFilename(fileName, 'pdf'), 'application/pdf')
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

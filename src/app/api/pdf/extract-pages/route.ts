@@ -12,6 +12,6 @@ export async function POST(req: NextRequest) {
     const result = await extractPdfPages(buffer, pages)
     return streamResponse(result, buildOutputFilename(fileName, 'zip'), 'application/zip')
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

@@ -29,6 +29,7 @@ export function ProtegerPdfClient() {
     endpoint: "/api/pdf/protect",
     toolName: "proteger-pdf",
     outputFilename: (name) => name.replace(".pdf", "-protegido.pdf"),
+    timeoutMs: 120_000,
   });
   const passwordValidationError =
     !password.trim()

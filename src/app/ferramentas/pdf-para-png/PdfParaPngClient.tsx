@@ -30,6 +30,7 @@ export function PdfParaPngClient() {
     endpoint: "/api/pdf/to-png",
     toolName: "pdf-para-png",
     outputFilename: (name) => name.replace(".pdf", ".zip"),
+    timeoutMs: 120_000,
   });
 
   const handleDrop = useCallback(

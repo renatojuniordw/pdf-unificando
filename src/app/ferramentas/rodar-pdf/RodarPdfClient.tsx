@@ -32,7 +32,7 @@ export function RodarPdfClient() {
   });
 
   const handleDrop = useCallback(
-    (files: File[]) => process(files[0], { angle }),
+    (files: File[]) => process(files[0], { degrees: angle }),
     [process, angle],
   );
   const handleDownload = useDownloadTracking("rodar-pdf", outputName);

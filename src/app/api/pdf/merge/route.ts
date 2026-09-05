@@ -11,6 +11,6 @@ export async function POST(req: NextRequest) {
     const merged = await mergePdfs(buffers)
     return streamResponse(merged, buildOutputFilename(fileNames[0], 'pdf'), 'application/pdf')
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

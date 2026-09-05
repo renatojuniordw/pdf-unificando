@@ -33,7 +33,9 @@ const canvasMock = {
 
 function mockPdfjsWithPages(pages: Array<{ getTextContent?: () => Promise<{ items: unknown[] }>; render?: () => { promise: Promise<void> } }>) {
   const getDocument = vi.fn((opts: { CanvasFactory?: new () => CanvasFactoryInstance }) => {
-    const factory = new (opts.CanvasFactory ?? class {})()
+    const CanvasCtor =
+      opts.CanvasFactory ?? (class {} as unknown as new () => CanvasFactoryInstance)
+    const factory = new CanvasCtor()
     if ('create' in factory) {
       expect(() => factory.create(0, 10)).toThrow('Invalid canvas size')
       const created = factory.create(10, 20)

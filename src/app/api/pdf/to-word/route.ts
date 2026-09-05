@@ -12,6 +12,6 @@ export async function POST(req: NextRequest) {
     const result = await binaryLimit(() => pdfToWord(buffer))
     return streamResponse(result, buildOutputFilename(fileName, 'docx'), DOCX_MIME)
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

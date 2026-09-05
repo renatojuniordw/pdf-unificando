@@ -19,6 +19,6 @@ export async function POST(req: NextRequest) {
 
     return streamResponse(result, buildOutputFilename(fileName, ext), mime)
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

@@ -17,6 +17,6 @@ export async function POST(req: NextRequest) {
     const result = await rotatePdf(buffer, deg, scope, page)
     return streamResponse(result, buildOutputFilename(fileName, 'pdf'), 'application/pdf')
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

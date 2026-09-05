@@ -32,6 +32,7 @@ export function ComprimirPdfClient() {
     endpoint: "/api/pdf/compress",
     toolName: "comprimir-pdf",
     outputFilename: (name) => name.replace(".pdf", "-comprimido.pdf"),
+    timeoutMs: 120_000,
   });
 
   const handleDrop = useCallback(

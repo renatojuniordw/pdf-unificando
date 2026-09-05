@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const regions = await searchText(buffer, query)
     return Response.json({ regions }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }
 

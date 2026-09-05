@@ -22,6 +22,7 @@ export function PdfParaWordClient() {
     endpoint: "/api/pdf/to-word",
     toolName: "pdf-para-word",
     outputFilename: (name) => name.replace(".pdf", ".docx"),
+    timeoutMs: 120_000,
   });
 
   const handleDrop = useCallback(

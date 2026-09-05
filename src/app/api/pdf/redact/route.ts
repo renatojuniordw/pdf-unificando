@@ -44,6 +44,6 @@ export async function POST(req: NextRequest) {
     const result = await redactPdf(buffer, regions, resolution)
     return streamResponse(result, buildOutputFilename(fileName, 'pdf'), 'application/pdf')
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

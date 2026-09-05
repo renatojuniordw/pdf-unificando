@@ -29,6 +29,7 @@ export function PdfParaJpgClient() {
     endpoint: "/api/pdf/to-jpg",
     toolName: "pdf-para-jpg",
     outputFilename: (name) => name.replace(".pdf", ".zip"),
+    timeoutMs: 120_000,
   });
 
   const handleDrop = useCallback(

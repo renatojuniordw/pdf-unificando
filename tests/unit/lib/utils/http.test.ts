@@ -13,8 +13,6 @@ import {
   parseImageUploads,
   parsePdfUploads,
   parseSinglePdfUpload,
-  readFormFile,
-  readFormFiles,
   requireFormField,
   streamResponse,
   validateHoneypot,
@@ -80,36 +78,7 @@ describe('lib/utils/http', () => {
     expect(res.headers.get('Cache-Control')).toBe('no-store')
   })
 
-  it('deve ler um arquivo único do FormData', async () => {
-    const fd = new FormData()
-    fd.set('file', new File([Uint8Array.from([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31])], 'sample.pdf'))
-    const req = new Request('http://localhost/api/test', { method: 'POST', body: fd })
-
-    const buffer = await readFormFile(req)
-    expect(buffer.slice(0, 5).toString()).toBe('%PDF-')
   })
-
-  it('deve ler múltiplos arquivos válidos do FormData', async () => {
-    const fd = new FormData()
-    fd.append('file', new File([Uint8Array.from([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31])], 'sample.pdf'))
-    fd.append('file', new File([Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])], 'img.png'))
-    const req = new Request('http://localhost/api/test', { method: 'POST', body: fd })
-
-    const buffers = await readFormFiles(req)
-    expect(buffers).toHaveLength(2)
-  })
-
-  it('deve rejeitar arquivos inválidos', async () => {
-    const fd = new FormData()
-    fd.set('file', new File([Uint8Array.from([1, 2, 3])], 'sample.pdf'))
-    const req = new Request('http://localhost/api/test', { method: 'POST', body: fd })
-
-    await expect(readFormFile(req)).rejects.toMatchObject({
-      status: 400,
-      code: 'VALIDATION_ERROR',
-    })
-  })
-})
 
 describe('parseFormData / parseSinglePdfUpload', () => {
   const pdfBytes = Uint8Array.from([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31])
@@ -148,6 +117,15 @@ describe('parseFormData / parseSinglePdfUpload', () => {
     expect(fileName).toBe('sample.pdf')
     expect(buffer.slice(0, 5).toString()).toBe('%PDF-')
     expect(formData.get('quality')).toBe('ebook')
+  })
+
+  it('deve rejeitar corpo vazio/malformado com 400 em vez de 500', async () => {
+    const req = new Request('http://localhost/api/test', { method: 'POST' })
+    await expect(parseFormData(req)).rejects.toMatchObject({
+      status: 400,
+      code: 'VALIDATION_ERROR',
+      details: { reason: 'invalid_body' },
+    })
   })
 })
 

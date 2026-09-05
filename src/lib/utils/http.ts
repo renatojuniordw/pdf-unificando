@@ -110,78 +110,7 @@ export function assertMaxFileCount(count: number, maxCount = MAX_UPLOAD_FILES): 
   }
 }
 
-export async function readFormFile(req: Request): Promise<Buffer> {
-  const formData = await req.formData()
-  const file = formData.get('file')
-
-  if (!file || typeof file === 'string') {
-    throw createApiError(400, 'VALIDATION_ERROR', 'Nenhum arquivo enviado.', {
-      field: 'file',
-      reason: 'missing_file',
-    })
-  }
-
-  assertMaxFileSize(file as File)
-  const bytes = await (file as File).arrayBuffer()
-  const buffer = Buffer.from(bytes)
-
-  // Validação básica de PDF se a extensão for pdf
-  if (file.name.toLowerCase().endsWith('.pdf') && !isPdf(buffer)) {
-    throw createApiError(400, 'VALIDATION_ERROR', 'O arquivo não parece ser um PDF válido.', {
-      field: 'file',
-      reason: 'invalid_pdf',
-    })
-  }
-
-  return buffer
-}
-
-export async function readFormFiles(req: Request): Promise<Buffer[]> {
-  const formData = await req.formData()
-  const files = formData.getAll('file') as File[]
-
-  if (!files.length) {
-    throw createApiError(400, 'VALIDATION_ERROR', 'Nenhum arquivo enviado.', {
-      field: 'file',
-      reason: 'missing_file',
-    })
-  }
-
-  return Promise.all(
-    files.map(async (f) => {
-      assertMaxFileSize(f)
-      const bytes = await f.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-
-      const name = f.name.toLowerCase()
-      if (name.endsWith('.pdf') && !isPdf(buffer)) {
-        throw createApiError(400, 'VALIDATION_ERROR', `O arquivo "${f.name}" não é um PDF válido.`, {
-          field: 'file',
-          reason: 'invalid_pdf',
-          fileName: f.name,
-        })
-      }
-      if ((name.endsWith('.jpg') || name.endsWith('.jpeg')) && !isJpg(buffer)) {
-        throw createApiError(400, 'VALIDATION_ERROR', `O arquivo "${f.name}" não é uma imagem JPG válida.`, {
-          field: 'file',
-          reason: 'invalid_jpg',
-          fileName: f.name,
-        })
-      }
-      if (name.endsWith('.png') && !isPng(buffer)) {
-        throw createApiError(400, 'VALIDATION_ERROR', `O arquivo "${f.name}" não é uma imagem PNG válida.`, {
-          field: 'file',
-          reason: 'invalid_png',
-          fileName: f.name,
-        })
-      }
-
-      return buffer
-    }),
-  )
-}
-
-export function errorResponse(err: unknown): NextResponse {
+export function errorResponse(err: unknown, req?: Request): NextResponse {
   const isProd = process.env.NODE_ENV === 'production'
   const e = err as {
     message?: string
@@ -198,12 +127,18 @@ export function errorResponse(err: unknown): NextResponse {
       ? defaultApiErrorMessage('INTERNAL_ERROR')
       : (e?.message ?? defaultApiErrorMessage(code))
   const retryable = e?.retryable ?? (status === 429 || status === 408 || status >= 500)
+  const requestId = req?.headers.get('x-request-id') ?? undefined
 
   if (status >= 500) {
-    logError('API Error', err, { status, code })
+    logError('API Error', err, { status, code, requestId })
   }
 
-  return apiErrorResponse(status, code, message, e?.details, retryable, e?.headers)
+  const headers = {
+    ...(requestId ? { 'X-Request-Id': requestId } : {}),
+    ...(e?.headers ?? {}),
+  }
+
+  return apiErrorResponse(status, code, message, e?.details, retryable, headers)
 }
 
 export function buildOutputFilename(originalName: string, outputExt: string): string {
@@ -268,7 +203,16 @@ export function validateHoneypot(formData: FormData): boolean {
 
 /** Lê o FormData e rejeita requisições que dispararam o honeypot. */
 export async function parseFormData(req: Request): Promise<FormData> {
-  const formData = await req.formData()
+  let formData: FormData
+  try {
+    formData = await req.formData()
+  } catch {
+    // Body vazio, malformado ou multipart truncado (ex.: acima do limite do proxy)
+    throw createApiError(400, 'VALIDATION_ERROR', 'Corpo da requisição inválido.', {
+      field: 'body',
+      reason: 'invalid_body',
+    })
+  }
   if (!validateHoneypot(formData)) {
     throw createApiError(400, 'VALIDATION_ERROR', 'Acesso negado.', {
       field: '_hp',

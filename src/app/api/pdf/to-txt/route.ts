@@ -11,6 +11,6 @@ export async function POST(req: NextRequest) {
     const result = await pdfToTxt(buffer)
     return streamResponse(result, buildOutputFilename(fileName, 'txt'), 'text/plain; charset=utf-8')
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }

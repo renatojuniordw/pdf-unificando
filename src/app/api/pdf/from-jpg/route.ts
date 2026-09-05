@@ -12,6 +12,6 @@ export async function POST(req: NextRequest) {
     const result = await jpgToPdf(buffers, orientation)
     return streamResponse(result, buildOutputFilename(fileNames[0], 'pdf'), 'application/pdf')
   } catch (err) {
-    return errorResponse(err)
+    return errorResponse(err, req)
   }
 }
