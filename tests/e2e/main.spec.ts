@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import path from 'path'
+import { uploadFiles } from './helpers'
 
 test.describe('PDF Tools - E2E Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -51,8 +51,8 @@ test.describe('PDF Tools - E2E Flow', () => {
 
     await page.goto('/ferramentas/comprimir-pdf')
 
-    const testFile = path.join(__dirname, '../fixtures/sample.pdf')
-    await page.locator('input[type="file"]').setInputFiles(testFile)
+    // Upload via filechooser real (evita corrida de hidratação com setInputFiles direto)
+    await uploadFiles(page, ['sample.pdf'])
 
     await expect(page.getByText(/ARQUIVO COMPRIMIDO/i)).toBeVisible()
     await expect(page.getByRole('link', { name: /BAIXAR ARQUIVO/i })).toBeVisible()
@@ -76,8 +76,8 @@ test.describe('PDF Tools - E2E Flow', () => {
 
     await page.goto('/ferramentas/comprimir-pdf')
 
-    const testFile = path.join(__dirname, '../fixtures/sample.pdf')
-    await page.locator('input[type="file"]').setInputFiles(testFile)
+    // Upload via filechooser real (evita corrida de hidratação com setInputFiles direto)
+    await uploadFiles(page, ['sample.pdf'])
 
     await expect(page.getByText(/Falha simulada/i)).toBeVisible()
   })

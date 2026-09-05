@@ -68,7 +68,9 @@ describe('ConsentBanner', () => {
 describe('TrackingScripts', () => {
   beforeEach(() => {
     window.localStorage.clear()
-    document.head.querySelectorAll('[data-tracking-src], script[id]').forEach((el) => el.remove())
+    document.head
+      .querySelectorAll('[data-tracking-src], script[src*="adsbygoogle"], script[id]')
+      .forEach((el) => el.remove())
   })
 
   it('TRACKING_Rejected_DoesNotInjectAnyScript', () => {
@@ -82,7 +84,10 @@ describe('TrackingScripts', () => {
     window.localStorage.setItem(CONSENT_STORAGE_KEY, 'accepted')
     render(<TrackingScripts />)
     const srcs: string[] = []
-    document.querySelectorAll('[data-tracking-src]').forEach((el) => srcs.push(el.getAttribute('src') ?? ''))
+    // GA4/GTM usam data-tracking-src; AdSense é injetado LIMPO (sem data-*) para evitar warning
+    document.querySelectorAll('[data-tracking-src], script[src*="adsbygoogle"]').forEach((el) =>
+      srcs.push(el.getAttribute('src') ?? ''),
+    )
     expect(srcs.some((s) => s.includes('googletagmanager.com/gtag/js'))).toBe(true)
     expect(srcs.some((s) => s.includes('adsbygoogle.js'))).toBe(true)
     expect(document.getElementById('ga4-init')).toBeTruthy()

@@ -28,12 +28,11 @@ function injectScript(src: string): void {
 
 function injectAdSense(src: string): void {
   // AdSense não aceita atributos data-* no head tag; injeta limpo para evitar warnings
-  if (document.querySelector(`script[data-tracking-src="${src}"]`)) return
+  if (document.querySelector(`script[src="${src}"]`)) return
   const el = document.createElement('script')
   el.src = src
   el.async = true
   el.crossOrigin = 'anonymous'
-  el.setAttribute('data-tracking-src', src)
   document.head.appendChild(el)
 }
 
